@@ -5,6 +5,7 @@ import handler from 'express-async-handler';
 import { UserModel } from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
 const router = Router();
+const PASSWORD_HASH_SALT_ROUNDS = 10;
  
 router.post('/login', handler(async  (req, res) => {
   const { email, password } = req.body;
@@ -18,6 +19,32 @@ router.post('/login', handler(async  (req, res) => {
           res.status(BAD_REQUEST).send('username or Password Failed!');
          }
 }));
+
+router.post(
+  '/register',
+  handler(async (req, res) => {
+    const { name, email, password, address } = req.body;
+
+    const user = await UserModel.findOne({ email });
+
+    if (user) {
+      res.status(BAD_REQUEST).send('User already exists, please login!');
+      return;
+    }
+    const hashedPassword = await bcrypt.hash(
+      password,
+      PASSWORD_HASH_SALT_ROUNDS
+    );
+    const newUser = {
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      address,
+    };
+    const result = await UserModel.create(newUser);
+    res.send(generateTokenResponse(result));
+  })
+);
 const generateTokenResponse = user => {
     const token = jwt.sign(
       {

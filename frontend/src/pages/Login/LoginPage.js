@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import classes from './loginPage.module.css';
 import Title from '../../components/Title/Title';
 import Input from '../../components/Input/Input';
@@ -23,7 +23,7 @@ export default function LoginPage() {
     if (!user) return;
 
     returnUrl ? navigate(returnUrl) : navigate('/');
-  }, [user]);
+  }, [navigate, returnUrl, user]);
 
   const submit = async ({ email, password }) => {
     await login(email, password);
@@ -59,6 +59,12 @@ export default function LoginPage() {
           />
 
           <Button text="Login" type="submit" />
+          <div className={classes.register}>
+            New user? &nbsp;
+            <Link to={`/register${returnUrl ? '?returnUrl=' + returnUrl : ''}`}>
+              Register here
+            </Link>
+          </div>
 
         </form>
       </div>
