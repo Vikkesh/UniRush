@@ -42,8 +42,8 @@
 
 .menu {
     position: absolute;
-    z-index: 1;
-    background-color: rgba(234, 224, 90, 0.219);
+    z-index: 2000;
+    background-color: wheat;
     display: none;
 }
 

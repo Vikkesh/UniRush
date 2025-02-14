@@ -10,6 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './hooks/useAuth';
 import { LoadingProvider } from './hooks/useLoading';
+import './interceptors/authInterceptor';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
