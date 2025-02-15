@@ -28,6 +28,7 @@
 
 .buttons_container {
     flex-basis: 100%;
+    margin-top:4rem ;
     display: flex;
     justify-content: center;
 }

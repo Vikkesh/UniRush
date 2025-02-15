@@ -67,6 +67,8 @@ export default function CartProvider({ children }) {
     }
   };
 
+  
+
   const clearCart = () => {
     localStorage.removeItem(CART_KEY);
     const { items, totalPrice, totalCount } = EMPTY_CART;
