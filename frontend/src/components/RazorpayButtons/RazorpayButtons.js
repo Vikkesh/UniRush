@@ -17,6 +17,7 @@ export default function RazorpayButtons({ order, user }) { // receive user props
       };
       const { data } = await axios.post('/api/razorpay/order', payload);
       console.log('Razorpay order:', data);
+      const serverOrderId = data.id; // store server order id for verification
       
       // Build Razorpay options dynamically
       const options = {
@@ -28,13 +29,26 @@ export default function RazorpayButtons({ order, user }) { // receive user props
         "image": "http://example.com/logo.png",
         "order_id": data.id,
         "handler": async function (response) {
-          alert("Payment Successful:\nPayment ID: " + response.razorpay_payment_id +
-                "\nOrder ID: " + response.razorpay_order_id +
-                "\nSignature: " + response.razorpay_signature);
-          const orderId = await pay(response.razorpay_payment_id);
-          clearCart();
-          toast.success('Payment Saved Successfully', 'Success');
-          navigate('/track/' + orderId);
+          // Removed redundant alert, since verification follows
+          // alert("Payment Successful:\nPayment ID: " + response.razorpay_payment_id +
+          //       "\nOrder ID: " + response.razorpay_order_id +
+          //       "\nSignature: " + response.razorpay_signature);
+          
+          // Verify the payment signature by calling the new endpoint
+          const verifyResponse = await axios.post('/api/razorpay/verify', {
+            order_id: serverOrderId,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature
+          });
+          
+          if (verifyResponse.data.valid) {
+            const orderId = await pay(response.razorpay_payment_id);
+            clearCart();
+            toast.success('Payment Saved Successfully', 'Success');
+            navigate('/track/' + orderId);
+          } else {
+            alert('Payment verification failed!');
+          }
         },
         "prefill": {
           "name": user?.name || "Customer",         // use user's name if available

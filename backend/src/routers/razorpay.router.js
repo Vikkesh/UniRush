@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import Razorpay from 'razorpay';
 import handler from 'express-async-handler';
+import crypto from 'crypto';
 
 const router = Router();
 
@@ -33,6 +34,26 @@ router.post(
     const order = await razorpay.orders.create(options);
     if (!order) return res.status(500).send("Error");
     res.json(order);
+  })
+);
+
+// New verify endpoint integrated here
+router.post(
+  '/verify',
+  handler(async (req, res) => {
+    const { order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    if (!order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const generated_signature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_SECRET)
+      .update(`${order_id}|${razorpay_payment_id}`)
+      .digest('hex');
+    if (generated_signature === razorpay_signature) {
+      return res.json({ valid: true });
+    } else {
+      return res.json({ valid: false });
+    }
   })
 );
 
