@@ -1,0 +1,11 @@
+.container{
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.details{
+    width: 28rem;
+}

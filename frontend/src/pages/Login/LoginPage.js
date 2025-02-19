@@ -54,7 +54,9 @@ export default function LoginPage() {
           <Input
             label="Password"
             type="password"
-            {...register('password', { required: true })}
+            {...register('password', { required: true,
+              minLength: 5,
+             })}
             error={errors.password}
           />
 

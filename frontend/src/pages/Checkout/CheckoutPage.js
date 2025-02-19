@@ -26,16 +26,18 @@ export default function CheckoutPage() {
   } = useForm();
 
   const submit = async data => {
-    if (!order.addressLatLng) {
-      toast.warning('Please select your location on the map');
-      return;
+    try {
+      if (!order.addressLatLng) {
+        toast.warning('Please select your location on the map');
+        return;
+      }
+  
+      await createOrder({ ...order, name: data.name, address: data.address });
+      navigate('/payment');
+    } catch(error) {
+      toast.error('Error creating order');
     }
-
-    await createOrder({ ...order, name: data.name, address: data.address });
-    navigate('/payment');
-
   }
-
   return (
     <>
       <form onSubmit={handleSubmit(submit)} className={classes.container}>
