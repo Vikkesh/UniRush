@@ -26,3 +26,13 @@ export const trackOrderById = async orderId => {
     return data;
   } catch (error) {}
 }
+export const getAll = async state => {
+  try {
+    const { data } = await axios.get(`/api/orders/${state ?? ''}`);
+    return data;
+  } catch (error) {}
+}
+export const getAllStatus = async () => {
+  const { data } = await axios.get('/api/orders/allstatus');
+  return data;
+}
