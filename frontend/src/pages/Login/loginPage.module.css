@@ -22,4 +22,10 @@
     justify-content: center;
     align-items: center;
   }
-  
+
+  .orDivider {
+    text-align: center;
+    font-weight: bold;
+    margin: 0.5rem 0;
+    color: #e72929;
+  }

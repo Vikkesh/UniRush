@@ -7,13 +7,13 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(userService.getUser());
   
-    const login = async (email, password) => {
+    const login = async (email, contact, password) => {
       try {
-        const user = await userService.login(email, password);
+        const user = await userService.login(email, contact, password);
         setUser(user);
         toast.success('Login Successful');
       } catch (err) {
-        toast.error(err.response.data);
+        toast.error(err.response?.data || 'Login failed. Please try again.');
       }
     };
     const register = async data => {

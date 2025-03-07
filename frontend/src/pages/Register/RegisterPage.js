@@ -52,6 +52,19 @@ export default function RegisterPage() {
                     />
 
                     <Input
+                        type="tel"
+                        label="Contact Number"
+                        {...register('contact', {
+                            required: true,
+                            pattern: {
+                                value: /^[0-9]{10}$/,
+                                message: 'Please enter a valid 10-digit phone number'
+                            }
+                        })}
+                        error={errors.contact}
+                    />
+
+                    <Input
                         type="password"
                         label="Password"
                         {...register('password', {
@@ -79,7 +92,6 @@ export default function RegisterPage() {
                         label="Address"
                         {...register('address', {
                             required: true,
-
                         })}
                         error={errors.address}
                     />

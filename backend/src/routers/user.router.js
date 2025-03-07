@@ -9,22 +9,41 @@ const router = Router();
 const PASSWORD_HASH_SALT_ROUNDS = 10;
 
 router.post('/login', handler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, contact, password } = req.body;
 
-  const user = await UserModel.findOne({ email });
-  if (user && (await bcrypt.compare(password, user.password))) {
-    res.send(generateTokenResponse(user));
+  // Build query based on provided credentials
+  const query = {};
+  if (email) query.email = email;
+  if (contact) query.contact = contact;
+  
+  // If neither email nor contact is provided, return error
+  if (Object.keys(query).length === 0) {
+    res.status(BAD_REQUEST).send('Email or Contact number is required');
     return;
   }
-  else {
-    res.status(BAD_REQUEST).send('username or Password Failed!');
+
+  // Find user by email or contact
+  const user = await UserModel.findOne(query);
+  
+  // Check if user exists before attempting password comparison
+  if (!user) {
+    res.status(BAD_REQUEST).send('User not found!');
+    return;
+  }
+  
+  // Now safely compare passwords since we know user exists
+  if (await bcrypt.compare(password, user.password)) {
+    res.send(generateTokenResponse(user));
+    return;
+  } else {
+    res.status(BAD_REQUEST).send('Password is incorrect!');
   }
 }));
 
 router.post(
   '/register',
   handler(async (req, res) => {
-    const { name, email, password, address } = req.body;
+    const { name, email, password, address, contact } = req.body; // Added contact
 
     const user = await UserModel.findOne({ email });
 
@@ -41,6 +60,7 @@ router.post(
       email: email.toLowerCase(),
       password: hashedPassword,
       address,
+      contact, // Added contact field
     };
     const result = await UserModel.create(newUser);
     res.send(generateTokenResponse(result));
@@ -50,10 +70,10 @@ router.put(
   '/updateProfile',
   auth,
   handler(async (req, res) => {
-    const { name, address } = req.body;
+    const { name, address, contact } = req.body; // Added contact
     const user = await UserModel.findByIdAndUpdate(
       req.user.id,
-      { name, address },
+      { name, address, contact }, // Added contact
       { new: true }
     );
     res.send(generateTokenResponse(user));
@@ -103,6 +123,7 @@ const generateTokenResponse = user => {
     email: user.email,
     name: user.name,
     address: user.address,
+    contact: user.contact, // Return contact in response
     isAdmin: user.isAdmin,
     token,
   };

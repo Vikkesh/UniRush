@@ -37,6 +37,32 @@ export default function ProfilePage() {
             error={errors.name}
           />
           <Input
+            defaultValue={user.email}
+            type="email"
+            label="Email"
+            {...register('email', {
+              required: true,
+              pattern: {
+                value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,63}$/i,
+                message: 'Email Is Not Valid'
+              },
+            })}
+            error={errors.email}
+          />
+          <Input
+            defaultValue={user.contact}
+            type="tel"
+            label="Contact Number"
+            {...register('contact', {
+              required: true,
+              pattern: {
+                value: /^[0-9]{10}$/,
+                message: 'Please enter a valid 10-digit phone number'
+              }
+            })}
+            error={errors.contact}
+          />
+          <Input
             defaultValue={user.address}
             type="text"
             label="Address"

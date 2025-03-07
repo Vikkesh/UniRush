@@ -4,6 +4,7 @@ import { pay } from '../../services/orderService';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useCart } from '../../hooks/useCart';
+import './RazorpayButtons.css'; // Import the CSS file
 
 export default function RazorpayButtons({ order, user }) { // receive user props
   const navigate = useNavigate();
@@ -56,8 +57,9 @@ export default function RazorpayButtons({ order, user }) { // receive user props
           "contact": user?.contact || "9000090000"         // use user's contact if available
         },
         "notes": {
-          "name": user?.name || "Customer",  
-          "address": order.address || "No address provided" // use user's address
+          "name": user?.name || "Customer",
+          "address": order.address || "No address provided", // use user's address
+          "contact": user?.contact || "No contact provided"  // Added user contact to notes
         },
         "theme": {
           "color": "#3399cc"
@@ -79,8 +81,18 @@ export default function RazorpayButtons({ order, user }) { // receive user props
   };
 
   return (
-    <div>
-      <button onClick={initiatePayment}>Pay Now</button>
+    <div className="razorpay-btn-container">
+      <button 
+        className="razorpay-btn" 
+        onClick={initiatePayment}
+      >
+        <span className="razorpay-btn-text">Pay Now</span>
+        <span className="razorpay-btn-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+          </svg>
+        </span>
+      </button>
     </div>
   );
 }
