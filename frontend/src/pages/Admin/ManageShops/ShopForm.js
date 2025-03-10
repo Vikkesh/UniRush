@@ -1,0 +1,183 @@
+import React, { useState, useEffect } from 'react';
+import classes from './shopForm.module.css';
+import Title from '../../../components/Title/Title';
+import Input from '../../../components/Input/Input';
+import Button from '../../../components/Button/Button';
+
+export default function ShopForm({ shop, onSubmit, onCancel }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    imageUrl: '',
+    address: '',
+    tags: '',
+    stars: 3
+  });
+
+  const [errors, setErrors] = useState({
+    name: '',
+    description: '',
+    imageUrl: '',
+    address: ''
+  });
+
+  useEffect(() => {
+    if (shop) {
+      console.log("Setting shop data in form:", shop);
+      setFormData({
+        name: shop.name || '',
+        description: shop.description || '',
+        imageUrl: shop.imageUrl || '',
+        address: shop.address || '',
+        tags: Array.isArray(shop.tags) ? shop.tags.join(', ') : '',
+        stars: shop.stars || 3
+      });
+    }
+  }, [shop]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleStarsChange = (e) => {
+    const value = parseFloat(e.target.value);
+    setFormData({
+      ...formData,
+      stars: value
+    });
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { ...errors };
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Shop name is required';
+      valid = false;
+    } else {
+      newErrors.name = '';
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+      valid = false;
+    } else {
+      newErrors.description = '';
+    }
+
+    if (!formData.imageUrl.trim()) {
+      newErrors.imageUrl = 'Image URL is required';
+      valid = false;
+    } else {
+      newErrors.imageUrl = '';
+    }
+
+    if (!formData.address.trim()) {
+      newErrors.address = 'Address is required';
+      valid = false;
+    } else {
+      newErrors.address = '';
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    const processedData = {
+      ...formData,
+      tags: formData.tags.split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0)
+    };
+    
+    onSubmit(processedData);
+  };
+
+  return (
+    <div className={classes.container}>
+      <form onSubmit={handleSubmit} className={classes.form}>
+        <Title title={shop ? 'Edit Shop' : 'Add New Shop'} />
+        
+        <Input
+          type="text"
+          name="name"
+          label="Shop Name"
+          defaultValue={formData.name}
+          onChange={handleChange}
+          error={errors.name}
+        />
+        
+        <div className={classes.form_group}>
+          <label>Description</label>
+          <textarea
+            name="description"
+            defaultValue={formData.description}
+            onChange={handleChange}
+            className={errors.description ? classes.error : ''}
+          />
+          {errors.description && <p className={classes.error_text}>{errors.description}</p>}
+        </div>
+        
+        <Input
+          type="text"
+          name="imageUrl"
+          label="Image URL"
+          defaultValue={formData.imageUrl}
+          onChange={handleChange}
+          error={errors.imageUrl}
+        />
+        
+        <Input
+          type="text"
+          name="address"
+          label="Address"
+          defaultValue={formData.address}
+          onChange={handleChange}
+          error={errors.address}
+        />
+        
+        <Input
+          type="text"
+          name="tags"
+          label="Tags (comma separated)"
+          defaultValue={formData.tags}
+          onChange={handleChange}
+        />
+        <p className={classes.help_text}>Example: Pizza, Italian, Fast</p>
+        
+        <div className={classes.form_group}>
+          <label>Rating (1-5)</label>
+          <div className={classes.range_container}>
+            <input
+              type="range"
+              name="stars"
+              min="1"
+              max="5"
+              step="0.5"
+              value={formData.stars}
+              onChange={handleStarsChange}
+              className={classes.range_input}
+            />
+            <span className={classes.range_value}>{formData.stars}</span>
+          </div>
+        </div>
+        
+        <div className={classes.buttons}>
+          <Button type="submit" text={shop ? 'Save Changes' : 'Create Shop'} />
+          <Button type="button" onClick={onCancel} text="Cancel" color="secondary" />
+        </div>
+      </form>
+    </div>
+  );
+}

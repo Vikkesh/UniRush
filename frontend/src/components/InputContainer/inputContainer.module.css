@@ -4,20 +4,23 @@
     border-radius: 0.7rem;
     padding-top: 0.3rem;
     border: 1px solid #e0e0e0;
-  }
+    background-color: #fff;
+}
   
-  .label {
+.label {
     display: block;
     margin-left: 0.5rem;
-    color: #5f5f5f;
+    color: #333;
     font-size: 1rem;
     padding: 0.5rem 0;
-   
-  }
+    font-weight: 500;
+}
   
-  .content {
+.content {
     padding: 0 0.5rem;
     height: 2.7rem;
     display: flex;
     align-items: center;
-  }
+    background-color: #fff;
+    border-radius: 0 0 0.7rem 0.7rem;
+}

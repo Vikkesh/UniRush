@@ -49,6 +49,26 @@
     color: rgb(174, 174, 174);
   }
   
+  .shop_info {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background-color: #f8f8f8;
+    border-left: 4px solid #2196f3;
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+  
+  .shop_label {
+    color: #666;
+    margin-right: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .shop_name {
+    color: #2196f3;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+  
   .origins {
     display: flex;
     flex-wrap: wrap;

@@ -53,13 +53,15 @@ export default function RazorpayButtons({ order, user }) { // receive user props
         },
         "prefill": {
           "name": user?.name || "Customer",         // use user's name if available
-          "email": user?.email || "customer@example.com",  // use user's email if available
-          "contact": user?.contact || "9000090000"         // use user's contact if available
+          "email": user?.email || "no email given", 
+          "contact": user?.contact || "9000090000" ,  // use user's contact if available
+          "address": order.address || "No address provided" // use user's address
         },
         "notes": {
           "name": user?.name || "Customer",
           "address": order.address || "No address provided", // use user's address
-          "contact": user?.contact || "No contact provided"  // Added user contact to notes
+          "contact": user?.contact || "No contact provided",  // Added user contact to notes
+          "shop_name": order.shopName || "Unknown shop"
         },
         "theme": {
           "color": "#3399cc"

@@ -1,0 +1,97 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .filter_section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    background-color: #f8f8f8;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .shop_filter {
+    padding: 0.5rem;
+    border-radius: 0.3rem;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    min-width: 200px;
+  }
+  
+  .foods_list {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .foods_table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .foods_table th,
+  .foods_table td {
+    padding: 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .foods_table th {
+    background-color: #f8f8f8;
+    font-weight: bold;
+  }
+  
+  .food_image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .edit_button,
+  .delete_button {
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.3rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .edit_button {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .delete_button {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .error_message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #ef9a9a;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }

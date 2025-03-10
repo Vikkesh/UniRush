@@ -1,0 +1,73 @@
+.container {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.form_group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form_group label {
+  font-weight: bold;
+  color: #333;
+}
+
+.form_group textarea {
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.form_group textarea.error {
+  border-color: #f44336;
+}
+
+.error_text {
+  color: #f44336;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+.help_text {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+.range_container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.range_input {
+  flex: 1;
+  cursor: pointer;
+}
+
+.range_value {
+  font-weight: bold;
+  width: 30px;
+  text-align: center;
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}

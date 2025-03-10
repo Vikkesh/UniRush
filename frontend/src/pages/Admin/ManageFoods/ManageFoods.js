@@ -1,0 +1,223 @@
+import React, { useEffect, useState } from 'react';
+import * as foodService from '../../../services/foodService';
+import * as shopService from '../../../services/shopService';
+import classes from './manageFoods.module.css';
+import Title from '../../../components/Title/Title';
+import Button from '../../../components/Button/Button';
+import FoodForm from './FoodForm';
+import StarRating from '../../../components/StarRating/StarRating';
+
+export default function ManageFoods() {
+  const [foods, setFoods] = useState([]);
+  const [shops, setShops] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorFoods, setErrorFoods] = useState(null);
+  const [errorShops, setErrorShops] = useState(null);
+  const [foodToEdit, setFoodToEdit] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedShop, setSelectedShop] = useState('all');
+
+  useEffect(() => {
+    loadFoods();
+    loadShops();
+  }, []);
+
+  const loadFoods = async () => {
+    setIsLoading(true);
+    setErrorFoods(null);
+    try {
+      const response = await foodService.getAll();
+      if (Array.isArray(response)) {
+        setFoods(response);
+      } else {
+        console.error('API did not return an array for foods:', response);
+        setFoods([]);
+        setErrorFoods('Failed to load food items properly.');
+      }
+    } catch (error) {
+      console.error('Error loading foods:', error);
+      setFoods([]);
+      setErrorFoods('Failed to load food items.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadShops = async () => {
+    setErrorShops(null);
+    try {
+      const response = await shopService.getAll();
+      if (Array.isArray(response)) {
+        setShops(response);
+      } else {
+        console.error('API did not return an array for shops:', response);
+        setShops([]);
+        setErrorShops('Failed to load shops data properly.');
+      }
+    } catch (error) {
+      console.error('Error loading shops:', error);
+      setShops([]);
+      setErrorShops('Failed to load shops.');
+    }
+  };
+
+  const handleAddClick = () => {
+    setFoodToEdit(null);
+    setShowForm(true);
+  };
+
+  const handleEditClick = (food) => {
+    // Improved logging to verify all food data is available
+    console.log("Editing food item - full data:", JSON.stringify(food));
+    
+    // Ensure we're creating a complete copy of the food data
+    setFoodToEdit({...food});
+    setShowForm(true);
+  };
+
+  const handleDeleteClick = async (foodId) => {
+    if (!window.confirm('Are you sure you want to delete this food item?')) {
+      return;
+    }
+
+    try {
+      await foodService.deleteFood(foodId);
+      loadFoods();
+    } catch (error) {
+      console.error('Error deleting food:', error);
+      alert('Failed to delete food item');
+    }
+  };
+
+  const handleFormSubmit = async (foodData) => {
+    try {
+      if (foodToEdit) {
+        await foodService.updateFood(foodToEdit._id, foodData);
+      } else {
+        await foodService.createFood(foodData);
+      }
+      
+      setShowForm(false);
+      loadFoods();
+    } catch (error) {
+      console.error('Error saving food:', error);
+      alert('Failed to save food item');
+    }
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+  };
+
+  const handleShopFilterChange = (e) => {
+    setSelectedShop(e.target.value);
+  };
+
+  // Filter foods by selected shop - ensure both foods and shops are arrays
+  const filteredFoods = Array.isArray(foods) 
+    ? (selectedShop === 'all' 
+      ? foods 
+      : foods.filter(food => food.shop && food.shop._id === selectedShop))
+    : [];
+
+  return (
+    <div className={classes.container}>
+      <div className={classes.header}>
+        <Title title="Manage Foods" />
+        <Button onClick={handleAddClick} text="Add New Food" />
+      </div>
+
+      {(errorFoods || errorShops) && (
+        <div className={classes.error_message}>
+          {errorFoods && <p>{errorFoods}</p>}
+          {errorShops && <p>{errorShops}</p>}
+          <Button onClick={() => { loadFoods(); loadShops(); }} text="Try Again" />
+        </div>
+      )}
+
+      <div className={classes.filter_section}>
+        <label htmlFor="shopFilter">Filter by Shop:</label>
+        <select
+          id="shopFilter"
+          value={selectedShop}
+          onChange={handleShopFilterChange}
+          className={classes.shop_filter}
+        >
+          <option value="all">All Shops</option>
+          {Array.isArray(shops) && shops.map(shop => (
+            <option key={shop._id || `shop-${Math.random()}`} value={shop._id}>
+              {shop.name || 'Unnamed Shop'}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {showForm ? (
+        <FoodForm 
+          food={foodToEdit} 
+          shops={Array.isArray(shops) ? shops : []}
+          onSubmit={handleFormSubmit} 
+          onCancel={handleCancelForm} 
+        />
+      ) : (
+        isLoading ? (
+          <p>Loading foods...</p>
+        ) : (
+          <div className={classes.foods_list}>
+            {filteredFoods.length === 0 ? (
+              <p>No food items found. Add your first food item!</p>
+            ) : (
+              <table className={classes.foods_table}>
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Shop</th>
+                    <th>Price</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredFoods.map(food => (
+                    <tr key={food._id || `food-${Math.random()}`}>
+                      <td>
+                        <img 
+                          src={food.imageUrl || 'default-food.jpg'} 
+                          alt={food.name || 'Unknown food'} 
+                          className={classes.food_image} 
+                        />
+                      </td>
+                      <td>{food.name || 'Unnamed Food'}</td>
+                      <td>{food.shop ? food.shop.name : 'Unknown'}</td>
+                      <td>${(food.price || 0).toFixed(2)}</td>
+                      <td>
+                        <StarRating stars={food.stars || 0} size={20} />
+                      </td>
+                      <td>
+                        <div className={classes.actions}>
+                          <button 
+                            className={classes.edit_button}
+                            onClick={() => handleEditClick(food)}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className={classes.delete_button}
+                            onClick={() => handleDeleteClick(food._id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )
+      )}
+    </div>
+  );
+}

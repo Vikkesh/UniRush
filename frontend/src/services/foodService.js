@@ -22,3 +22,19 @@ export const getById = async foodId =>
     const { data } = await axios.get(`/api/foods/${foodId}`);
     return data;
    }
+
+// Admin functions for managing food items
+export const createFood = async foodData => {
+  const { data } = await axios.post('/api/foods', foodData);
+  return data;
+};
+
+export const updateFood = async (foodId, foodData) => {
+  const { data } = await axios.put('/api/foods/' + foodId, foodData);
+  return data;
+};
+
+export const deleteFood = async foodId => {
+  const { data } = await axios.delete('/api/foods/' + foodId);
+  return data;
+};

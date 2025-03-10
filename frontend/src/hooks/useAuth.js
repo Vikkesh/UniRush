@@ -26,6 +26,15 @@ export const AuthProvider = ({ children }) => {
       }
     };
     const logout = () => {
+        // Get the previous user ID before logout
+        const prevUserId = user?._id || 'guest';
+        
+        // Clear user-specific cart data
+        if (prevUserId) {
+          const userCartKey = `user-cart-${prevUserId}`;
+          localStorage.removeItem(userCartKey);
+        }
+        
         userService.logout();
         setUser(null);
         toast.success('Logout Successful');

@@ -6,8 +6,15 @@ import { useAuth } from '../../hooks/useAuth';
 
 export default function Header() {
   const { user, logout } = useAuth();
-
-  const { cart } = useCart();
+  const { getAllCarts } = useCart();
+  
+  // Calculate the total count across all shop carts
+  const getTotalCartCount = () => {
+    const carts = getAllCarts();
+    return carts.reduce((sum, cart) => sum + cart.totalCount, 0);
+  };
+  
+  const totalCartCount = getTotalCartCount();
 
   return (
     <header className={classes.header}>
@@ -40,8 +47,8 @@ export default function Header() {
             <li>
               <Link to="/cart">
                 Cart
-                {cart.totalCount > 0 && (
-                  <span className={classes.cart_count}>{cart.totalCount}</span>
+                {totalCartCount > 0 && (
+                  <span className={classes.cart_count}>{totalCartCount}</span>
                 )}
               </Link>
             </li>

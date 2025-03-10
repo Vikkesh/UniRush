@@ -72,6 +72,9 @@ export default function OrdersPage() {
               </span>
               <span>{order.status}</span>
             </div>
+            <div className={classes.shop_info}>
+              <span>Shop: {order.shopName}</span>
+            </div>
             <div className={classes.items}>
               {order.items.map(item => (
                 <Link key={item.food.id} to={`/food/${item.food.id}`}>

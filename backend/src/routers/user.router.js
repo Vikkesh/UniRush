@@ -70,13 +70,57 @@ router.put(
   '/updateProfile',
   auth,
   handler(async (req, res) => {
-    const { name, address, contact } = req.body; // Added contact
-    const user = await UserModel.findByIdAndUpdate(
+    // Get current user first
+    const currentUser = await UserModel.findById(req.user.id);
+    if (!currentUser) {
+      res.status(BAD_REQUEST).send('User not found!');
+      return;
+    }
+
+    // Create update object with only provided fields
+    const updateData = {};
+    if (req.body.name) updateData.name = req.body.name;
+    if (req.body.address) updateData.address = req.body.address;
+    
+    // Handle contact update separately to check for duplicates
+    if (req.body.contact && req.body.contact !== currentUser.contact) {
+      const existingUserWithContact = await UserModel.findOne({ contact: req.body.contact });
+      if (existingUserWithContact) {
+        res.status(BAD_REQUEST).send('Contact number already exists!');
+        return;
+      }
+      updateData.contact = req.body.contact;
+    }
+    
+    // Handle email update separately to check for duplicates
+    if (req.body.email && req.body.email !== currentUser.email) {
+      const existingUser = await UserModel.findOne({ email: req.body.email });
+      if (existingUser) {
+        res.status(BAD_REQUEST).send('Email already exists!');
+        return;
+      }
+      updateData.email = req.body.email.toLowerCase();
+    }
+
+    // Only proceed with update if there are fields to update
+    if (Object.keys(updateData).length === 0) {
+      res.send(generateTokenResponse(currentUser));
+      return;
+    }
+
+    // Update user with new data
+    const updatedUser = await UserModel.findByIdAndUpdate(
       req.user.id,
-      { name, address, contact }, // Added contact
+      updateData,
       { new: true }
     );
-    res.send(generateTokenResponse(user));
+
+    if (!updatedUser) {
+      res.status(BAD_REQUEST).send('Update failed!');
+      return;
+    }
+
+    res.send(generateTokenResponse(updatedUser));
   })
 );
 

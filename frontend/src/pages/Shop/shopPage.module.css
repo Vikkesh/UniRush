@@ -1,0 +1,76 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.shop_header {
+  display: flex;
+  margin-bottom: 2rem;
+  background-color: white;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.shop_image {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 1rem;
+  margin-right: 2rem;
+}
+
+.shop_details {
+  flex: 1;
+}
+
+.shop_name {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.description {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.address {
+  font-style: italic;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.rating {
+  margin-bottom: 1rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tag {
+  background-color: #f2f2f2;
+  padding: 0.3rem 0.8rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+}
+
+.foods_container {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.foods_container h2 {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}

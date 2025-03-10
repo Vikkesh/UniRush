@@ -5,6 +5,7 @@ export const FoodSchema = new Schema(
     name: { type: String, required: true },
     price: { type: Number, required: true },
     tags: { type: [String] },
+    shop: { type: Schema.Types.ObjectId, ref: 'shop', required: true }, 
     favorite: { type: Boolean, default: false },
     stars: { type: Number, default: 3 },
     imageUrl: { type: String, required: true },
@@ -22,4 +23,4 @@ export const FoodSchema = new Schema(
   }
 );
 
-export const FoodModel = model('food', FoodSchema); 
+export const FoodModel = model('food', FoodSchema);

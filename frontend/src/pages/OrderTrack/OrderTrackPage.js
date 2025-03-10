@@ -17,7 +17,7 @@ export default function OrderTrackPage() {
       trackOrderById(orderId).then(order => {
         setOrder(order);
       });
-  }, []);
+  }, [orderId]);
 
   if (!orderId)
     return <NotFound message="Order Not Found" linkText="Go To Home Page" />;
@@ -35,6 +35,10 @@ export default function OrderTrackPage() {
             <div>
               <strong>Name</strong>
               {order.name}
+            </div>
+            <div>
+              <strong>Shop</strong>
+              {order.shopName}
             </div>
             <div>
               <strong>Address</strong>

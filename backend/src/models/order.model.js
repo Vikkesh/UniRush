@@ -11,7 +11,8 @@ export const LatLngSchema = new Schema(
       _id: false,
     }
   );
-  export const OrderItemSchema = new Schema(
+
+export const OrderItemSchema = new Schema(
     {
       food: { type: FoodModel.schema, required: true },
       price: { type: Number, required: true },
@@ -21,12 +22,13 @@ export const LatLngSchema = new Schema(
       _id: false,
     }
   );
-  OrderItemSchema.pre('validate', function (next) {
+
+OrderItemSchema.pre('validate', function (next) {
     this.price = this.food.price * this.quantity;
     next();
-  });
+});
   
-  const orderSchema = new Schema(
+const orderSchema = new Schema(
     {
       name: { type: String, required: true },
       address: { type: String, required: true },
@@ -36,16 +38,33 @@ export const LatLngSchema = new Schema(
       items: { type: [OrderItemSchema], required: true },
       status: { type: String, default: OrderStatus.NEW },
       user: { type: Schema.Types.ObjectId, required: true, ref: 'user' },
+      shopId: { type: Schema.Types.ObjectId, required: true, ref: 'shop' },
+      shopName: { type: String, required: true }
     },
     {
-        timestamps: true,
-        toJSON: {
-          virtuals: true,
-        },
-        toObject: {
-          virtuals: true,
-        },
+      timestamps: true,
+      toJSON: {
+        virtuals: true,
+      },
+      toObject: {
+        virtuals: true,
+      },
+    }
+);
+
+// Add a pre-save hook to ensure shopName is set
+orderSchema.pre('save', async function(next) {
+  if (this.isNew || this.isModified('shopId')) {
+    try {
+      const shop = await model('shop').findById(this.shopId);
+      if (shop) {
+        this.shopName = shop.name;
       }
-    );
-    
-    export const OrderModel = model('order', orderSchema);
+    } catch (error) {
+      console.error('Error fetching shop name:', error);
+    }
+  }
+  next();
+});
+
+export const OrderModel = model('order', orderSchema);

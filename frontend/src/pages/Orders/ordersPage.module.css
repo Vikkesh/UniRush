@@ -4,6 +4,14 @@
     align-items: center;
     flex-direction: column;
   }
+
+.shop_info {
+    margin: 0.5rem 0;
+    padding: 0 1rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
  .order_summary {
     max-width: 45rem;
     width: 100%;

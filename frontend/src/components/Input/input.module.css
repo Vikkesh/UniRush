@@ -8,19 +8,21 @@
     font-size: 1.1rem;
     outline: none;
     border-radius: 0.2rem;
-  margin-bottom: 1rem;
-  }
+    margin-bottom: 1rem;
+    color: #333; /* Add text color */
+    padding: 0.5rem;
+}
   
-  .input::placeholder {
+.input::placeholder {
     color: #dfdfdf;
     font-size: 0.95rem;
-  }
+}
   
-  .input:focus {
+.input:focus {
     border-width: 2.9px;
-  }
+}
   
-  .error {
+.error {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -32,4 +34,4 @@
     color: red;
     text-align: center;
     font-size: 0.95rem;
-  }
+}
