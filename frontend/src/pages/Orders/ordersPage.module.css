@@ -74,6 +74,8 @@
     flex-wrap: nowrap;
     overflow-x: auto;
     margin: 0.5rem 0;
+    gap: 1rem;
+    padding: 0.5rem;
   }
   
   .items img {
@@ -97,3 +99,53 @@
   .price {
     color: green;
   }
+
+.details_section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  background-color: #f8f8f8;
+  border-radius: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.customer_info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.customer_info strong {
+  color: #333;
+  margin-right: 0.5rem;
+}
+
+.item_container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.item_container img {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 2rem;
+  object-fit: cover;
+}
+
+.item_container img:hover {
+  opacity: 0.8;
+}
+
+.quantity {
+  padding: 2px 8px;
+  background-color: #1a7cd7;
+  color: white;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+}

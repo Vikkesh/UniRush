@@ -12,10 +12,19 @@ export const AuthProvider = ({ children }) => {
         const user = await userService.login(email, contact, password);
         setUser(user);
         toast.success('Login Successful');
+        return { success: true };
       } catch (err) {
-        toast.error(err.response?.data || 'Login failed. Please try again.');
+        // Check if this is a blocked account response (401 Unauthorized)
+        if (err.response && err.response.status === 401) {
+          toast.error(err.response.data || 'Your account has been blocked.');
+          return { success: false, blocked: true };
+        } else {
+          toast.error(err.response?.data || 'Login failed. Please try again.');
+          return { success: false };
+        }
       }
     };
+
     const register = async data => {
       try {
         const user = await userService.register(data);

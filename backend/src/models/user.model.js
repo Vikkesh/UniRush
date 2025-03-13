@@ -7,6 +7,7 @@ export const UserSchema = new Schema(
       address: { type: String, required: true },
       contact: { type: String, required: true, unique: true }, // Updated to make it required and unique
       isAdmin: { type: Boolean, default: false },
+      isDelivery: { type: Boolean, default: false }, // Added delivery role
       isBlocked: { type: Boolean, default: false },
     },
     {

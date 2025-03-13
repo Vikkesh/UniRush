@@ -35,3 +35,86 @@ export const updateProfile = async user => {
 export const changePassword = async passwords => {
   await axios.put('/api/users/changePassword', passwords);
 };
+
+// Admin user management functions
+export const getAllUsers = async () => {
+  // Get the current user's token
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  // Make the request with proper headers
+  const { data } = await axios.get('/api/users/admin/all', {
+    headers: {
+      'Authorization': `Bearer ${user.token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};
+
+export const updateUserByAdmin = async (userId, userData) => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.put(`/api/users/admin/${userId}`, userData, {
+    headers: {
+      'Authorization': `Bearer ${user.token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};
+
+export const toggleBlockUser = async (userId, isBlocked) => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.put(`/api/users/admin/${userId}/block`, { isBlocked }, {
+    headers: {
+      'Authorization': `Bearer ${user.token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};
+
+export const toggleAdminRole = async (userId, isAdmin) => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.put(`/api/users/admin/${userId}/role`, { isAdmin }, {
+    headers: {
+      'Authorization': `Bearer ${user.token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};
+
+export const toggleDeliveryRole = async (userId, isDelivery) => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.put(`/api/users/admin/${userId}/delivery`, { isDelivery }, {
+    headers: {
+      'Authorization': `Bearer ${user.token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};

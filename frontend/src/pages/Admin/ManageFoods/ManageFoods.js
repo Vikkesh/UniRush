@@ -190,7 +190,7 @@ export default function ManageFoods() {
                       </td>
                       <td>{food.name || 'Unnamed Food'}</td>
                       <td>{food.shop ? food.shop.name : 'Unknown'}</td>
-                      <td>${(food.price || 0).toFixed(2)}</td>
+                      <td>₹{(food.price || 0).toFixed(2)}</td>
                       <td>
                         <StarRating stars={food.stars || 0} size={20} />
                       </td>

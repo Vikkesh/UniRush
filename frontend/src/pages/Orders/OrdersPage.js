@@ -22,13 +22,13 @@ const reducer = (state, action) => {
 
 export default function OrdersPage() {
   const [{ allStatus, orders }, dispatch] = useReducer(reducer, initialState);
-
   const { filter } = useParams();
 
   useEffect(() => {
     getAllStatus().then(status => {
       dispatch({ type: 'ALL_STATUS_FETCHED', payload: status });
     });
+
     getAll(filter).then(orders => {
       dispatch({ type: 'ORDERS_FETCHED', payload: orders });
     });
@@ -36,7 +36,11 @@ export default function OrdersPage() {
 
   return (
     <div className={classes.container}>
-      <Title title="Orders" margin="1.5rem 0 0 .2rem" fontSize="1.9rem" />
+      <Title
+        title="Orders"
+        margin="1.5rem 0 0 .2rem"
+        fontSize="1.9rem"
+      />
 
       {allStatus && (
         <div className={classes.all_status}>
@@ -72,14 +76,24 @@ export default function OrdersPage() {
               </span>
               <span>{order.status}</span>
             </div>
-            <div className={classes.shop_info}>
-              <span>Shop: {order.shopName}</span>
+            <div className={classes.details_section}>
+              <div className={classes.shop_info}>
+                <strong>Shop:</strong> {order.shopName}
+              </div>
+              <div className={classes.customer_info}>
+                <div><strong>Name:</strong> {order.name}</div>
+                <div><strong>Contact:</strong> {order.contact || 'N/A'}</div>
+                <div><strong>Address:</strong> {order.address}</div>
+              </div>
             </div>
             <div className={classes.items}>
               {order.items.map(item => (
-                <Link key={item.food.id} to={`/food/${item.food.id}`}>
-                  <img src={item.food.imageUrl} alt={item.food.name} />
-                </Link>
+                <div key={item.food.id} className={classes.item_container}>
+                  <Link to={`/food/${item.food.id}`}>
+                    <img src={item.food.imageUrl} alt={item.food.name} />
+                  </Link>
+                  <div className={classes.quantity}>x{item.quantity}</div>
+                </div>
               ))}
             </div>
             <div className={classes.footer}>

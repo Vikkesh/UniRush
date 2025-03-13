@@ -14,6 +14,7 @@ export default function LoginPage() {
     handleSubmit,
     register,
     formState: { errors },
+    reset
   } = useForm();
 
   const navigate = useNavigate();
@@ -39,7 +40,16 @@ export default function LoginPage() {
     }
     
     // Pass email, contact and password to login function
-    await login(email, contact, password);
+    const result = await login(email, contact, password);
+    
+    // If user is blocked, reset the form
+    if (result && result.blocked) {
+      reset({
+        email: '',
+        contact: '',
+        password: ''
+      });
+    }
   };
 
   return (

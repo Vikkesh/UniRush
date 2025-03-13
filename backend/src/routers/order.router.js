@@ -83,9 +83,9 @@ router.get(
             
             const filter = { _id: orderId };
             
-            // Check if user exists and is not admin, then filter by user
+            // Check if user exists and is not admin or delivery, then filter by user
             if (user) {
-                if (!user.isAdmin) {
+                if (!user.isAdmin && !user.isDelivery) {
                     filter.user = user._id;
                 }
             } else {
@@ -146,8 +146,8 @@ router.get(
             if (!user) {
                 filter.user = req.user.id;
             } else {
-                // If user exists and is not admin, filter by user
-                if (!user.isAdmin) {
+                // If user is delivery personnel or admin, don't filter by user
+                if (!user.isAdmin && !user.isDelivery) {
                     filter.user = user._id;
                 }
             }
@@ -159,12 +159,58 @@ router.get(
             
             const orders = await OrderModel.find(filter)
                 .populate('shopId')
+                .populate('user', 'name contact')
                 .sort('-createdAt');
+            
+            // Format orders to include contact info for admin/delivery view
+            const formattedOrders = orders.map(order => {
+                const orderObj = order.toObject();
+                // Add contact information from user if available
+                if (orderObj.user && orderObj.user.contact) {
+                    orderObj.contact = orderObj.user.contact;
+                }
+                return orderObj;
+            });
 
-            res.send(orders);
+            res.send(formattedOrders);
         } catch (error) {
             console.error('Error fetching orders:', error);
             res.status(BAD_REQUEST).send('Failed to fetch orders');
+        }
+    })
+);
+
+// Add endpoint to update order status (admin or delivery personnel only)
+router.put(
+    '/:orderId/status',
+    handler(async (req, res) => {
+        try {
+            const { orderId } = req.params;
+            const { status } = req.body;
+            
+            // Check if user is admin or delivery personnel
+            const user = await UserModel.findById(req.user.id);
+            if (!user || (!user.isAdmin && !user.isDelivery)) {
+                return res.status(UNAUTHORIZED).send('Only admins or delivery personnel can update order status');
+            }
+            
+            // Validate the status
+            if (!Object.values(OrderStatus).includes(status)) {
+                return res.status(BAD_REQUEST).send('Invalid order status');
+            }
+
+            const order = await OrderModel.findById(orderId);
+            if (!order) {
+                return res.status(BAD_REQUEST).send('Order not found');
+            }
+            
+            order.status = status;
+            await order.save();
+            
+            res.send({ success: true, order });
+        } catch (error) {
+            console.error('Error updating order status:', error);
+            res.status(BAD_REQUEST).send('Failed to update order status');
         }
     })
 );

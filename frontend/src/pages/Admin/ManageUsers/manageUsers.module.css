@@ -1,0 +1,126 @@
+.container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.error_message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.users_list {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.users_table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.users_table th,
+.users_table td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.users_table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.users_table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.blocked_user {
+  background-color: #ffebee;
+}
+
+.blocked_user:hover {
+  background-color: #ffcdd2;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit_button, 
+.block_button, 
+.unblock_button {
+  padding: 0.3rem 0.6rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.edit_button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.edit_button:hover {
+  background-color: #0b7dda;
+}
+
+.block_button {
+  background-color: #ff5722;
+  color: white;
+}
+
+.block_button:hover {
+  background-color: #e64a19;
+}
+
+.unblock_button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.unblock_button:hover {
+  background-color: #3e8e41;
+}
+
+.checkbox_container {
+  display: flex;
+  justify-content: center;
+}
+
+.address_cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blocked_status {
+  color: #e63946;
+  font-weight: bold;
+}
+
+.active_status {
+  color: #009e84;
+  font-weight: bold;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

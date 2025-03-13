@@ -15,7 +15,14 @@ export default function Header() {
   };
   
   const totalCartCount = getTotalCartCount();
-
+  
+  // Get dashboard label based on user role
+  const getDashboardLabel = () => {
+    if (user?.isAdmin) return "Admin Dashboard";
+    if (user?.isDelivery) return "Delivery Dashboard";
+    return "Dashboard";
+  };
+  
   return (
     <header className={classes.header}>
       <div className={classes.container}>
@@ -27,12 +34,18 @@ export default function Header() {
             {user ? (
               <>
                 <div className={classes.menu_container}>
-                  {user.isAdmin && (
-                    <Link to="/admin/dashboard">Admin Dashboard</Link>
+                  {/* Show dashboard link for both admin and delivery roles */}
+                  {(user.isAdmin || user.isDelivery) && (
+                    <Link to="/admin/dashboard">{getDashboardLabel()}</Link>
                   )}
                 </div>
                 <li className={classes.menu_container}>
-                  <Link to="/profile">{user.name}</Link>
+                  <Link to="/profile">
+                    {user.name}
+                    {user.isDelivery && !user.isAdmin && (
+                      <span className={classes.role_badge}>Delivery</span>
+                    )}
+                  </Link>
                   <div className={classes.menu}>
                     <Link to="/profile">Profile</Link>
                     <Link to="/orders">Orders</Link>
@@ -43,7 +56,6 @@ export default function Header() {
             ) : (
               <Link to="/login">Login</Link>
             )}
-
             <li>
               <Link to="/cart">
                 Cart
