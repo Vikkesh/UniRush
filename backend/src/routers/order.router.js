@@ -83,9 +83,9 @@ router.get(
             
             const filter = { _id: orderId };
             
-            // Check if user exists and is not admin or delivery, then filter by user
+            // Check if user exists and is not admin, owner or delivery, then filter by user
             if (user) {
-                if (!user.isAdmin && !user.isDelivery) {
+                if (!user.isAdmin && !user.isDelivery && !user.isOwner) {
                     filter.user = user._id;
                 }
             } else {
@@ -146,8 +146,8 @@ router.get(
             if (!user) {
                 filter.user = req.user.id;
             } else {
-                // If user is delivery personnel or admin, don't filter by user
-                if (!user.isAdmin && !user.isDelivery) {
+                // If user is delivery personnel, admin, or owner, don't filter by user
+                if (!user.isAdmin && !user.isDelivery && !user.isOwner) {
                     filter.user = user._id;
                 }
             }
@@ -171,7 +171,6 @@ router.get(
                 }
                 return orderObj;
             });
-
             res.send(formattedOrders);
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -180,7 +179,7 @@ router.get(
     })
 );
 
-// Add endpoint to update order status (admin or delivery personnel only)
+// Add endpoint to update order status (admin, owner, or delivery personnel only)
 router.put(
     '/:orderId/status',
     handler(async (req, res) => {
@@ -188,10 +187,10 @@ router.put(
             const { orderId } = req.params;
             const { status } = req.body;
             
-            // Check if user is admin or delivery personnel
+            // Check if user is admin, owner, or delivery personnel
             const user = await UserModel.findById(req.user.id);
-            if (!user || (!user.isAdmin && !user.isDelivery)) {
-                return res.status(UNAUTHORIZED).send('Only admins or delivery personnel can update order status');
+            if (!user || (!user.isAdmin && !user.isDelivery && !user.isOwner)) {
+                return res.status(UNAUTHORIZED).send('Only admins, owners, or delivery personnel can update order status');
             }
             
             // Validate the status

@@ -14,12 +14,15 @@ export default function AdminDashboardPage() {
   const queryParams = new URLSearchParams(location.search);
   
   // Get section from query params or default to appropriate section based on user role
-  const defaultSection = user?.isDelivery ? 'orders' : '';
+  const defaultSection = user?.isDelivery && !user?.isAdmin && !user?.isOwner ? 'orders' : '';
   const [activeSection, setActiveSection] = useState(queryParams.get('section') || defaultSection);
   const [orderFilter, setOrderFilter] = useState(queryParams.get('filter') || null);
-
+  
   // Set page title based on user role
-  const pageTitle = user?.isDelivery ? "Delivery Dashboard" : "Admin Dashboard";
+  let pageTitle = "Dashboard";
+  if (user?.isOwner) pageTitle = "Owner Dashboard";
+  else if (user?.isAdmin) pageTitle = "Admin Dashboard";
+  else if (user?.isDelivery) pageTitle = "Delivery Dashboard";
 
   useEffect(() => {
     // Update active section when query params change
@@ -36,11 +39,13 @@ export default function AdminDashboardPage() {
 
   // If delivery user tries to access other sections, redirect to orders
   useEffect(() => {
-    if (user?.isDelivery && activeSection && activeSection !== 'orders') {
+    if (user?.isDelivery && !user?.isAdmin && !user?.isOwner && activeSection && activeSection !== 'orders') {
       setActiveSection('orders');
     }
   }, [activeSection, user]);
   
+  const hasAdminPrivileges = user?.isAdmin || user?.isOwner;
+
   const renderContent = () => {
     switch (activeSection) {
       case 'foods':
@@ -55,7 +60,7 @@ export default function AdminDashboardPage() {
         return <div>Statistics coming soon</div>;
       default:
         return (
-          <p>Welcome to the {user?.isDelivery ? 'delivery' : 'admin'} dashboard. Select an option from above to get started.</p>
+          <p>Welcome to the {pageTitle}. Select an option from above to get started.</p>
         );
     }
   };
@@ -64,10 +69,9 @@ export default function AdminDashboardPage() {
     <div className={classes.container}>
       <div className={classes.content}>
         <Title title={pageTitle} />
-
         <div className={classes.dashboard_menu}>
-          {/* Only show these options to admin users */}
-          {!user?.isDelivery && (
+          {/* Only show these options to admin or owner users */}
+          {hasAdminPrivileges && (
             <>
               <div 
                 className={`${classes.dashboard_item} ${activeSection === 'shops' ? classes.active : ''}`} 
@@ -95,7 +99,7 @@ export default function AdminDashboardPage() {
             </>
           )}
           
-          {/* Show order management to both admin and delivery users */}
+          {/* Show order management to admin, owner and delivery users */}
           <div 
             className={`${classes.dashboard_item} ${activeSection === 'orders' ? classes.active : ''}`}
             onClick={() => setActiveSection('orders')}
@@ -104,8 +108,8 @@ export default function AdminDashboardPage() {
             <p>View and process customer orders</p>
           </div>
           
-          {/* Only show statistics to admin users */}
-          {!user?.isDelivery && (
+          {/* Only show statistics to admin or owner users */}
+          {hasAdminPrivileges && (
             <div 
               className={`${classes.dashboard_item} ${activeSection === 'statistics' ? classes.active : ''}`}
               onClick={() => setActiveSection('statistics')}
@@ -115,7 +119,6 @@ export default function AdminDashboardPage() {
             </div>
           )}
         </div>
-
         <div className={classes.section_content}>
           {renderContent()}
         </div>

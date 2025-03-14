@@ -59,7 +59,7 @@ export default function RazorpayButtons({ order, user }) { // receive user props
         },
         "notes": {
           "name": user?.name || "Customer",
-          "address": order.address || "No address provided", // use user's address
+          "Order's address": order.address || "No address provided", // use user's address
           "contact": user?.contact || "No contact provided",  // Added user contact to notes
           "shop_name": order.shopName || "Unknown shop"
         },

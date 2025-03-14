@@ -82,6 +82,7 @@ export default function ManageOrders() {
   const getRoleLabel = () => {
     if (user?.isAdmin) return "Admin";
     if (user?.isDelivery) return "Delivery Personnel";
+    if (user?.isOwner) return "Owner";
     return "";
   };
 

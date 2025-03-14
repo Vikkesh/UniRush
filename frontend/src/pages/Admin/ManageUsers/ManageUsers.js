@@ -20,9 +20,9 @@ export default function ManageUsers() {
     const user = userService.getUser();
     setCurrentUser(user);
     
-    // Check if user is admin, if not redirect
-    if (!user || !user.isAdmin) {
-      toast.error('Only admins can access this page');
+    // Check if user is admin or owner, if not redirect
+    if (!user || (!user.isAdmin && !user.isOwner)) {
+      toast.error('Only admins and owners can access this page');
       navigate('/');
       return;
     }
@@ -95,6 +95,24 @@ export default function ManageUsers() {
       toast.error(error.response?.data || 'Failed to update delivery role');
     }
   };
+  
+  // New handler for toggling owner role
+  const handleToggleOwner = async (user) => {
+    // Prevent owner from removing their own owner rights
+    if (user._id === currentUser.id && user.isOwner) {
+      toast.error('You cannot remove your own owner privileges');
+      return;
+    }
+    
+    try {
+      const updatedUser = await userService.toggleOwnerRole(user._id, !user.isOwner);
+      setUsers(users.map(u => u._id === updatedUser._id ? updatedUser : u));
+      toast.success(`User ${updatedUser.isOwner ? 'promoted to owner' : 'demoted from owner'} successfully`);
+    } catch (error) {
+      console.error('Error toggling user owner role:', error);
+      toast.error(error.response?.data || 'Failed to update user role');
+    }
+  };
 
   const handleFormSubmit = async (userData) => {
     try {
@@ -147,6 +165,7 @@ export default function ManageUsers() {
                     <th>Email</th>
                     <th>Contact</th>
                     <th>Address</th>
+                    <th>Owner</th>
                     <th>Admin</th>
                     <th>Delivery</th>
                     <th>Status</th>
@@ -160,6 +179,20 @@ export default function ManageUsers() {
                       <td>{user.email}</td>
                       <td>{user.contact}</td>
                       <td className={classes.address_cell}>{user.address}</td>
+                      <td>
+                        <div className={classes.checkbox_container}>
+                          {currentUser && currentUser.isOwner ? (
+                            <input 
+                              type="checkbox" 
+                              checked={user.isOwner} 
+                              onChange={() => handleToggleOwner(user)}
+                              disabled={currentUser && user._id === currentUser.id && user.isOwner}
+                            />
+                          ) : (
+                            <span>{user.isOwner ? 'Yes' : 'No'}</span>
+                          )}
+                        </div>
+                      </td>
                       <td>
                         <div className={classes.checkbox_container}>
                           <input 

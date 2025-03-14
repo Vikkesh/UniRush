@@ -4,7 +4,6 @@ import Price from '../Price/Price';
 import classes from './orderItemsList.module.css';
 
 export default function OrderItemsList({ order }) {
-  
   return (
     <table className={classes.table}>
       <tbody>
@@ -34,7 +33,25 @@ export default function OrderItemsList({ order }) {
         <tr>
           <td colSpan="3"></td>
           <td>
-            <strong>Total :</strong>
+            <strong>Items Total:</strong>
+          </td>
+          <td>
+            <Price price={order.totalPrice - (order.deliveryFee || 0)} />
+          </td>
+        </tr>
+        <tr>
+          <td colSpan="3"></td>
+          <td>
+            <strong>Delivery Fee:</strong>
+          </td>
+          <td>
+            <Price price={order.deliveryFee || 0} />
+          </td>
+        </tr>
+        <tr>
+          <td colSpan="3"></td>
+          <td>
+            <strong>Order Total:</strong>
           </td>
           <td>
             <Price price={order.totalPrice} />

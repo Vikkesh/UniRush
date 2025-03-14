@@ -118,3 +118,19 @@ export const toggleDeliveryRole = async (userId, isDelivery) => {
   });
   return data;
 };
+
+export const toggleOwnerRole = async (userId, isOwner) => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.put(`/api/users/admin/${userId}/owner`, { isOwner }, {
+    headers: {
+      'Authorization': `Bearer ${user.token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};

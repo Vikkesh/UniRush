@@ -13,7 +13,6 @@ import OrderTrackPage from './pages/OrderTrack/OrderTrackPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import OrdersPage from './pages/Orders/OrdersPage';
 import AdminDashboardPage from './pages/Admin/AdminDashboardPage';
-import AdminRoute from './components/AdminRoute/AdminRoute';
 import DeliveryRoute from './components/DeliveryRoute/DeliveryRoute';
 
 export default function AppRoutes() {
@@ -60,7 +59,11 @@ export default function AppRoutes() {
       <Route
         path="/admin/dashboard"
         element={
-          <DeliveryRoute><AdminDashboardPage /></DeliveryRoute>
+          <AuthRoute>
+            <DeliveryRoute>
+              <AdminDashboardPage />
+            </DeliveryRoute>
+          </AuthRoute>
         }
       />
     </Routes>

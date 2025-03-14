@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useSearchParams, Link } from 'react-router-dom';
 import classes from './loginPage.module.css';
@@ -16,39 +16,50 @@ export default function LoginPage() {
     formState: { errors },
     reset
   } = useForm();
-
   const navigate = useNavigate();
   const { user, login } = useAuth();
   const [params] = useSearchParams();
   const returnUrl = params.get('returnUrl');
+  const location = useLocation();
+
   useEffect(() => {
     if (!user) return;
-
-    returnUrl ? navigate(returnUrl) : navigate('/');
-  }, [navigate, returnUrl, user]);
+    
+    // Use a more stable way to redirect to avoid infinite loops
+    const destination = returnUrl || '/';
+    if (location.pathname === '/login') {
+      navigate(destination, { replace: true });
+    }
+  }, [user, returnUrl, navigate, location.pathname]);
 
   const submit = async (data) => {
-    // Don't send empty strings to the backend to avoid undefined comparisons
-    const email = data.email || undefined;
-    const contact = data.contact || undefined;
-    const password = data.password;
-    
-    // Check that at least one identifier is provided
-    if (!email && !contact) {
-      toast.error('Please provide either Email or Contact Number');
-      return;
-    }
-    
-    // Pass email, contact and password to login function
-    const result = await login(email, contact, password);
-    
-    // If user is blocked, reset the form
-    if (result && result.blocked) {
-      reset({
-        email: '',
-        contact: '',
-        password: ''
-      });
+    try {
+      // Don't send empty strings to the backend to avoid undefined comparisons
+      const email = data.email || undefined;
+      const contact = data.contact || undefined;
+      const password = data.password;
+      
+      // Check that at least one identifier is provided
+      if (!email && !contact) {
+        toast.error('Please provide either Email or Contact Number');
+        return;
+      }
+      
+      // Pass email, contact and password to login function
+      const result = await login(email, contact, password);
+      
+      // If user is blocked, reset the form
+      if (result && result.blocked) {
+        reset({
+          email: '',
+          contact: '',
+          password: ''
+        });
+      }
+    } catch (error) {
+      // Handle any unexpected errors
+      console.error('Login error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
     }
   };
 
@@ -57,7 +68,6 @@ export default function LoginPage() {
       <div className={classes.details}>
         <Title title="Login" />
         <form onSubmit={handleSubmit(submit)} noValidate>
-
           <Input
             label="Email"
             type="email"
@@ -74,9 +84,7 @@ export default function LoginPage() {
             })}
             error={errors.email}
           />
-
           <div className={classes.orDivider}>OR</div>
-
           <Input
             label="Contact Number"
             type="tel"
@@ -93,7 +101,6 @@ export default function LoginPage() {
             })}
             error={errors.contact}
           />
-
           <Input
             label="Password"
             type="password"
@@ -103,7 +110,6 @@ export default function LoginPage() {
             })}
             error={errors.password}
           />
-
           <Button text="Login" type="submit" />
           <div className={classes.register}>
             New user? &nbsp;
@@ -111,7 +117,6 @@ export default function LoginPage() {
               Register here
             </Link>
           </div>
-
         </form>
       </div>
     </div>

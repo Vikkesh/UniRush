@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import classes from './header.module.css';
 import { useAuth } from '../../hooks/useAuth';
-
 export default function Header() {
   const { user, logout } = useAuth();
   const { getAllCarts } = useCart();
@@ -18,6 +17,7 @@ export default function Header() {
   
   // Get dashboard label based on user role
   const getDashboardLabel = () => {
+    if (user?.isOwner) return "Owner Dashboard";
     if (user?.isAdmin) return "Admin Dashboard";
     if (user?.isDelivery) return "Delivery Dashboard";
     return "Dashboard";
@@ -34,15 +34,21 @@ export default function Header() {
             {user ? (
               <>
                 <div className={classes.menu_container}>
-                  {/* Show dashboard link for both admin and delivery roles */}
-                  {(user.isAdmin || user.isDelivery) && (
+                  {/* Show dashboard link for admin, delivery, and owner roles */}
+                  {(user.isAdmin || user.isDelivery || user.isOwner) && (
                     <Link to="/admin/dashboard">{getDashboardLabel()}</Link>
                   )}
                 </div>
                 <li className={classes.menu_container}>
                   <Link to="/profile">
                     {user.name}
-                    {user.isDelivery && !user.isAdmin && (
+                    {user.isOwner && (
+                      <span className={classes.role_badge}>Owner</span>
+                    )}
+                    {user.isAdmin && !user.isOwner && (
+                      <span className={classes.role_badge}>Admin</span>
+                    )}
+                    {user.isDelivery && !user.isAdmin && !user.isOwner && (
                       <span className={classes.role_badge}>Delivery</span>
                     )}
                   </Link>

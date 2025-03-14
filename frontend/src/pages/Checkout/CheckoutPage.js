@@ -14,11 +14,28 @@ import OrderItemsList from '../../components/OrderItemsList/OrderItemsList';
 import Map from '../../components/Map/Map';
 import NotFound from '../../components/NotFound/NotFound';
 
+// Function to calculate delivery fee based on total price
+const calculateDeliveryFee = (itemsTotal) => {
+  if (itemsTotal <= 100) {
+    return 30;
+  }
+  // For orders > 100: ₹30 base + 10% of amount above ₹100
+  return 30 + (itemsTotal - 100) * 0.1;
+};
+
 export default function CheckoutPage() {
   const { cart, activeCartShopId } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [order, setOrder] = useState({ ...cart });
+  const [order, setOrder] = useState(() => {
+    const itemsTotal = cart.totalPrice;
+    const deliveryFee = calculateDeliveryFee(itemsTotal);
+    return {
+      ...cart,
+      deliveryFee,
+      totalPrice: itemsTotal + deliveryFee
+    };
+  });
 
   const {
     register,
@@ -49,7 +66,8 @@ export default function CheckoutPage() {
         name: data.name, 
         address: data.address,
         shopId: cart.shopId,
-        shopName: cart.shopName
+        shopName: cart.shopName,
+        deliveryFee: order.deliveryFee
       });
   
       navigate('/payment');

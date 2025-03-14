@@ -162,8 +162,8 @@ router.get(
   '/admin/all',
   auth,
   handler(async (req, res) => {
-    if (!req.user.isAdmin) {
-      res.status(UNAUTHORIZED).send('Only admins can access this resource');
+    if (!req.user.isAdmin && !req.user.isOwner) {
+      res.status(UNAUTHORIZED).send('Only admins and owners can access this resource');
       return;
     }
 
@@ -182,8 +182,8 @@ router.put(
   '/admin/:userId',
   auth,
   handler(async (req, res) => {
-    if (!req.user.isAdmin) {
-      res.status(UNAUTHORIZED).send('Only admins can update users');
+    if (!req.user.isAdmin && !req.user.isOwner) {
+      res.status(UNAUTHORIZED).send('Only admins and owners can update users');
       return;
     }
 
@@ -244,8 +244,8 @@ router.put(
   '/admin/:userId/block',
   auth,
   handler(async (req, res) => {
-    if (!req.user.isAdmin) {
-      res.status(UNAUTHORIZED).send('Only admins can block/unblock users');
+    if (!req.user.isAdmin && !req.user.isOwner) {
+      res.status(UNAUTHORIZED).send('Only admins and owners can block/unblock users');
       return;
     }
 
@@ -283,8 +283,8 @@ router.put(
   '/admin/:userId/role',
   auth,
   handler(async (req, res) => {
-    if (!req.user.isAdmin) {
-      res.status(UNAUTHORIZED).send('Only admins can change user roles');
+    if (!req.user.isAdmin && !req.user.isOwner) {
+      res.status(UNAUTHORIZED).send('Only admins and owners can change user roles');
       return;
     }
 
@@ -322,8 +322,8 @@ router.put(
   '/admin/:userId/delivery',
   auth,
   handler(async (req, res) => {
-    if (!req.user.isAdmin) {
-      res.status(UNAUTHORIZED).send('Only admins can assign delivery personnel');
+    if (!req.user.isAdmin && !req.user.isOwner) {
+      res.status(UNAUTHORIZED).send('Only admins and owners can assign delivery personnel');
       return;
     }
 
@@ -350,6 +350,40 @@ router.put(
   })
 );
 
+// Toggle owner role
+router.put(
+  '/admin/:userId/owner',
+  auth,
+  handler(async (req, res) => {
+    if (!req.user.isOwner) {
+      res.status(UNAUTHORIZED).send('Only owners can assign owner privileges');
+      return;
+    }
+    const { userId } = req.params;
+    const { isOwner } = req.body;
+    try {
+      // Prevent an owner from removing their own owner rights
+      if (userId === req.user.id && !isOwner) {
+        res.status(BAD_REQUEST).send('You cannot remove your own owner privileges');
+        return;
+      }
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        userId,
+        { isOwner },
+        { new: true, select: '-password' }
+      );
+      if (!updatedUser) {
+        res.status(BAD_REQUEST).send('User not found');
+        return;
+      }
+      res.send(updatedUser);
+    } catch (error) {
+      console.error('Error toggling owner role:', error);
+      res.status(BAD_REQUEST).send('Failed to update owner status');
+    }
+  })
+);
+
 const generateTokenResponse = user => {
   const token = jwt.sign(
     {
@@ -357,6 +391,7 @@ const generateTokenResponse = user => {
       email: user.email,
       isAdmin: user.isAdmin,
       isDelivery: user.isDelivery,
+      isOwner: user.isOwner,
     },
     process.env.JWT_SECRET,
     {
@@ -371,7 +406,9 @@ const generateTokenResponse = user => {
     contact: user.contact,
     isAdmin: user.isAdmin,
     isDelivery: user.isDelivery,
+    isOwner: user.isOwner,
     token,
   };
 };
+
 export default router;
