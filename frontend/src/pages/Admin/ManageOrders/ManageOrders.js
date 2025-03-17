@@ -1,6 +1,7 @@
 import React, { useEffect, useReducer } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getAll, getAllStatus, updateOrderStatus } from '../../../services/orderService';
+import { getAll as getAllShops } from '../../../services/shopService';
 import classes from './manageOrders.module.css';
 import Title from '../../../components/Title/Title';
 import DateTime from '../../../components/DateTime/DateTime';
@@ -8,11 +9,19 @@ import Price from '../../../components/Price/Price';
 import NotFound from '../../../components/NotFound/NotFound';
 import * as userService from '../../../services/userService';
 import { toast } from 'react-toastify';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
 
-const initialState = {};
+const initialState = {
+  allStatus: [],
+  orders: [],
+  shops: [],
+  timeFilter: 'all',
+  customStartDate: '',
+  customEndDate: '',
+  selectedShop: 'all'
+};
+
 const reducer = (state, action) => {
   const { type, payload } = action;
   switch (type) {
@@ -20,6 +29,16 @@ const reducer = (state, action) => {
       return { ...state, allStatus: payload };
     case 'ORDERS_FETCHED':
       return { ...state, orders: payload };
+    case 'SHOPS_FETCHED':
+      return { ...state, shops: payload };
+    case 'SET_TIME_FILTER':
+      return { ...state, timeFilter: payload };
+    case 'SET_CUSTOM_START_DATE':
+      return { ...state, customStartDate: payload };
+    case 'SET_CUSTOM_END_DATE':
+      return { ...state, customEndDate: payload };
+    case 'SET_SELECTED_SHOP':
+      return { ...state, selectedShop: payload };
     case 'ORDER_UPDATED':
       return {
         ...state,
@@ -33,7 +52,7 @@ const reducer = (state, action) => {
 };
 
 export default function ManageOrders() {
-  const [{ allStatus, orders }, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -41,6 +60,46 @@ export default function ManageOrders() {
   // Get filter from query params
   const queryParams = new URLSearchParams(location.search);
   const queryFilter = queryParams.get('filter');
+
+  const loadOrders = async () => {
+    const filters = {};
+    
+    // Add date filters
+    if (state.timeFilter === 'custom') {
+      if (state.customStartDate) filters.startDate = state.customStartDate;
+      if (state.customEndDate) filters.endDate = state.customEndDate;
+    } else if (state.timeFilter !== 'all') {
+      const now = new Date();
+      switch (state.timeFilter) {
+        case 'today':
+          filters.startDate = now.toISOString().split('T')[0];
+          filters.endDate = filters.startDate;
+          break;
+        case 'last7days': {
+          const last7Days = new Date(now);
+          last7Days.setDate(last7Days.getDate() - 6);
+          filters.startDate = last7Days.toISOString().split('T')[0];
+          filters.endDate = now.toISOString().split('T')[0];
+          break;
+        }
+        case 'last30days': {
+          const last30Days = new Date(now);
+          last30Days.setDate(last30Days.getDate() - 29);
+          filters.startDate = last30Days.toISOString().split('T')[0];
+          filters.endDate = now.toISOString().split('T')[0];
+          break;
+        }
+      }
+    }
+    
+    // Add shop filter
+    if (state.selectedShop !== 'all') {
+      filters.shopId = state.selectedShop;
+    }
+
+    const orders = await getAll(queryFilter, filters);
+    dispatch({ type: 'ORDERS_FETCHED', payload: orders });
+  };
 
   useEffect(() => {
     // Set auth token for admin requests
@@ -53,10 +112,17 @@ export default function ManageOrders() {
       dispatch({ type: 'ALL_STATUS_FETCHED', payload: status });
     });
 
-    getAll(queryFilter).then(orders => {
-      dispatch({ type: 'ORDERS_FETCHED', payload: orders });
-    });
-  }, [queryFilter]);
+    // Load shops for the filter
+    const loadShops = async () => {
+      const shops = await getAllShops();
+      dispatch({ type: 'SHOPS_FETCHED', payload: shops });
+    };
+    loadShops();
+  }, []);
+
+  useEffect(() => {
+    loadOrders();
+  }, [queryFilter, state.timeFilter, state.customStartDate, state.customEndDate, state.selectedShop]);
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
@@ -98,15 +164,71 @@ export default function ManageOrders() {
         fontSize="1.9rem"
       />
 
-      {allStatus && (
+      <div className={classes.filters}>
+        <div className={classes.filter_group}>
+          <label>Time Period:</label>
+          <select 
+            value={state.timeFilter} 
+            onChange={(e) => dispatch({ type: 'SET_TIME_FILTER', payload: e.target.value })}
+            className={classes.filter_select}
+          >
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="last7days">Last 7 Days</option>
+            <option value="last30days">Last 30 Days</option>
+            <option value="custom">Custom Range</option>
+          </select>
+        </div>
+        
+        {state.timeFilter === 'custom' && (
+          <div className={classes.date_range}>
+            <div className={classes.date_input}>
+              <label>From:</label>
+              <input 
+                type="date" 
+                value={state.customStartDate} 
+                onChange={(e) => dispatch({ type: 'SET_CUSTOM_START_DATE', payload: e.target.value })}
+                max={state.customEndDate || undefined}
+              />
+            </div>
+            <div className={classes.date_input}>
+              <label>To:</label>
+              <input 
+                type="date" 
+                value={state.customEndDate} 
+                onChange={(e) => dispatch({ type: 'SET_CUSTOM_END_DATE', payload: e.target.value })}
+                min={state.customStartDate || undefined}
+              />
+            </div>
+          </div>
+        )}
+        
+        <div className={classes.filter_group}>
+          <label>Shop:</label>
+          <select 
+            value={state.selectedShop} 
+            onChange={(e) => dispatch({ type: 'SET_SELECTED_SHOP', payload: e.target.value })}
+            className={classes.filter_select}
+          >
+            <option value="all">All Shops</option>
+            {state.shops.map(shop => (
+              <option key={shop._id} value={shop._id}>
+                {shop.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {state.allStatus && (
         <div className={classes.all_status}>
           <Link
-            to={`/admin/dashboard?section=orders`}
+            to="/admin/dashboard?section=orders"
             className={!queryFilter ? classes.active : ''}
-         >
+          >
             All
           </Link>
-          {allStatus.map(state => (
+          {state.allStatus.map(state => (
             <Link
               key={state}
               to={`/admin/dashboard?section=orders&filter=${state}`}
@@ -118,15 +240,15 @@ export default function ManageOrders() {
         </div>
       )}
 
-      {orders?.length === 0 && (
+      {state.orders?.length === 0 && (
         <NotFound
           linkRoute="/admin/dashboard?section=orders"
           linkText="Show All Orders"
         />
       )}
 
-      {orders &&
-        orders.map(order => (
+      {state.orders &&
+        state.orders.map(order => (
           <div key={order.id} className={classes.order_summary}>
             <div className={classes.header}>
               <span>{order.id}</span>
@@ -139,7 +261,7 @@ export default function ManageOrders() {
                   value={order.status}
                   onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
                 >
-                  {allStatus?.map(status => (
+                  {state.allStatus?.map(status => (
                     <option key={status} value={status}>{status}</option>
                   ))}
                 </select>

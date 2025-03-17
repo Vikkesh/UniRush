@@ -67,6 +67,7 @@ export default function CheckoutPage() {
         address: data.address,
         shopId: cart.shopId,
         shopName: cart.shopName,
+        itemsTotal: cart.totalPrice,
         deliveryFee: order.deliveryFee
       });
   

@@ -23,11 +23,6 @@ export const OrderItemSchema = new Schema(
     }
   );
 
-OrderItemSchema.pre('validate', function (next) {
-    this.price = this.food.price * this.quantity;
-    next();
-});
-  
 const orderSchema = new Schema(
     {
       name: { type: String, required: true },
@@ -35,6 +30,7 @@ const orderSchema = new Schema(
       addressLatLng: { type: LatLngSchema, required: true },
       paymentId: { type: String },
       totalPrice: { type: Number, required: true },
+      itemsTotal: { type: Number, required: true },
       deliveryFee: { type: Number, required: true },
       items: { type: [OrderItemSchema], required: true },
       status: { type: String, default: OrderStatus.NEW },
@@ -53,8 +49,19 @@ const orderSchema = new Schema(
     }
 );
 
-// Add a pre-save hook to ensure shopName is set
+// Add a pre-save hook to validate totals
 orderSchema.pre('save', async function(next) {
+  if (this.isNew || this.isModified('items') || this.isModified('deliveryFee')) {
+    // Validate that itemsTotal matches the sum of item prices
+    const calculatedItemsTotal = this.items.reduce((total, item) => total + item.price, 0);
+    if (Math.abs(calculatedItemsTotal - this.itemsTotal) > 0.01) { // Allow for minor floating point differences
+      this.itemsTotal = calculatedItemsTotal;
+    }
+    // Ensure totalPrice is the sum of itemsTotal and deliveryFee
+    this.totalPrice = this.itemsTotal + this.deliveryFee;
+  }
+
+  // Handle shop name
   if (this.isNew || this.isModified('shopId')) {
     try {
       const shop = await model('shop').findById(this.shopId);

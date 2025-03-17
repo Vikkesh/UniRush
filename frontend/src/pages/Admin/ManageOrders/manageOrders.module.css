@@ -9,6 +9,54 @@
   margin: 0 auto;
 }
 
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 0.5rem;
+}
+
+.filter_group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter_group label {
+  font-weight: 500;
+  color: #555;
+}
+
+.filter_select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.3rem;
+  min-width: 150px;
+  background-color: white;
+}
+
+.date_range {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.date_input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.date_input input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.3rem;
+  background-color: white;
+}
+
 .shop_info {
   margin: 0.5rem 0;
   padding: 0.75rem 1rem;

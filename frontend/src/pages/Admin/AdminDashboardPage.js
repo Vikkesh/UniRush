@@ -6,6 +6,7 @@ import ManageFoods from './ManageFoods/ManageFoods';
 import ManageShops from './ManageShops/ManageShops';
 import ManageUsers from './ManageUsers/ManageUsers';
 import ManageOrders from './ManageOrders/ManageOrders';
+import Statistics from './Statistics/Statistics';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function AdminDashboardPage() {
@@ -57,7 +58,7 @@ export default function AdminDashboardPage() {
       case 'orders':
         return <ManageOrders />;
       case 'statistics':
-        return <div>Statistics coming soon</div>;
+        return <Statistics />;
       default:
         return (
           <p>Welcome to the {pageTitle}. Select an option from above to get started.</p>
