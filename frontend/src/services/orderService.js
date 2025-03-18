@@ -5,25 +5,6 @@ export const createOrder = async order => {
     const { data } = await axios.post('/api/orders/create', order);
     return data;
   } catch (error) {
-    throw error; // This will propagate the error up
-  }
-};
-
-export const getNewOrderForCurrentUser = async () => {
-  try {
-    const { data } = await axios.get('/api/orders/newOrderForCurrentUser');
-    return data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const pay = async paymentId => {
-  try {
-    const { data } = await axios.put('/api/orders/pay', { paymentId });
-    return data;
-  } catch (error) {
-    console.error('Payment error:', error);
     throw error;
   }
 };
@@ -42,7 +23,6 @@ export const getAll = async (state, filters = {}) => {
   try {
     const params = new URLSearchParams();
     
-    // Add filters to query params
     if (filters.startDate) {
       params.append('startDate', filters.startDate);
     }
@@ -68,7 +48,7 @@ export const getAllStatus = async () => {
     return data;
   } catch (error) {
     console.error('Error fetching order status options:', error);
-    return []; // Return empty array on error
+    return [];
   }
 };
 
@@ -82,24 +62,19 @@ export const updateOrderStatus = async (orderId, status) => {
   }
 };
 
-// New function to get sales statistics with filtering options
 export const getStatistics = async (filters = {}) => {
   try {
-    // Convert filters object to URL parameters
     const params = new URLSearchParams();
     
     if (filters.startDate) {
       params.append('startDate', filters.startDate);
     }
-    
     if (filters.endDate) {
       params.append('endDate', filters.endDate);
     }
-    
     if (filters.status) {
       params.append('status', filters.status);
     }
-    
     if (filters.shopId) {
       params.append('shopId', filters.shopId);
     }

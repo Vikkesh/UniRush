@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { pay } from '../../services/orderService';
+import { createOrder } from '../../services/orderService';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useCart } from '../../hooks/useCart';
@@ -30,11 +30,6 @@ export default function RazorpayButtons({ order, user }) { // receive user props
         "image": "http://example.com/logo.png",
         "order_id": data.id,
         "handler": async function (response) {
-          // Removed redundant alert, since verification follows
-          // alert("Payment Successful:\nPayment ID: " + response.razorpay_payment_id +
-          //       "\nOrder ID: " + response.razorpay_order_id +
-          //       "\nSignature: " + response.razorpay_signature);
-          
           // Verify the payment signature by calling the new endpoint
           const verifyResponse = await axios.post('/api/razorpay/verify', {
             order_id: serverOrderId,
@@ -43,10 +38,16 @@ export default function RazorpayButtons({ order, user }) { // receive user props
           });
           
           if (verifyResponse.data.valid) {
-            const orderId = await pay(response.razorpay_payment_id);
+            // Create order in database with PAID status after payment verification
+            const dbOrder = await createOrder({ 
+              ...order,
+              status: 'PAID',
+              paymentId: response.razorpay_payment_id
+            });
+            
             clearCart();
             toast.success('Payment Saved Successfully', 'Success');
-            navigate('/track/' + orderId);
+            navigate('/track/' + dbOrder._id);
           } else {
             alert('Payment verification failed!');
           }

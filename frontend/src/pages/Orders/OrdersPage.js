@@ -2,6 +2,8 @@ import React, { useEffect, useReducer } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getAll, getAllStatus } from '../../services/orderService';
 import { getAll as getAllShops } from '../../services/shopService';
+import { useAuth } from '../../hooks/useAuth';
+import { DeliveryVisibleStatus } from '../../constants/orderStatus';
 import classes from './ordersPage.module.css';
 import Title from '../../components/Title/Title';
 import DateTime from '../../components/DateTime/DateTime';
@@ -43,6 +45,7 @@ const reducer = (state, action) => {
 export default function OrdersPage() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { filter } = useParams();
+  const { user } = useAuth();
 
   const loadOrders = async () => {
     const filters = {};
@@ -86,13 +89,17 @@ export default function OrdersPage() {
 
   useEffect(() => {
     getAllStatus().then(status => {
+      // If user is delivery personnel, only show relevant statuses
+      if (user?.isDelivery && !user?.isAdmin && !user?.isOwner) {
+        status = status.filter(s => DeliveryVisibleStatus.includes(s));
+      }
       dispatch({ type: 'ALL_STATUS_FETCHED', payload: status });
     });
 
     getAllShops().then(shops => {
       dispatch({ type: 'SHOPS_FETCHED', payload: shops });
     });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     loadOrders();

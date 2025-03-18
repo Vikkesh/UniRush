@@ -11,9 +11,11 @@ import * as userService from '../../../services/userService';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
+import { OrderStatus, DeliveryVisibleStatus } from '../../../constants/orderStatus';
 
 const initialState = {
   allStatus: [],
+  filteredStatus: [], // New state to hold filtered statuses
   orders: [],
   shops: [],
   timeFilter: 'all',
@@ -27,6 +29,8 @@ const reducer = (state, action) => {
   switch (type) {
     case 'ALL_STATUS_FETCHED':
       return { ...state, allStatus: payload };
+    case 'FILTERED_STATUS_SET':
+      return { ...state, filteredStatus: payload };
     case 'ORDERS_FETCHED':
       return { ...state, orders: payload };
     case 'SHOPS_FETCHED':
@@ -108,8 +112,17 @@ export default function ManageOrders() {
       axios.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
     }
 
-    getAllStatus().then(status => {
-      dispatch({ type: 'ALL_STATUS_FETCHED', payload: status });
+    // Get all statuses and filter them for delivery personnel
+    getAllStatus().then(statuses => {
+      dispatch({ type: 'ALL_STATUS_FETCHED', payload: statuses });
+      
+      // If user is delivery personnel and not admin/owner, filter the statuses
+      if (user && user.isDelivery && !user.isAdmin && !user.isOwner) {
+        const deliveryStatuses = statuses.filter(status => DeliveryVisibleStatus.includes(status));
+        dispatch({ type: 'FILTERED_STATUS_SET', payload: deliveryStatuses });
+      } else {
+        dispatch({ type: 'FILTERED_STATUS_SET', payload: statuses });
+      }
     });
 
     // Load shops for the filter
@@ -126,6 +139,14 @@ export default function ManageOrders() {
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
+      // If delivery personnel, validate status change
+      if (user && user.isDelivery && !user.isAdmin && !user.isOwner) {
+        if (!DeliveryVisibleStatus.includes(newStatus)) {
+          toast.error('You are not authorized to set this status');
+          return;
+        }
+      }
+
       const result = await updateOrderStatus(orderId, newStatus);
       if (result) {
         dispatch({
@@ -220,7 +241,7 @@ export default function ManageOrders() {
         </div>
       </div>
 
-      {state.allStatus && (
+      {state.filteredStatus && (
         <div className={classes.all_status}>
           <Link
             to="/admin/dashboard?section=orders"
@@ -228,13 +249,13 @@ export default function ManageOrders() {
           >
             All
           </Link>
-          {state.allStatus.map(state => (
+          {state.filteredStatus.map(status => (
             <Link
-              key={state}
-              to={`/admin/dashboard?section=orders&filter=${state}`}
-              className={state === queryFilter ? classes.active : ''}
+              key={status}
+              to={`/admin/dashboard?section=orders&filter=${status}`}
+              className={status === queryFilter ? classes.active : ''}
             >
-              {state}
+              {status}
             </Link>
           ))}
         </div>
@@ -261,7 +282,7 @@ export default function ManageOrders() {
                   value={order.status}
                   onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
                 >
-                  {state.allStatus?.map(status => (
+                  {state.filteredStatus?.map(status => (
                     <option key={status} value={status}>{status}</option>
                   ))}
                 </select>

@@ -267,3 +267,39 @@
   color: #0066cc;
   display: inline-block;
 }
+
+/* Status colors */
+.status_paid {
+    background-color: #ff9800;
+    color: white;
+}
+
+.status_accepted {
+    background-color: #4a148c;
+    color: white;
+}
+
+.status_ready {
+    background-color: #00c853;
+    color: white;
+}
+
+.status_shipped {
+    background-color: #9c27b0;
+    color: white;
+}
+
+.status_delivered {
+    background-color: #4caf50;
+    color: white;
+}
+
+.status_cancelled {
+    background-color: #f44336;
+    color: white;
+}
+
+.status_refunded {
+    background-color: #795548;
+    color: white;
+}

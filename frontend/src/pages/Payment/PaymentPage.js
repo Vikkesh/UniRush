@@ -1,25 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useCart } from '../../hooks/useCart';
+import { useAuth } from '../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import classes from './paymentPage.module.css';
-import { getNewOrderForCurrentUser } from '../../services/orderService';
-import OrderItemsList from '../../components/OrderItemsList/OrderItemsList';
 import Title from '../../components/Title/Title';
+import OrderItemsList from '../../components/OrderItemsList/OrderItemsList';
 import Map from '../../components/Map/Map';
 import RazorpayButtons from '../../components/RazorpayButtons/RazorpayButtons';
-import { useAuth } from '../../hooks/useAuth'; // new import for user details
+import NotFound from '../../components/NotFound/NotFound';
 
 export default function PaymentPage() {
-    const [order, setOrder] = useState();
-    const { user } = useAuth(); // assume this hook provides user details
+    const { user } = useAuth();
+    const navigate = useNavigate();
+    const [order, setOrder] = useState(null);
+
     useEffect(() => {
-        getNewOrderForCurrentUser().then(data => setOrder(data));
-    }, []);
+        const checkoutData = sessionStorage.getItem('checkoutData');
+        if (!checkoutData) {
+            navigate('/checkout');
+            return;
+        }
+        setOrder(JSON.parse(checkoutData));
+    }, [navigate]);
 
     if (!order) return null;
 
     return (
         <div className={classes.container}>
             <div className={classes.content}>
-                <Title title="Order Form" fontSize="1.6rem" />
+                <Title title="Order Summary" fontSize="1.6rem" />
                 <div className={classes.summary}>
                     <div>
                         <h3>Name:</h3>
@@ -38,7 +47,7 @@ export default function PaymentPage() {
             </div>
             <div className={classes.buttons_container}>
                 <div className={classes.button}>
-                    <RazorpayButtons order={order} user={user} /> {/* pass user details */}
+                    <RazorpayButtons order={order} user={user} />
                 </div>
             </div>
         </div>

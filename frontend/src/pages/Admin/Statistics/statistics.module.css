@@ -262,6 +262,14 @@
   background-color: #ff9800;
 }
 
+.status_accepted {
+  background-color: #4a148c;
+}
+
+.status_ready {
+  background-color: #00c853;
+}
+
 .status_shipped {
   background-color: #9c27b0;
 }

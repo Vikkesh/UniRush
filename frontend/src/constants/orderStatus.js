@@ -8,7 +8,6 @@ export const OrderStatus = {
     REFUNDED: 'REFUNDED'
 };
 
-// Add constant for delivery visible statuses
 export const DeliveryVisibleStatus = [
     OrderStatus.READY,
     OrderStatus.SHIPPED,

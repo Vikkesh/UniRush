@@ -3,7 +3,7 @@ import handler from 'express-async-handler';
 import auth from '../middleware/auth.mid.js';
 import { BAD_REQUEST, UNAUTHORIZED } from '../constants/httpStatus.js';
 import { OrderModel } from '../models/order.model.js';
-import { OrderStatus } from '../constants/orderStatus.js';
+import { OrderStatus, DeliveryVisibleStatus } from '../constants/orderStatus.js';
 import { UserModel } from '../models/user.model.js';
 import { ShopModel } from '../models/shop.model.js';
 
@@ -20,33 +20,26 @@ router.post(
                 return res.status(BAD_REQUEST).send('Cart Is Empty!');
             }
 
-            // Ensure shop information is included
             if (!order.shopId) {
                 return res.status(BAD_REQUEST).send('Shop information is required!');
             }
 
-            // Get shop details to ensure we have the correct name
+            // Get shop details
             const shop = await ShopModel.findById(order.shopId);
             if (!shop) {
                 return res.status(BAD_REQUEST).send('Shop not found!');
             }
-            
-            // Delete any existing NEW orders for this user
-            await OrderModel.deleteOne({
-                user: req.user.id,
-                status: OrderStatus.NEW,
-            });
 
             // Validate order totals
             const itemsTotal = order.itemsTotal || order.items.reduce((total, item) => total + item.price, 0);
             const deliveryFee = order.deliveryFee || 0;
             const totalPrice = itemsTotal + deliveryFee;
             
-            // Create new order with validated totals
+            // Create paid order
             const newOrder = new OrderModel({
                 ...order,
                 user: req.user.id,
-                status: OrderStatus.NEW,
+                status: OrderStatus.PAID,
                 shopName: shop.name,
                 itemsTotal,
                 deliveryFee,
@@ -352,11 +345,20 @@ router.get(
                 if (!user.isAdmin && !user.isDelivery && !user.isOwner) {
                     filter.user = user._id;
                 }
-            }
-            
-            // Apply status filter if provided
-            if (status) {
-                filter.status = status;
+
+                // For delivery personnel, only show allowed statuses
+                if (user.isDelivery && !user.isAdmin && !user.isOwner) {
+                    if (status) {
+                        if (!DeliveryVisibleStatus.includes(status)) {
+                            return res.status(BAD_REQUEST).send('Status not accessible for delivery personnel');
+                        }
+                        filter.status = status;
+                    } else {
+                        filter.status = { $in: DeliveryVisibleStatus };
+                    }
+                } else if (status) {
+                    filter.status = status;
+                }
             }
 
             // Apply date range filter if provided
@@ -432,12 +434,5 @@ router.put(
         }
     })
 );
-
-const getNewOrderForCurrentUser = async req => {
-    return await OrderModel.findOne({
-        user: req.user.id,
-        status: OrderStatus.NEW,
-    });
-};
 
 export default router;
