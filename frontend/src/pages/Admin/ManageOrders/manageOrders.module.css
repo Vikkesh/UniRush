@@ -157,13 +157,12 @@
 .header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid #7c050b;
-  border-radius: 1rem 1rem 0 0;
-  color: grey;
   align-items: center;
-  background-color: #f0f0f0;
+  background-color: whitesmoke;
   padding: 1rem;
-  font-weight: 600;
+  border-radius: 0.5rem 0.5rem 0 0;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .status_dropdown {
@@ -302,4 +301,35 @@
 .status_refunded {
     background-color: #795548;
     color: white;
+}
+
+.shop_admin_actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action_button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.accept_button {
+  background-color: #4CAF50;
+}
+
+.accept_button:hover {
+  background-color: #45a049;
+}
+
+.cancel_button {
+  background-color: #f44336;
+}
+
+.cancel_button:hover {
+  background-color: #d32f2f;
 }

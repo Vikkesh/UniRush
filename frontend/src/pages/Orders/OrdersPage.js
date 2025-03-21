@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getAll, getAllStatus } from '../../services/orderService';
-import { getAll as getAllShops } from '../../services/shopService';
+import { getAdminShops } from '../../services/shopService';
 import { useAuth } from '../../hooks/useAuth';
 import { DeliveryVisibleStatus } from '../../constants/orderStatus';
 import classes from './ordersPage.module.css';
@@ -96,7 +96,7 @@ export default function OrdersPage() {
       dispatch({ type: 'ALL_STATUS_FETCHED', payload: status });
     });
 
-    getAllShops().then(shops => {
+    getAdminShops().then(shops => {
       dispatch({ type: 'SHOPS_FETCHED', payload: shops });
     });
   }, [user]);

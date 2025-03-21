@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as userService from '../../../services/userService';
+import * as shopService from '../../../services/shopService';
 import classes from './manageUsers.module.css';
 import Title from '../../../components/Title/Title';
 import Button from '../../../components/Button/Button';
@@ -9,13 +10,18 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
+  const [shops, setShops] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userToEdit, setUserToEdit] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showShopAssignModal, setShowShopAssignModal] = useState(false);
+  const [selectedShopIds, setSelectedShopIds] = useState([]);
+  const [userForShopAssign, setUserForShopAssign] = useState(null);
+  
   const navigate = useNavigate();
-
+  
   useEffect(() => {
     const user = userService.getUser();
     setCurrentUser(user);
@@ -28,8 +34,9 @@ export default function ManageUsers() {
     }
     
     loadUsers();
+    loadShops();
   }, [navigate]);
-
+  
   const loadUsers = async () => {
     setIsLoading(true);
     setError(null);
@@ -51,12 +58,27 @@ export default function ManageUsers() {
       setIsLoading(false);
     }
   };
+  
+  const loadShops = async () => {
+    try {
+      const response = await shopService.getAll();
+      if (Array.isArray(response)) {
+        setShops(response);
+      } else {
+        console.error('API did not return an array for shops:', response);
+        setShops([]);
+      }
+    } catch (error) {
+      console.error('Error loading shops:', error);
+      setShops([]);
+    }
+  };
 
   const handleEditClick = (user) => {
     setUserToEdit({ ...user });
     setShowForm(true);
   };
-
+  
   const handleToggleBlock = async (user) => {
     try {
       const updatedUser = await userService.toggleBlockUser(user._id, !user.isBlocked);
@@ -67,7 +89,7 @@ export default function ManageUsers() {
       toast.error(error.response?.data || 'Failed to update user');
     }
   };
-
+  
   const handleToggleAdmin = async (user) => {
     // Prevent admin from removing their own admin rights
     if (user._id === currentUser.id && user.isAdmin) {
@@ -84,7 +106,7 @@ export default function ManageUsers() {
       toast.error(error.response?.data || 'Failed to update user role');
     }
   };
-
+  
   const handleToggleDelivery = async (user) => {
     try {
       const updatedUser = await userService.toggleDeliveryRole(user._id, !user.isDelivery);
@@ -113,7 +135,54 @@ export default function ManageUsers() {
       toast.error(error.response?.data || 'Failed to update user role');
     }
   };
-
+  
+  // New handler for toggling shop admin role
+  const handleToggleShopAdmin = async (user) => {
+    try {
+      const updatedUser = await userService.toggleShopAdminRole(user._id, !user.isShopAdmin);
+      setUsers(users.map(u => u._id === updatedUser._id ? updatedUser : u));
+      toast.success(`User ${updatedUser.isShopAdmin ? 'assigned as shop admin' : 'removed from shop admin role'} successfully`);
+      
+      // If the user has been made a shop admin, open the shop assignment modal
+      if (updatedUser.isShopAdmin) {
+        handleAssignShops(updatedUser);
+      }
+    } catch (error) {
+      console.error('Error toggling shop admin role:', error);
+      toast.error(error.response?.data || 'Failed to update shop admin role');
+    }
+  };
+  
+  // Handler for opening shop assignment modal
+  const handleAssignShops = (user) => {
+    setUserForShopAssign(user);
+    // Set initially selected shops
+    setSelectedShopIds(user.managedShops || []);
+    setShowShopAssignModal(true);
+  };
+  
+  // Handler for saving shop assignments
+  const handleSaveShopAssignments = async () => {
+    try {
+      const updatedUser = await userService.updateManagedShops(userForShopAssign._id, selectedShopIds);
+      setUsers(users.map(u => u._id === updatedUser._id ? updatedUser : u));
+      setShowShopAssignModal(false);
+      toast.success('Shop assignments saved successfully');
+    } catch (error) {
+      console.error('Error updating shop assignments:', error);
+      toast.error(error.response?.data || 'Failed to update shop assignments');
+    }
+  };
+  
+  // Handler for shop checkbox change
+  const handleShopCheckboxChange = (shopId) => {
+    if (selectedShopIds.includes(shopId)) {
+      setSelectedShopIds(selectedShopIds.filter(id => id !== shopId));
+    } else {
+      setSelectedShopIds([...selectedShopIds, shopId]);
+    }
+  };
+  
   const handleFormSubmit = async (userData) => {
     try {
       const updatedUser = await userService.updateUserByAdmin(userToEdit._id, userData);
@@ -125,25 +194,25 @@ export default function ManageUsers() {
       toast.error(error.response?.data || 'Failed to update user');
     }
   };
-
+  
   const handleCancelForm = () => {
     setShowForm(false);
   };
-
+  
   return (
     <div className={classes.container}>
       <div className={classes.header}>
         <Title title="Manage Users" />
         <Button onClick={loadUsers} text="Refresh" />
       </div>
-
+      
       {error && (
         <div className={classes.error_message}>
           <p>{error}</p>
           <Button onClick={loadUsers} text="Try Again" />
         </div>
       )}
-
+      
       {showForm ? (
         <UserForm 
           user={userToEdit} 
@@ -167,6 +236,7 @@ export default function ManageUsers() {
                     <th>Address</th>
                     <th>Owner</th>
                     <th>Admin</th>
+                    <th>Shop Admin</th>
                     <th>Delivery</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -207,6 +277,23 @@ export default function ManageUsers() {
                         <div className={classes.checkbox_container}>
                           <input 
                             type="checkbox" 
+                            checked={user.isShopAdmin} 
+                            onChange={() => handleToggleShopAdmin(user)}
+                          />
+                          {user.isShopAdmin && (
+                            <button 
+                              className={classes.assign_shops_button}
+                              onClick={() => handleAssignShops(user)}
+                            >
+                              Assign Shops
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div className={classes.checkbox_container}>
+                          <input 
+                            type="checkbox" 
                             checked={user.isDelivery} 
                             onChange={() => handleToggleDelivery(user)}
                           />
@@ -241,6 +328,39 @@ export default function ManageUsers() {
             )}
           </div>
         )
+      )}
+      
+      {/* Shop Assignment Modal */}
+      {showShopAssignModal && userForShopAssign && (
+        <div className={classes.modal_overlay}>
+          <div className={classes.modal_content}>
+            <h2>Assign Shops to {userForShopAssign.name}</h2>
+            <div className={classes.shops_list}>
+              {shops.length === 0 ? (
+                <p>No shops available to assign.</p>
+              ) : (
+                <div>
+                  {shops.map(shop => (
+                    <div key={shop._id} className={classes.shop_item}>
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={selectedShopIds.includes(shop._id)}
+                          onChange={() => handleShopCheckboxChange(shop._id)}
+                        />
+                        {shop.name} - {shop.address}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className={classes.modal_buttons}>
+              <Button onClick={handleSaveShopAssignments} text="Save Assignments" />
+              <Button onClick={() => setShowShopAssignModal(false)} text="Cancel" />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -6,6 +6,7 @@ import Title from '../../../components/Title/Title';
 import Button from '../../../components/Button/Button';
 import ShopForm from './ShopForm';
 import StarRating from '../../../components/StarRating/StarRating';
+import { useAuth } from '../../../hooks/useAuth';
 
 export default function ManageShops() {
   const [shops, setShops] = useState([]);
@@ -13,16 +14,21 @@ export default function ManageShops() {
   const [error, setError] = useState(null);
   const [shopToEdit, setShopToEdit] = useState(null);
   const [showForm, setShowForm] = useState(false);
-
+  const { user } = useAuth();
+  
+  // Determine if the user is a shop admin without admin/owner privileges
+  const isShopAdminOnly = user?.isShopAdmin && !user?.isAdmin && !user?.isOwner;
+  
   useEffect(() => {
     loadShops();
   }, []);
-
+  
   const loadShops = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await shopService.getAll();
+      // Use the admin endpoint which already handles shop filtering based on user role
+      const response = await shopService.getAdminShops();
       
       // Ensure we have an array of shops
       if (Array.isArray(response)) {
@@ -40,12 +46,17 @@ export default function ManageShops() {
       setIsLoading(false);
     }
   };
-
+  
   const handleAddClick = () => {
+    // Only allow admin/owners to add new shops
+    if (isShopAdminOnly) {
+      alert('Shop admins cannot add new shops. Please contact an administrator.');
+      return;
+    }
     setShopToEdit(null);
     setShowForm(true);
   };
-
+  
   const handleEditClick = (shop) => {
     // Improved logging to verify all shop data is available
     console.log("Editing shop - full data:", JSON.stringify(shop));
@@ -54,12 +65,17 @@ export default function ManageShops() {
     setShopToEdit({...shop});
     setShowForm(true);
   };
-
+  
   const handleDeleteClick = async (shopId) => {
+    // Only allow admin/owners to delete shops
+    if (isShopAdminOnly) {
+      alert('Shop admins cannot delete shops. Please contact an administrator.');
+      return;
+    }
+    
     if (!window.confirm('Are you sure you want to delete this shop?')) {
       return;
     }
-
     try {
       await shopService.deleteShop(shopId);
       loadShops();
@@ -72,7 +88,7 @@ export default function ManageShops() {
       }
     }
   };
-
+  
   const handleFormSubmit = async (shopData) => {
     try {
       if (shopToEdit) {
@@ -88,25 +104,28 @@ export default function ManageShops() {
       alert('Failed to save shop');
     }
   };
-
+  
   const handleCancelForm = () => {
     setShowForm(false);
   };
-
+  
   return (
     <div className={classes.container}>
       <div className={classes.header}>
         <Title title="Manage Shops" />
-        <Button onClick={handleAddClick} text="Add New Shop" />
+        {/* Only show Add button for admin/owners */}
+        {!isShopAdminOnly && (
+          <Button onClick={handleAddClick} text="Add New Shop" />
+        )}
       </div>
-
+      
       {error && (
         <div className={classes.error_message}>
           <p>{error}</p>
           <Button onClick={loadShops} text="Try Again" />
         </div>
       )}
-
+      
       {showForm ? (
         <ShopForm 
           shop={shopToEdit} 
@@ -119,7 +138,7 @@ export default function ManageShops() {
         ) : (
           <div className={classes.shops_list}>
             {!Array.isArray(shops) || shops.length === 0 ? (
-              <p>No shops found. Add your first shop!</p>
+              <p>No shops found. {!isShopAdminOnly ? 'Add your first shop!' : 'No shops have been assigned to you.'}</p>
             ) : (
               <table className={classes.shops_table}>
                 <thead>
@@ -157,12 +176,15 @@ export default function ManageShops() {
                           >
                             Edit
                           </button>
-                          <button 
-                            className={classes.delete_button}
-                            onClick={() => handleDeleteClick(shop._id)}
-                          >
-                            Delete
-                          </button>
+                          {/* Only show Delete button for admin/owners */}
+                          {!isShopAdminOnly && (
+                            <button 
+                              className={classes.delete_button}
+                              onClick={() => handleDeleteClick(shop._id)}
+                            >
+                              Delete
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

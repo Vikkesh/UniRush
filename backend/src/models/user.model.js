@@ -9,6 +9,8 @@ export const UserSchema = new Schema(
       isAdmin: { type: Boolean, default: false },
       isOwner: { type: Boolean, default: false }, // Added owner role
       isDelivery: { type: Boolean, default: false }, // Added delivery role
+      isShopAdmin: { type: Boolean, default: false }, // Added shop admin role
+      managedShops: [{ type: Schema.Types.ObjectId, ref: 'shop' }], // Reference to shops this admin can manage
       isBlocked: { type: Boolean, default: false },
     },
     {

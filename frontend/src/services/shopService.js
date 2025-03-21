@@ -5,6 +5,12 @@ export const getAll = async () => {
     return data;
 };
 
+// Function to get shops filtered by user permissions
+export const getAdminShops = async () => {
+    const { data } = await axios.get('/api/shops/admin');
+    return data;
+};
+
 export const search = async searchTerm => {
     const { data } = await axios.get('/api/shops/search/' + searchTerm);
     return data;

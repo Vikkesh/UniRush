@@ -134,3 +134,35 @@ export const toggleOwnerRole = async (userId, isOwner) => {
   });
   return data;
 };
+
+export const toggleShopAdminRole = async (userId, isShopAdmin) => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.put(`/api/users/admin/${userId}/shopAdmin`, { isShopAdmin }, {
+    headers: {
+      'Access-Token': user.token,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};
+
+export const updateManagedShops = async (userId, shopIds) => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.put(`/api/users/admin/${userId}/managedShops`, { shopIds }, {
+    headers: {
+      'Access-Token': user.token,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};

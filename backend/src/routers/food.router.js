@@ -14,6 +14,28 @@ router.get(
   })
 );
 
+// Admin route to get foods based on permissions
+router.get(
+  '/admin',
+  auth,
+  handler(async (req, res) => {
+    // If user is admin or owner, return all foods
+    if (req.user.isAdmin || req.user.isOwner) {
+      const foods = await FoodModel.find({}).populate('shop');
+      return res.send(foods);
+    }
+    
+    // If user is shop admin, return only foods from their managed shops
+    if (req.user.isShopAdmin) {
+      const foods = await FoodModel.find({ shop: { $in: req.user.managedShops } }).populate('shop');
+      return res.send(foods);
+    }
+    
+    // If not admin or shop admin, return forbidden
+    return res.status(403).send('Access Denied');
+  })
+);
+
 router.get(
   '/tags',
   handler(async (req, res) => {
@@ -82,12 +104,21 @@ router.post(
   auth,
   handler(async (req, res) => {
     const { name, price, tags, shop, favorite, stars, imageUrl, origins, cookTime } = req.body;
-
-    if (!req.user.isAdmin) {
-      res.status(403).send('Only Admin Can Create Food Items');
+    
+    // Check if user has permission to create food items
+    if (req.user.isAdmin || req.user.isOwner) {
+      // Admin or owner can create food for any shop
+    } else if (req.user.isShopAdmin) {
+      // Check if shop admin has permission for this shop
+      if (!req.user.managedShops.some(managedShop => managedShop.toString() === shop)) {
+        res.status(403).send('You do not have permission to add food items to this shop');
+        return;
+      }
+    } else {
+      res.status(403).send('Only Admin, Owner, or Shop Admin Can Create Food Items');
       return;
     }
-
+    
     const food = await FoodModel.create({
       name,
       price,
@@ -99,7 +130,6 @@ router.post(
       origins: origins || [],
       cookTime
     });
-
     res.send(await food.populate('shop'));
   })
 );
@@ -110,12 +140,35 @@ router.put(
   handler(async (req, res) => {
     const { name, price, tags, shop, favorite, stars, imageUrl, origins, cookTime } = req.body;
     const { foodId } = req.params;
-
-    if (!req.user.isAdmin) {
-      res.status(403).send('Only Admin Can Update Food Items');
+    
+    // First find the existing food to check permissions
+    const existingFood = await FoodModel.findById(foodId);
+    if (!existingFood) {
+      res.status(404).send('Food not found!');
       return;
     }
 
+    // Check if user has permission to update this food item
+    if (req.user.isAdmin || req.user.isOwner) {
+      // Admin or owner can update any food
+    } else if (req.user.isShopAdmin) {
+      // Check if shop admin has permission for this shop
+      const existingShopId = existingFood.shop.toString();
+      if (!req.user.managedShops.some(managedShop => managedShop.toString() === existingShopId)) {
+        res.status(403).send('You do not have permission to update food items for this shop');
+        return;
+      }
+      
+      // Ensure shop admin can't move food to a shop they don't manage
+      if (shop && shop !== existingShopId && !req.user.managedShops.some(managedShop => managedShop.toString() === shop)) {
+        res.status(403).send('You do not have permission to move food items to that shop');
+        return;
+      }
+    } else {
+      res.status(403).send('Only Admin, Owner, or Shop Admin Can Update Food Items');
+      return;
+    }
+    
     const updatedFood = await FoodModel.findByIdAndUpdate(
       foodId,
       {
@@ -131,12 +184,7 @@ router.put(
       },
       { new: true }
     ).populate('shop');
-
-    if (!updatedFood) {
-      res.status(404).send('Food not found!');
-      return;
-    }
-
+    
     res.send(updatedFood);
   })
 );
@@ -146,12 +194,29 @@ router.delete(
   auth,
   handler(async (req, res) => {
     const { foodId } = req.params;
-
-    if (!req.user.isAdmin) {
-      res.status(403).send('Only Admin Can Delete Food Items');
+    
+    // First find the existing food to check permissions
+    const existingFood = await FoodModel.findById(foodId);
+    if (!existingFood) {
+      res.status(404).send('Food not found!');
       return;
     }
 
+    // Check if user has permission to delete this food item
+    if (req.user.isAdmin || req.user.isOwner) {
+      // Admin or owner can delete any food
+    } else if (req.user.isShopAdmin) {
+      // Check if shop admin has permission for this shop
+      const existingShopId = existingFood.shop.toString();
+      if (!req.user.managedShops.some(managedShop => managedShop.toString() === existingShopId)) {
+        res.status(403).send('You do not have permission to delete food items for this shop');
+        return;
+      }
+    } else {
+      res.status(403).send('Only Admin, Owner, or Shop Admin Can Delete Food Items');
+      return;
+    }
+    
     await FoodModel.findByIdAndDelete(foodId);
     res.send({ success: true });
   })

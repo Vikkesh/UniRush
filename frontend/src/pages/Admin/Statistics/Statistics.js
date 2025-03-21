@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getStatistics } from '../../../services/orderService';
-import { getAll as getAllShops } from '../../../services/shopService';
+import { getAdminShops } from '../../../services/shopService';
 import { getAllStatus } from '../../../services/orderService';
 import classes from './statistics.module.css';
 import Title from '../../../components/Title/Title';
@@ -37,7 +37,7 @@ export default function Statistics() {
     const loadFilterOptions = async () => {
       try {
         const [shopsData, statusData] = await Promise.all([
-          getAllShops(),
+          getAdminShops(),
           getAllStatus()
         ]);
         
@@ -164,7 +164,7 @@ export default function Statistics() {
     ) {
       loadStatistics();
     }
-  }, [timeFilter, statusFilter, shopFilter]);
+  }, [timeFilter, statusFilter, shopFilter, customStartDate, customEndDate]);
   
   // Handle custom date range changes
   const handleCustomDateSubmit = (e) => {
@@ -290,10 +290,12 @@ export default function Statistics() {
             className={classes.filter_select}
           >
             <option value="all">All Shops</option>
-            {shops.map(shop => (
-              <option key={shop._id} value={shop._id}>
-                {shop.name}
-              </option>
+            {shops
+              .filter(shop => user.isAdmin || shop.adminId === user._id)
+              .map(shop => (
+                <option key={shop._id} value={shop._id}>
+                  {shop.name}
+                </option>
             ))}
           </select>
         </div>

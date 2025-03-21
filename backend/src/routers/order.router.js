@@ -140,10 +140,10 @@ router.get(
     '/statistics',
     handler(async (req, res) => {
         try {
-            // Verify user is admin or owner
+            // Verify user is admin, owner, or shop admin
             const user = await UserModel.findById(req.user.id);
-            if (!user || (!user.isAdmin && !user.isOwner)) {
-                return res.status(UNAUTHORIZED).send('Only admins or owners can access statistics');
+            if (!user || (!user.isAdmin && !user.isOwner && !user.isShopAdmin)) {
+                return res.status(UNAUTHORIZED).send('Only admins, owners, or shop admins can access statistics');
             }
 
             // Parse query parameters
@@ -178,9 +178,22 @@ router.get(
             if (status && status !== 'ALL') {
                 filter.status = status;
             }
-
-            // Shop filter (for owner view)
-            if (shopId && shopId !== 'all') {
+            
+            // Shop filter based on user role
+            if (user.isShopAdmin && !user.isAdmin && !user.isOwner) {
+                // Shop admins can only see data for their managed shops
+                if (shopId && shopId !== 'all') {
+                    // Check if this shop is in their managed shops
+                    if (!user.managedShops.some(managedShop => managedShop.toString() === shopId)) {
+                        return res.status(UNAUTHORIZED).send('You do not have permission to view this shop');
+                    }
+                    filter.shopId = shopId;
+                } else {
+                    // No specific shop selected, filter by all managed shops
+                    filter.shopId = { $in: user.managedShops };
+                }
+            } else if (shopId && shopId !== 'all') {
+                // Admin/owner can filter by any shop
                 filter.shopId = shopId;
             }
 
@@ -190,7 +203,15 @@ router.get(
                 .sort('-createdAt');
 
             // Get all active shops for proper categorization
-            const activeShops = await ShopModel.find({}, '_id name');
+            let activeShops;
+            if (user.isShopAdmin && !user.isAdmin && !user.isOwner) {
+                // Shop admins only see their managed shops
+                activeShops = await ShopModel.find({ _id: { $in: user.managedShops } }, '_id name');
+            } else {
+                // Admins and owners see all shops
+                activeShops = await ShopModel.find({}, '_id name');
+            }
+
             const activeShopIds = new Set(activeShops.map(shop => shop._id.toString()));
 
             // Calculate aggregated statistics
@@ -342,12 +363,12 @@ router.get(
                 filter.user = req.user.id;
             } else {
                 // If user is delivery personnel, admin, or owner, don't filter by user
-                if (!user.isAdmin && !user.isDelivery && !user.isOwner) {
+                if (!user.isAdmin && !user.isDelivery && !user.isOwner && !user.isShopAdmin) {
                     filter.user = user._id;
                 }
 
                 // For delivery personnel, only show allowed statuses
-                if (user.isDelivery && !user.isAdmin && !user.isOwner) {
+                if (user.isDelivery && !user.isAdmin && !user.isOwner && !user.isShopAdmin) {
                     if (status) {
                         if (!DeliveryVisibleStatus.includes(status)) {
                             return res.status(BAD_REQUEST).send('Status not accessible for delivery personnel');
@@ -358,6 +379,23 @@ router.get(
                     }
                 } else if (status) {
                     filter.status = status;
+                }
+
+                // For shop admins, only show orders for their managed shops
+                if (user.isShopAdmin && !user.isAdmin && !user.isOwner) {
+                    if (shopId && shopId !== 'all') {
+                        // Check if this shop is in their managed shops
+                        if (!user.managedShops.some(managedShop => managedShop.toString() === shopId)) {
+                            return res.status(UNAUTHORIZED).send('You do not have permission to view this shop');
+                        }
+                        filter.shopId = shopId;
+                    } else {
+                        // No specific shop selected, filter by all managed shops
+                        filter.shopId = { $in: user.managedShops };
+                    }
+                } else if (shopId && shopId !== 'all') {
+                    // Admin/owner can filter by any shop
+                    filter.shopId = shopId;
                 }
             }
 
@@ -374,11 +412,6 @@ router.get(
                 }
             }
 
-            // Apply shop filter if provided
-            if (shopId && shopId !== 'all') {
-                filter.shopId = shopId;
-            }
-            
             const orders = await OrderModel.find(filter)
                 .populate('shopId')
                 .populate('user', 'name contact')
@@ -410,8 +443,8 @@ router.put(
             
             // Check if user is admin, owner, or delivery personnel
             const user = await UserModel.findById(req.user.id);
-            if (!user || (!user.isAdmin && !user.isDelivery && !user.isOwner)) {
-                return res.status(UNAUTHORIZED).send('Only admins, owners, or delivery personnel can update order status');
+            if (!user || (!user.isAdmin && !user.isDelivery && !user.isOwner && !user.isShopAdmin)) {
+                return res.status(UNAUTHORIZED).send('Only admins, owners, shop admins, or delivery personnel can update order status');
             }
             
             // Validate the status
@@ -424,10 +457,24 @@ router.put(
                 return res.status(BAD_REQUEST).send('Order not found');
             }
             
-            order.status = status;
-            await order.save();
+            // If user is shop admin, check if they have permission for this order's shop
+            if (user.isShopAdmin && !user.isAdmin && !user.isOwner) {
+                // Convert to string for comparison
+                const orderShopId = order.shopId ? order.shopId.toString() : null;
+                
+                if (!orderShopId || !user.managedShops.some(managedShop => managedShop.toString() === orderShopId)) {
+                    return res.status(UNAUTHORIZED).send('You do not have permission to update orders for this shop');
+                }
+            }
             
-            res.send({ success: true, order });
+            // Only update the status field
+            const updatedOrder = await OrderModel.findByIdAndUpdate(
+                orderId,
+                { $set: { status: status } },
+                { new: true, runValidators: false }
+            );
+            
+            res.send({ success: true, order: updatedOrder });
         } catch (error) {
             console.error('Error updating order status:', error);
             res.status(BAD_REQUEST).send('Failed to update order status');

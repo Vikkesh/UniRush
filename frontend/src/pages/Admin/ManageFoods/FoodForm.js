@@ -3,8 +3,13 @@ import classes from './foodForm.module.css';
 import Title from '../../../components/Title/Title';
 import Input from '../../../components/Input/Input';
 import Button from '../../../components/Button/Button';
+import { useAuth } from '../../../hooks/useAuth';
 
 export default function FoodForm({ food, shops, onSubmit, onCancel }) {
+  const { user } = useAuth();
+  // Determine if the user is a shop admin without admin/owner privileges
+  const isShopAdminOnly = user?.isShopAdmin && !user?.isAdmin && !user?.isOwner;
+
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -42,13 +47,21 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
         cookTime: food.cookTime || ''
       });
     } else if (shops && shops.length > 0) {
-      // Set default shop for new food items
-      setFormData(prev => ({
-        ...prev,
-        shop: shops[0]._id
-      }));
+      // For new foods, if shop admin has only one shop, preselect it
+      if (isShopAdminOnly && shops.length === 1) {
+        setFormData(prev => ({
+          ...prev,
+          shop: shops[0]._id
+        }));
+      } else {
+        // For admins or shop admins with multiple shops
+        setFormData(prev => ({
+          ...prev,
+          shop: shops[0]._id
+        }));
+      }
     }
-  }, [food, shops]);
+  }, [food, shops, isShopAdminOnly]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -140,6 +153,10 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
     onSubmit(processedData);
   };
 
+  // If shop admin has only one shop and we're editing a food from that shop, 
+  // disable the shop dropdown
+  const isShopFieldDisabled = isShopAdminOnly && shops.length === 1;
+
   return (
     <div className={classes.container}>
       <form onSubmit={handleSubmit} className={classes.form}>
@@ -176,6 +193,7 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
             value={formData.shop}
             onChange={handleChange}
             className={errors.shop ? classes.error_select : classes.select}
+            disabled={isShopFieldDisabled}
           >
             <option value="">Select a shop</option>
             {shops.map(shop => (
@@ -185,6 +203,9 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
             ))}
           </select>
           {errors.shop && <p className={classes.error_text}>{errors.shop}</p>}
+          {isShopFieldDisabled && shops.length === 1 && (
+            <p className={classes.help_text}>As a shop admin, you can only add food to your assigned shop.</p>
+          )}
         </div>
         
         <div className={classes.form_group}>

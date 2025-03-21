@@ -1,40 +1,49 @@
 import axios from 'axios';
+
 export const getAll = async () => {
     const { data } = await axios.get('/api/foods');
     return data;
-  };
-  export const search = async searchTerm => {
+};
+
+// Function to get foods filtered by user permissions
+export const getAdminFoods = async () => {
+    const { data } = await axios.get('/api/foods/admin');
+    return data;
+};
+
+export const search = async searchTerm => {
     const { data } = await axios.get('/api/foods/search/' + searchTerm);
     return data;
-  };
-  
-  export const getAllTags = async () => {
+};
+
+export const getAllTags = async () => {
     const { data } = await axios.get('/api/foods/tags');
     return data;
-  };
+};
+
 export const getAllByTag = async tag => {
     if (tag === 'All') return getAll();
     const { data } = await axios.get('/api/foods/tag/' + tag);
     return data;
-}
-export const getById = async foodId =>
-   {
+};
+
+export const getById = async foodId => {
     const { data } = await axios.get(`/api/foods/${foodId}`);
     return data;
-   }
+};
 
 // Admin functions for managing food items
 export const createFood = async foodData => {
-  const { data } = await axios.post('/api/foods', foodData);
-  return data;
+    const { data } = await axios.post('/api/foods', foodData);
+    return data;
 };
 
 export const updateFood = async (foodId, foodData) => {
-  const { data } = await axios.put('/api/foods/' + foodId, foodData);
-  return data;
+    const { data } = await axios.put('/api/foods/' + foodId, foodData);
+    return data;
 };
 
 export const deleteFood = async foodId => {
-  const { data } = await axios.delete('/api/foods/' + foodId);
-  return data;
+    const { data } = await axios.delete('/api/foods/' + foodId);
+    return data;
 };

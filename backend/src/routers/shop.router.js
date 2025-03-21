@@ -15,6 +15,28 @@ router.get(
   })
 );
 
+// Admin route to get shops based on permissions
+router.get(
+  '/admin',
+  auth,
+  handler(async (req, res) => {
+    // If user is admin or owner, return all shops
+    if (req.user.isAdmin || req.user.isOwner) {
+      const shops = await ShopModel.find({});
+      return res.send(shops);
+    }
+    
+    // If user is shop admin, return only their managed shops
+    if (req.user.isShopAdmin) {
+      const shops = await ShopModel.find({ _id: { $in: req.user.managedShops } });
+      return res.send(shops);
+    }
+    
+    // If not admin or shop admin, return forbidden
+    return res.status(403).send('Access Denied');
+  })
+);
+
 router.get(
   '/tags',
   handler(async (req, res) => {
@@ -86,15 +108,15 @@ router.get(
   })
 );
 
-// Admin routes for shops
+// Admin routes for shops with shop admin support
 router.post(
   '/',
   auth,
   handler(async (req, res) => {
     const { name, description, imageUrl, address, tags, stars } = req.body;
 
-    if (!req.user.isAdmin) {
-      res.status(403).send('Only Admin Can Create Shops');
+    if (!req.user.isAdmin && !req.user.isOwner) {
+      res.status(403).send('Only Admin or Owner Can Create Shops');
       return;
     }
 
@@ -118,9 +140,18 @@ router.put(
     const { name, description, imageUrl, address, tags, stars } = req.body;
     const { shopId } = req.params;
 
-    if (!req.user.isAdmin) {
-      res.status(403).send('Only Admin Can Update Shops');
-      return;
+    // Check if user has permission to update this shop
+    if (!req.user.isAdmin && !req.user.isOwner) {
+      if (req.user.isShopAdmin) {
+        // Check if this shop is in their managedShops
+        if (!req.user.managedShops.includes(shopId)) {
+          res.status(403).send('You do not have permission to update this shop');
+          return;
+        }
+      } else {
+        res.status(403).send('Only Admin, Owner or Shop Admin Can Update Shops');
+        return;
+      }
     }
 
     const shop = await ShopModel.findByIdAndUpdate(
@@ -146,8 +177,9 @@ router.delete(
   handler(async (req, res) => {
     const { shopId } = req.params;
 
-    if (!req.user.isAdmin) {
-      res.status(403).send('Only Admin Can Delete Shops');
+    // Only global admin or owner can delete shops
+    if (!req.user.isAdmin && !req.user.isOwner) {
+      res.status(403).send('Only Admin or Owner Can Delete Shops');
       return;
     }
 

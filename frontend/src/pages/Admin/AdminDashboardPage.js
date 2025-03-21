@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Title from '../../components/Title/Title';
 import classes from './adminDashboard.module.css';
@@ -12,17 +12,20 @@ import { useAuth } from '../../hooks/useAuth';
 export default function AdminDashboardPage() {
   const { user } = useAuth();
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
+  
+  // Wrap queryParams in useMemo to fix the exhaustive-deps warning
+  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   
   // Get section from query params or default to appropriate section based on user role
   const defaultSection = user?.isDelivery && !user?.isAdmin && !user?.isOwner ? 'orders' : '';
   const [activeSection, setActiveSection] = useState(queryParams.get('section') || defaultSection);
-  const [orderFilter, setOrderFilter] = useState(queryParams.get('filter') || null);
+  const [filter, setFilter] = useState(queryParams.get('filter') || null);
   
-  // Set page title based on user role
+  // Set page title based on user role - prioritize higher roles
   let pageTitle = "Dashboard";
   if (user?.isOwner) pageTitle = "Owner Dashboard";
   else if (user?.isAdmin) pageTitle = "Admin Dashboard";
+  else if (user?.isShopAdmin) pageTitle = "Shop Admin Dashboard";
   else if (user?.isDelivery) pageTitle = "Delivery Dashboard";
 
   useEffect(() => {
@@ -34,9 +37,9 @@ export default function AdminDashboardPage() {
     
     const filterParam = queryParams.get('filter');
     if (filterParam) {
-      setOrderFilter(filterParam);
+      setFilter(filterParam);
     }
-  }, [location.search]);
+  }, [queryParams]);
 
   // If delivery user tries to access other sections, redirect to orders
   useEffect(() => {
@@ -45,8 +48,12 @@ export default function AdminDashboardPage() {
     }
   }, [activeSection, user]);
   
+  // User with admin or owner privileges should see the admin interface
   const hasAdminPrivileges = user?.isAdmin || user?.isOwner;
-
+  
+  // Only consider someone a "shop admin only" if they have shop admin role but not admin/owner roles
+  const isShopAdminOnly = user?.isShopAdmin && !hasAdminPrivileges;
+  
   const renderContent = () => {
     switch (activeSection) {
       case 'foods':
@@ -56,7 +63,7 @@ export default function AdminDashboardPage() {
       case 'users':
         return <ManageUsers />;
       case 'orders':
-        return <ManageOrders />;
+        return <ManageOrders filter={filter} />;
       case 'statistics':
         return <Statistics />;
       default:
@@ -99,8 +106,29 @@ export default function AdminDashboardPage() {
               </div>
             </>
           )}
+
+          {/* Show shop management for shop admin ONLY if they don't have admin/owner privileges */}
+          {isShopAdminOnly && (
+            <>
+              <div 
+                className={`${classes.dashboard_item} ${activeSection === 'shops' ? classes.active : ''}`} 
+                onClick={() => setActiveSection('shops')}
+              >
+                <h3>Manage Shops</h3>
+                <p>View your assigned shops</p>
+              </div>
+              
+              <div 
+                className={`${classes.dashboard_item} ${activeSection === 'foods' ? classes.active : ''}`}
+                onClick={() => setActiveSection('foods')}
+              >
+                <h3>Manage Foods</h3>
+                <p>Manage food items for your shops</p>
+              </div>
+            </>
+          )}
           
-          {/* Show order management to admin, owner and delivery users */}
+          {/* Show order management to admin, owner, shop admin and delivery users */}
           <div 
             className={`${classes.dashboard_item} ${activeSection === 'orders' ? classes.active : ''}`}
             onClick={() => setActiveSection('orders')}
@@ -109,8 +137,8 @@ export default function AdminDashboardPage() {
             <p>View and process customer orders</p>
           </div>
           
-          {/* Only show statistics to admin or owner users */}
-          {hasAdminPrivileges && (
+          {/* Show statistics to admin, owner and shop admin users */}
+          {(hasAdminPrivileges || user?.isShopAdmin) && (
             <div 
               className={`${classes.dashboard_item} ${activeSection === 'statistics' ? classes.active : ''}`}
               onClick={() => setActiveSection('statistics')}

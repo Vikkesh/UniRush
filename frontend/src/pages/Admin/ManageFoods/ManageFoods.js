@@ -6,6 +6,7 @@ import Title from '../../../components/Title/Title';
 import Button from '../../../components/Button/Button';
 import FoodForm from './FoodForm';
 import StarRating from '../../../components/StarRating/StarRating';
+import { useAuth } from '../../../hooks/useAuth';
 
 export default function ManageFoods() {
   const [foods, setFoods] = useState([]);
@@ -16,19 +17,29 @@ export default function ManageFoods() {
   const [foodToEdit, setFoodToEdit] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedShop, setSelectedShop] = useState('all');
-
+  const { user } = useAuth();
+  
+  // Determine if the user is a shop admin without admin/owner privileges
+  const isShopAdminOnly = user?.isShopAdmin && !user?.isAdmin && !user?.isOwner;
+  
   useEffect(() => {
     loadFoods();
     loadShops();
   }, []);
-
+  
   const loadFoods = async () => {
     setIsLoading(true);
     setErrorFoods(null);
     try {
-      const response = await foodService.getAll();
+      // Use the admin endpoint to get foods filtered by permissions
+      const response = await foodService.getAdminFoods();
       if (Array.isArray(response)) {
         setFoods(response);
+        
+        // If shop admin has only one shop, pre-select it in the filter
+        if (isShopAdminOnly && user.managedShops && user.managedShops.length === 1) {
+          setSelectedShop(user.managedShops[0]);
+        }
       } else {
         console.error('API did not return an array for foods:', response);
         setFoods([]);
@@ -42,11 +53,12 @@ export default function ManageFoods() {
       setIsLoading(false);
     }
   };
-
+  
   const loadShops = async () => {
     setErrorShops(null);
     try {
-      const response = await shopService.getAll();
+      // Use the admin endpoint to get shops filtered by permissions
+      const response = await shopService.getAdminShops();
       if (Array.isArray(response)) {
         setShops(response);
       } else {
@@ -60,12 +72,12 @@ export default function ManageFoods() {
       setErrorShops('Failed to load shops.');
     }
   };
-
+  
   const handleAddClick = () => {
     setFoodToEdit(null);
     setShowForm(true);
   };
-
+  
   const handleEditClick = (food) => {
     // Improved logging to verify all food data is available
     console.log("Editing food item - full data:", JSON.stringify(food));
@@ -74,12 +86,11 @@ export default function ManageFoods() {
     setFoodToEdit({...food});
     setShowForm(true);
   };
-
+  
   const handleDeleteClick = async (foodId) => {
     if (!window.confirm('Are you sure you want to delete this food item?')) {
       return;
     }
-
     try {
       await foodService.deleteFood(foodId);
       loadFoods();
@@ -88,7 +99,7 @@ export default function ManageFoods() {
       alert('Failed to delete food item');
     }
   };
-
+  
   const handleFormSubmit = async (foodData) => {
     try {
       if (foodToEdit) {
@@ -104,29 +115,29 @@ export default function ManageFoods() {
       alert('Failed to save food item');
     }
   };
-
+  
   const handleCancelForm = () => {
     setShowForm(false);
   };
-
+  
   const handleShopFilterChange = (e) => {
     setSelectedShop(e.target.value);
   };
-
+  
   // Filter foods by selected shop - ensure both foods and shops are arrays
   const filteredFoods = Array.isArray(foods) 
     ? (selectedShop === 'all' 
       ? foods 
-      : foods.filter(food => food.shop && food.shop._id === selectedShop))
+      : foods.filter(food => food.shop && (food.shop._id === selectedShop || food.shop === selectedShop)))
     : [];
-
+  
   return (
     <div className={classes.container}>
       <div className={classes.header}>
         <Title title="Manage Foods" />
         <Button onClick={handleAddClick} text="Add New Food" />
       </div>
-
+      
       {(errorFoods || errorShops) && (
         <div className={classes.error_message}>
           {errorFoods && <p>{errorFoods}</p>}
@@ -134,7 +145,7 @@ export default function ManageFoods() {
           <Button onClick={() => { loadFoods(); loadShops(); }} text="Try Again" />
         </div>
       )}
-
+      
       <div className={classes.filter_section}>
         <label htmlFor="shopFilter">Filter by Shop:</label>
         <select
@@ -143,7 +154,10 @@ export default function ManageFoods() {
           onChange={handleShopFilterChange}
           className={classes.shop_filter}
         >
-          <option value="all">All Shops</option>
+          {/* Only show "All Shops" option if user is admin/owner or has multiple shops as shop admin */}
+          {(!isShopAdminOnly || shops.length > 1) && (
+            <option value="all">All Shops</option>
+          )}
           {Array.isArray(shops) && shops.map(shop => (
             <option key={shop._id || `shop-${Math.random()}`} value={shop._id}>
               {shop.name || 'Unnamed Shop'}
@@ -151,7 +165,7 @@ export default function ManageFoods() {
           ))}
         </select>
       </div>
-
+      
       {showForm ? (
         <FoodForm 
           food={foodToEdit} 
@@ -165,7 +179,7 @@ export default function ManageFoods() {
         ) : (
           <div className={classes.foods_list}>
             {filteredFoods.length === 0 ? (
-              <p>No food items found. Add your first food item!</p>
+              <p>No food items found. {shops.length > 0 ? 'Add your first food item!' : 'No shops available for adding food items.'}</p>
             ) : (
               <table className={classes.foods_table}>
                 <thead>
@@ -189,7 +203,7 @@ export default function ManageFoods() {
                         />
                       </td>
                       <td>{food.name || 'Unnamed Food'}</td>
-                      <td>{food.shop ? food.shop.name : 'Unknown'}</td>
+                      <td>{food.shop ? (food.shop.name || 'Unknown') : 'Unknown'}</td>
                       <td>₹{(food.price || 0).toFixed(2)}</td>
                       <td>
                         <StarRating stars={food.stars || 0} size={20} />

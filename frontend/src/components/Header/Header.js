@@ -19,6 +19,7 @@ export default function Header() {
   const getDashboardLabel = () => {
     if (user?.isOwner) return "Owner Dashboard";
     if (user?.isAdmin) return "Admin Dashboard";
+    if (user?.isShopAdmin) return "Shop Admin Dashboard";
     if (user?.isDelivery) return "Delivery Dashboard";
     return "Dashboard";
   };
@@ -34,8 +35,8 @@ export default function Header() {
             {user ? (
               <>
                 <div className={classes.menu_container}>
-                  {/* Show dashboard link for admin, delivery, and owner roles */}
-                  {(user.isAdmin || user.isDelivery || user.isOwner) && (
+                  {/* Show dashboard link for admin, delivery, shop admin, and owner roles */}
+                  {(user.isAdmin || user.isDelivery || user.isOwner || user.isShopAdmin) && (
                     <Link to="/admin/dashboard">{getDashboardLabel()}</Link>
                   )}
                 </div>
@@ -48,7 +49,10 @@ export default function Header() {
                     {user.isAdmin && !user.isOwner && (
                       <span className={classes.role_badge}>Admin</span>
                     )}
-                    {user.isDelivery && !user.isAdmin && !user.isOwner && (
+                    {user.isShopAdmin && !user.isAdmin && !user.isOwner && (
+                      <span className={classes.role_badge}>Shop Admin</span>
+                    )}
+                    {user.isDelivery && !user.isAdmin && !user.isOwner && !user.isShopAdmin && (
                       <span className={classes.role_badge}>Delivery</span>
                     )}
                   </Link>

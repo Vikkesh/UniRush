@@ -5,6 +5,8 @@ import handler from 'express-async-handler';
 import { UserModel } from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
 import auth from '../middleware/auth.mid.js';
+import { ShopModel } from '../models/shop.model.js';
+
 const router = Router();
 const PASSWORD_HASH_SALT_ROUNDS = 10;
 
@@ -384,6 +386,98 @@ router.put(
   })
 );
 
+// Add route to toggle shop admin role
+router.put(
+  '/admin/:userId/shopAdmin',
+  auth,
+  handler(async (req, res) => {
+    if (!req.user.isAdmin && !req.user.isOwner) {
+      res.status(UNAUTHORIZED).send('Only admins and owners can assign shop admin privileges');
+      return;
+    }
+    
+    const { userId } = req.params;
+    const { isShopAdmin } = req.body;
+    
+    try {
+      // If we're removing shop admin role, also clear managed shops
+      const updateData = { isShopAdmin };
+      if (!isShopAdmin) {
+        updateData.managedShops = [];
+      }
+      
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        userId,
+        updateData,
+        { new: true, select: '-password' }
+      );
+      
+      if (!updatedUser) {
+        res.status(BAD_REQUEST).send('User not found');
+        return;
+      }
+      
+      res.send(updatedUser);
+    } catch (error) {
+      console.error('Error toggling shop admin role:', error);
+      res.status(BAD_REQUEST).send('Failed to update shop admin status');
+    }
+  })
+);
+
+// Add route to manage shop assignments for shop admins
+router.put(
+  '/admin/:userId/managedShops',
+  auth,
+  handler(async (req, res) => {
+    if (!req.user.isAdmin && !req.user.isOwner) {
+      res.status(UNAUTHORIZED).send('Only admins and owners can assign shops to shop admins');
+      return;
+    }
+    
+    const { userId } = req.params;
+    const { shopIds } = req.body;
+    
+    try {
+      // First check if user exists and is a shop admin
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        res.status(BAD_REQUEST).send('User not found');
+        return;
+      }
+      
+      if (!user.isShopAdmin) {
+        res.status(BAD_REQUEST).send('User must be a shop admin to assign shops');
+        return;
+      }
+      
+      // Validate that all shopIds exist
+      if (shopIds && shopIds.length > 0) {
+        const shopCount = await ShopModel.countDocuments({
+          _id: { $in: shopIds }
+        });
+        
+        if (shopCount !== shopIds.length) {
+          res.status(BAD_REQUEST).send('One or more shop IDs are invalid');
+          return;
+        }
+      }
+      
+      // Update the managed shops
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        userId,
+        { managedShops: shopIds || [] },
+        { new: true, select: '-password' }
+      );
+      
+      res.send(updatedUser);
+    } catch (error) {
+      console.error('Error updating managed shops:', error);
+      res.status(BAD_REQUEST).send('Failed to update managed shops');
+    }
+  })
+);
+
 const generateTokenResponse = user => {
   const token = jwt.sign(
     {
@@ -392,6 +486,8 @@ const generateTokenResponse = user => {
       isAdmin: user.isAdmin,
       isDelivery: user.isDelivery,
       isOwner: user.isOwner,
+      isShopAdmin: user.isShopAdmin,
+      managedShops: user.managedShops,
     },
     process.env.JWT_SECRET,
     {
@@ -407,6 +503,8 @@ const generateTokenResponse = user => {
     isAdmin: user.isAdmin,
     isDelivery: user.isDelivery,
     isOwner: user.isOwner,
+    isShopAdmin: user.isShopAdmin,
+    managedShops: user.managedShops,
     token,
   };
 };

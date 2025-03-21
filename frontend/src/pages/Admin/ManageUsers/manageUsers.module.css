@@ -62,7 +62,8 @@
 
 .edit_button, 
 .block_button, 
-.unblock_button {
+.unblock_button,
+.assign_shops_button {
   padding: 0.3rem 0.6rem;
   border: none;
   border-radius: 4px;
@@ -98,9 +99,21 @@
   background-color: #3e8e41;
 }
 
+.assign_shops_button {
+  background-color: #ff9800;
+  color: white;
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.assign_shops_button:hover {
+  background-color: #f57c00;
+}
+
 .checkbox_container {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .address_cell {
@@ -123,4 +136,64 @@
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Shop Assignment Modal Styles */
+.modal_overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal_content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.shops_list {
+  margin: 1rem 0;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.shop_item {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.shop_item:last-child {
+  border-bottom: none;
+}
+
+.shop_item label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.shop_item input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.modal_buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
 }

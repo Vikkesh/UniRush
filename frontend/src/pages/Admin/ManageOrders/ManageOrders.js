@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getAll, getAllStatus, updateOrderStatus } from '../../../services/orderService';
-import { getAll as getAllShops } from '../../../services/shopService';
+import { getAdminShops } from '../../../services/shopService';
 import classes from './manageOrders.module.css';
 import Title from '../../../components/Title/Title';
 import DateTime from '../../../components/DateTime/DateTime';
@@ -61,10 +61,13 @@ export default function ManageOrders() {
   const location = useLocation();
   const { user } = useAuth();
   
+  // Determine if the user is a shop admin without admin/owner privileges
+  const isShopAdminOnly = user?.isShopAdmin && !user?.isAdmin && !user?.isOwner;
+  
   // Get filter from query params
   const queryParams = new URLSearchParams(location.search);
   const queryFilter = queryParams.get('filter');
-
+  
   const loadOrders = async () => {
     const filters = {};
     
@@ -100,18 +103,18 @@ export default function ManageOrders() {
     if (state.selectedShop !== 'all') {
       filters.shopId = state.selectedShop;
     }
-
+    
     const orders = await getAll(queryFilter, filters);
     dispatch({ type: 'ORDERS_FETCHED', payload: orders });
   };
-
+  
   useEffect(() => {
     // Set auth token for admin requests
     const user = userService.getUser();
     if (user && user.token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
     }
-
+    
     // Get all statuses and filter them for delivery personnel
     getAllStatus().then(statuses => {
       dispatch({ type: 'ALL_STATUS_FETCHED', payload: statuses });
@@ -124,19 +127,25 @@ export default function ManageOrders() {
         dispatch({ type: 'FILTERED_STATUS_SET', payload: statuses });
       }
     });
-
-    // Load shops for the filter
+    
+    // Load shops for the filter - Use the admin endpoint to get filtered shops by permission
     const loadShops = async () => {
-      const shops = await getAllShops();
+      const shops = await getAdminShops();
       dispatch({ type: 'SHOPS_FETCHED', payload: shops });
+      
+      // If shop admin with only one shop, pre-select it in the filter
+      if (isShopAdminOnly && user.managedShops && user.managedShops.length === 1 && shops.length === 1) {
+        dispatch({ type: 'SET_SELECTED_SHOP', payload: shops[0]._id });
+      }
     };
+    
     loadShops();
-  }, []);
-
+  }, [user, isShopAdminOnly]);
+  
   useEffect(() => {
     loadOrders();
   }, [queryFilter, state.timeFilter, state.customStartDate, state.customEndDate, state.selectedShop]);
-
+  
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       // If delivery personnel, validate status change
@@ -146,7 +155,7 @@ export default function ManageOrders() {
           return;
         }
       }
-
+      
       const result = await updateOrderStatus(orderId, newStatus);
       if (result) {
         dispatch({
@@ -159,32 +168,43 @@ export default function ManageOrders() {
       toast.error('Failed to update order status');
     }
   };
-
+  
+  // Helper function to handle order acceptance
+  const handleAcceptOrder = async (orderId) => {
+    await handleUpdateStatus(orderId, OrderStatus.ACCEPTED);
+  };
+  
+  // Helper function to handle order cancellation
+  const handleCancelOrder = async (orderId) => {
+    await handleUpdateStatus(orderId, OrderStatus.CANCELLED);
+  };
+  
   const handleFilterClick = (status) => {
     // Keep the current section parameter, just change the filter
     const currentSection = queryParams.get('section') || 'orders';
     navigate(`/admin/dashboard?section=${currentSection}&filter=${status}`);
   };
-
+  
   const getRoleLabel = () => {
-    if (user?.isAdmin) return "Admin";
-    if (user?.isDelivery) return "Delivery Personnel";
     if (user?.isOwner) return "Owner";
+    if (user?.isAdmin) return "Admin";
+    if (user?.isShopAdmin) return "Shop Admin";
+    if (user?.isDelivery) return "Delivery Personnel";
     return "";
   };
-
+  
   return (
     <div className={classes.container}>
       <div className={classes.roleIndicator}>
         <span>Role: {getRoleLabel()}</span>
       </div>
-
+      
       <Title
         title="Manage Orders"
         margin="1.5rem 0 0 .2rem"
         fontSize="1.9rem"
       />
-
+      
       <div className={classes.filters}>
         <div className={classes.filter_group}>
           <label>Time Period:</label>
@@ -230,8 +250,12 @@ export default function ManageOrders() {
             value={state.selectedShop} 
             onChange={(e) => dispatch({ type: 'SET_SELECTED_SHOP', payload: e.target.value })}
             className={classes.filter_select}
+            disabled={isShopAdminOnly && state.shops.length === 1}
           >
-            <option value="all">All Shops</option>
+            {/* Only show "All Shops" option if not a shop admin with single shop */}
+            {(!isShopAdminOnly || state.shops.length > 1) && (
+              <option value="all">All Shops</option>
+            )}
             {state.shops.map(shop => (
               <option key={shop._id} value={shop._id}>
                 {shop.name}
@@ -240,7 +264,7 @@ export default function ManageOrders() {
           </select>
         </div>
       </div>
-
+      
       {state.filteredStatus && (
         <div className={classes.all_status}>
           <Link
@@ -260,14 +284,14 @@ export default function ManageOrders() {
           ))}
         </div>
       )}
-
+      
       {state.orders?.length === 0 && (
         <NotFound
           linkRoute="/admin/dashboard?section=orders"
           linkText="Show All Orders"
         />
       )}
-
+      
       {state.orders &&
         state.orders.map(order => (
           <div key={order.id} className={classes.order_summary}>
@@ -277,6 +301,25 @@ export default function ManageOrders() {
                 <DateTime date={order.createdAt} />
               </span>
               <span>{order.status}</span>
+              
+              {/* Shop admin quick action buttons for PAID orders */}
+              {user?.isShopAdmin && order.status === OrderStatus.PAID && (
+                <div className={classes.shop_admin_actions}>
+                  <button 
+                    className={`${classes.action_button} ${classes.accept_button}`}
+                    onClick={() => handleAcceptOrder(order.id)}
+                  >
+                    Accept
+                  </button>
+                  <button 
+                    className={`${classes.action_button} ${classes.cancel_button}`}
+                    onClick={() => handleCancelOrder(order.id)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+              
               <div className={classes.status_dropdown}>
                 <select
                   value={order.status}
@@ -288,9 +331,11 @@ export default function ManageOrders() {
                 </select>
               </div>
             </div>
+            
             <div className={classes.shop_info}>
               <span>Shop: {order.shopName}</span>
             </div>
+            
             <div className={classes.customer_info}>
               <span>
                 <strong>Customer:</strong> {order.name}&nbsp;&nbsp;&nbsp;
@@ -302,6 +347,7 @@ export default function ManageOrders() {
                 <strong>Address:</strong> {order.address}
               </span>
             </div>
+            
             <div className={classes.items}>
               {order.items.map(item => (
                 <Link key={item.food.id} to={`/food/${item.food.id}`}>
@@ -310,6 +356,7 @@ export default function ManageOrders() {
                 </Link>
               ))}
             </div>
+            
             <div className={classes.footer}>
               <div>
                 <Link to={`/track/${order.id}`}>Show Order</Link>
