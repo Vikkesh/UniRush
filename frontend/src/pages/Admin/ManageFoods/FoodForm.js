@@ -18,8 +18,6 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
     favorite: false,
     stars: 3,
     imageUrl: '',
-    origins: '',
-    cookTime: ''
   });
 
   const [errors, setErrors] = useState({
@@ -27,8 +25,6 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
     price: '',
     shop: '',
     imageUrl: '',
-    origins: '',
-    cookTime: ''
   });
 
   // Updated useEffect to properly handle all fields when editing
@@ -43,8 +39,6 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
         favorite: food.favorite || false,
         stars: food.stars || 3,
         imageUrl: food.imageUrl || '',
-        origins: food.origins ? food.origins.join(', ') : '',
-        cookTime: food.cookTime || ''
       });
     } else if (shops && shops.length > 0) {
       // For new foods, if shop admin has only one shop, preselect it
@@ -107,26 +101,8 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
       newErrors.shop = '';
     }
 
-    if (!formData.imageUrl.trim()) {
-      newErrors.imageUrl = 'Image URL is required';
-      valid = false;
-    } else {
-      newErrors.imageUrl = '';
-    }
-
-    if (!formData.origins.trim()) {
-      newErrors.origins = 'Origins are required';
-      valid = false;
-    } else {
-      newErrors.origins = '';
-    }
-
-    if (!formData.cookTime.trim()) {
-      newErrors.cookTime = 'Cook Time is required';
-      valid = false;
-    } else {
-      newErrors.cookTime = '';
-    }
+    // Remove validation for imageUrl since it's now optional
+    newErrors.imageUrl = '';
 
     setErrors(newErrors);
     return valid;
@@ -145,9 +121,6 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
       tags: formData.tags.split(',')
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0),
-      origins: formData.origins.split(',')
-        .map(origin => origin.trim())
-        .filter(origin => origin.length > 0)
     };
     
     onSubmit(processedData);
@@ -209,7 +182,7 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
         </div>
         
         <div className={classes.form_group}>
-          <label>Image URL</label>
+          <label>Image URL (optional)</label>
           <Input
             type="text"
             name="imageUrl"
@@ -219,59 +192,31 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
           />
         </div>
         
-        <div className={classes.form_row}>
-          <div className={classes.form_group}>
-            <label>Tags (comma separated)</label>
-            <Input
-              type="text"
-              name="tags"
-              defaultValue={formData.tags}
-              onChange={handleChange}
-            />
-            <p className={classes.help_text}>Example: Pizza, FastFood, Lunch</p>
-          </div>
-          
-          <div className={classes.form_group}>
-            <label>Origins (comma separated)</label>
-            <Input
-              type="text"
-              name="origins"
-              defaultValue={formData.origins}
-              onChange={handleChange}
-              error={errors.origins}
-            />
-            <p className={classes.help_text}>Example: Italy, Belgium</p>
-          </div>
+        <div className={classes.form_group}>
+          <label>Tags (comma separated)</label>
+          <Input
+            type="text"
+            name="tags"
+            defaultValue={formData.tags}
+            onChange={handleChange}
+          />
+          <p className={classes.help_text}>Example: Pizza, FastFood, Lunch</p>
         </div>
         
-        <div className={classes.form_row}>
-          <div className={classes.form_group}>
-            <label>Cook Time</label>
-            <Input
-              type="text"
-              name="cookTime"
-              defaultValue={formData.cookTime}
-              onChange={handleChange}
-              error={errors.cookTime}
+        <div className={classes.form_group}>
+          <label>Rating (1-5)</label>
+          <div className={classes.range_container}>
+            <input
+              type="range"
+              name="stars"
+              min="1"
+              max="5"
+              step="0.5"
+              value={formData.stars}
+              onChange={handleStarsChange}
+              className={classes.range_input}
             />
-            <p className={classes.help_text}>Example: 10-15</p>
-          </div>
-          
-          <div className={classes.form_group}>
-            <label>Rating (1-5)</label>
-            <div className={classes.range_container}>
-              <input
-                type="range"
-                name="stars"
-                min="1"
-                max="5"
-                step="0.5"
-                value={formData.stars}
-                onChange={handleStarsChange}
-                className={classes.range_input}
-              />
-              <span className={classes.range_value}>{formData.stars}</span>
-            </div>
+            <span className={classes.range_value}>{formData.stars}</span>
           </div>
         </div>
         

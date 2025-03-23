@@ -21,3 +21,25 @@
     justify-content: center;
     align-items: center;
   }
+
+@media (max-width: 768px) {
+    .details {
+        width: 22rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        margin-top: 2rem;
+    }
+
+    .details {
+        width: 90%;
+        max-width: 18rem;
+    }
+
+    .login {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

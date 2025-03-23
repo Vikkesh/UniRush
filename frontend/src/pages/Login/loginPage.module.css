@@ -29,3 +29,25 @@
     margin: 0.5rem 0;
     color: #e72929;
   }
+
+@media (max-width: 768px) {
+    .details {
+        width: 24rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        margin-top: 2rem;
+    }
+
+    .details {
+        width: 90%;
+        max-width: 20rem;
+    }
+
+    .register {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

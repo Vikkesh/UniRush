@@ -1,16 +1,16 @@
 .container {
     max-width: 1200px;
     margin: 0 auto;
-  }
-  
-  .header {
+}
+
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-  }
-  
-  .filter_section {
+}
+
+.filter_section {
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -18,72 +18,77 @@
     background-color: #f8f8f8;
     padding: 1rem;
     border-radius: 0.5rem;
-  }
-  
-  .shop_filter {
+}
+
+.shop_filter {
     padding: 0.5rem;
     border-radius: 0.3rem;
     border: 1px solid #ddd;
     font-size: 1rem;
     min-width: 200px;
-  }
-  
-  .foods_list {
+}
+
+.foods_list {
     background-color: white;
     padding: 1rem;
     border-radius: 0.5rem;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .foods_table {
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+}
+
+.foods_table {
     width: 100%;
     border-collapse: collapse;
-  }
-  
-  .foods_table th,
-  .foods_table td {
+}
+
+.foods_table th,
+.foods_table td {
     padding: 0.8rem;
     text-align: left;
     border-bottom: 1px solid #eee;
-  }
-  
-  .foods_table th {
+}
+
+.foods_table th {
     background-color: #f8f8f8;
     font-weight: bold;
-  }
-  
-  .food_image {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.food_image {
     width: 60px;
     height: 60px;
     object-fit: cover;
     border-radius: 6px;
-  }
-  
-  .actions {
+}
+
+.actions {
     display: flex;
     gap: 0.5rem;
-  }
-  
-  .edit_button,
-  .delete_button {
+}
+
+.edit_button,
+.delete_button {
     padding: 0.3rem 0.6rem;
     border-radius: 0.3rem;
     font-size: 0.9rem;
     cursor: pointer;
     border: none;
-  }
-  
-  .edit_button {
+}
+
+.edit_button {
     background-color: #4caf50;
     color: white;
-  }
-  
-  .delete_button {
+}
+
+.delete_button {
     background-color: #f44336;
     color: white;
-  }
-  
-  .error_message {
+}
+
+.error_message {
     background-color: #ffebee;
     color: #c62828;
     padding: 1rem;
@@ -94,4 +99,54 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
-  }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .filter_section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .foods_list {
+        overflow-x: auto;
+        max-height: calc(100vh - 300px);
+    }
+
+    .foods_table {
+        min-width: 600px;
+    }
+
+    .shop_filter {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 0.5rem;
+    }
+
+    .foods_list {
+        padding: 0.5rem;
+        max-height: calc(100vh - 280px);
+    }
+
+    .header {
+        margin-bottom: 0.5rem;
+    }
+
+    .filter_section {
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+    }
+}

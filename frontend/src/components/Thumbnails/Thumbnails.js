@@ -19,30 +19,42 @@ export default function Thumbnails({ items }) {
             />
             
             <div className={classes.content}>
-              <div className={classes.name}>{item.name}</div>
-              <span
-                className={`${classes.favorite} ${
-                  item.favorite ? '' : classes.not
-                }`}
-              >
-                ❤
-              </span>
-              <div className={classes.stars}>
-                <StarRating stars={item.stars} />
+              <div className={classes.header}>
+                <div className={classes.name}>{item.name}</div>
+                <span
+                  className={`${classes.favorite} ${
+                    item.favorite ? '' : classes.not
+                  }`}
+                >
+                  ❤
+                </span>
               </div>
-              <div className={classes.product_item_footer}>
-                <div className={classes.origins}>
-                  {item.origins && item.origins.map(origin => (
-                    <span key={origin}>{origin}</span>
+              
+              {/* Only show star ratings for food items (those with a price > 0) */}
+              {item.price > 0 && item.stars && (
+                <div className={classes.stars}>
+                  <StarRating stars={item.stars} />
+                </div>
+              )}
+              
+              {/* Display address for shops (items with price = 0) */}
+              {item.price === 0 && item.origins && item.origins[0] && (
+                <div className={classes.address}>
+                  {item.origins[0]}
+                </div>
+              )}
+              
+              {/* Display tags for food items */}
+              {item.price > 0 && item.tags && item.tags.length > 0 && (
+                <div className={classes.tags}>
+                  {item.tags.map(tag => (
+                    <span key={tag} className={classes.tag}>
+                      {tag}
+                    </span>
                   ))}
                 </div>
-                {item.cookTime && (
-                  <div className={classes.cook_time}>
-                    <span>🕒</span>
-                    {item.cookTime}
-                  </div>
-                )}
-              </div>
+              )}
+              
               {item.price > 0 && (
                 <div className={classes.price}>
                   <Price price={item.price} />
@@ -53,5 +65,5 @@ export default function Thumbnails({ items }) {
         </li>
       ))}
     </ul>
-  )
+  );
 }

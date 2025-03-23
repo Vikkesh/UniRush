@@ -90,12 +90,6 @@ export default function FoodPage() {
           </div>
         )}
 
-        <div className={classes.origins}>
-          {food.origins?.map(origin => (
-            <span key={origin}>{origin}</span>
-          ))}
-        </div>
-
         <div className={classes.tags}>
           {food.tags && (
             <Tags
@@ -103,12 +97,6 @@ export default function FoodPage() {
               forFoodPage={true}
             />
           )}
-        </div>
-
-        <div className={classes.cook_time}>
-          <span>
-            Time to cook about <strong>{food.cookTime}</strong> minutes
-          </span>
         </div>
 
         <div className={classes.price}>

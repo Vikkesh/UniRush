@@ -30,3 +30,28 @@
   .find_location:hover {
     background-color: whitesmoke;
   }
+
+  @media (max-width: 768px) {
+    .container {
+      width: 90vw;
+      height: 50vh;
+    }
+  
+    .find_location {
+      width: 10rem;
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      width: 95vw;
+      height: 40vh;
+    }
+  
+    .find_location {
+      width: 8rem;
+      min-height: 2rem;
+      font-size: 0.8rem;
+    }
+  }

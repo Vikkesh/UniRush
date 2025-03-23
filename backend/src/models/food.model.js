@@ -8,9 +8,8 @@ export const FoodSchema = new Schema(
     shop: { type: Schema.Types.ObjectId, ref: 'shop', required: true }, 
     favorite: { type: Boolean, default: false },
     stars: { type: Number, default: 3 },
-    imageUrl: { type: String, required: true },
-    origins: { type: [String], required: true },
-    cookTime: { type: String, required: true },
+    imageUrl: { type: String, required: false }, // Changed to optional
+    // Removed origins and cookTime fields
   },
   {
     toJSON: {

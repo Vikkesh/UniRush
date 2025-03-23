@@ -103,7 +103,7 @@ router.post(
   '/',
   auth,
   handler(async (req, res) => {
-    const { name, price, tags, shop, favorite, stars, imageUrl, origins, cookTime } = req.body;
+    const { name, price, tags, shop, favorite, stars, imageUrl } = req.body;
     
     // Check if user has permission to create food items
     if (req.user.isAdmin || req.user.isOwner) {
@@ -126,9 +126,7 @@ router.post(
       shop,
       favorite: favorite || false,
       stars: stars || 3,
-      imageUrl,
-      origins: origins || [],
-      cookTime
+      imageUrl
     });
     res.send(await food.populate('shop'));
   })
@@ -138,7 +136,7 @@ router.put(
   '/:foodId',
   auth,
   handler(async (req, res) => {
-    const { name, price, tags, shop, favorite, stars, imageUrl, origins, cookTime } = req.body;
+    const { name, price, tags, shop, favorite, stars, imageUrl } = req.body;
     const { foodId } = req.params;
     
     // First find the existing food to check permissions
@@ -178,9 +176,7 @@ router.put(
         shop,
         favorite: favorite || false,
         stars: stars || 3,
-        imageUrl,
-        origins: Array.isArray(origins) ? origins : [],
-        cookTime
+        imageUrl
       },
       { new: true }
     ).populate('shop');

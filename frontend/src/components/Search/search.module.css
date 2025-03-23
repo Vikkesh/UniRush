@@ -34,3 +34,43 @@
   opacity: 1;
   cursor: pointer;
 }
+
+@media (max-width: 768px) {
+  .container {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .container input {
+    width: 16rem;
+    height: 2.5rem;
+    font-size: 0.9rem;
+    padding: 1rem;
+  }
+
+  .container button {
+    height: 2.5rem;
+    width: 4rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .container input {
+    width: 14rem;
+    height: 2.2rem;
+    font-size: 0.85rem;
+    padding: 0.8rem;
+  }
+
+  .container button {
+    height: 2.2rem;
+    width: 3.5rem;
+    font-size: 0.85rem;
+  }
+}

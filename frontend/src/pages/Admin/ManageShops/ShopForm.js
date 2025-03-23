@@ -10,8 +10,7 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
     description: '',
     imageUrl: '',
     address: '',
-    tags: '',
-    stars: 3
+    tags: ''
   });
 
   const [errors, setErrors] = useState({
@@ -29,8 +28,7 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
         description: shop.description || '',
         imageUrl: shop.imageUrl || '',
         address: shop.address || '',
-        tags: Array.isArray(shop.tags) ? shop.tags.join(', ') : '',
-        stars: shop.stars || 3
+        tags: Array.isArray(shop.tags) ? shop.tags.join(', ') : ''
       });
     }
   }, [shop]);
@@ -40,14 +38,6 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
     setFormData({
       ...formData,
       [name]: value
-    });
-  };
-
-  const handleStarsChange = (e) => {
-    const value = parseFloat(e.target.value);
-    setFormData({
-      ...formData,
-      stars: value
     });
   };
 
@@ -69,12 +59,7 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
       newErrors.description = '';
     }
 
-    if (!formData.imageUrl.trim()) {
-      newErrors.imageUrl = 'Image URL is required';
-      valid = false;
-    } else {
-      newErrors.imageUrl = '';
-    }
+    newErrors.imageUrl = '';
 
     if (!formData.address.trim()) {
       newErrors.address = 'Address is required';
@@ -132,7 +117,7 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
         <Input
           type="text"
           name="imageUrl"
-          label="Image URL"
+          label="Image URL (optional)"
           defaultValue={formData.imageUrl}
           onChange={handleChange}
           error={errors.imageUrl}
@@ -155,23 +140,6 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
           onChange={handleChange}
         />
         <p className={classes.help_text}>Example: Pizza, Italian, Fast</p>
-        
-        <div className={classes.form_group}>
-          <label>Rating (1-5)</label>
-          <div className={classes.range_container}>
-            <input
-              type="range"
-              name="stars"
-              min="1"
-              max="5"
-              step="0.5"
-              value={formData.stars}
-              onChange={handleStarsChange}
-              className={classes.range_input}
-            />
-            <span className={classes.range_value}>{formData.stars}</span>
-          </div>
-        </div>
         
         <div className={classes.buttons}>
           <Button type="submit" text={shop ? 'Save Changes' : 'Create Shop'} />

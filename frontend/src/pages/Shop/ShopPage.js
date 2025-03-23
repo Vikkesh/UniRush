@@ -4,7 +4,6 @@ import * as shopService from '../../services/shopService';
 import NotFound from '../../components/NotFound/NotFound';
 import Thumbnails from '../../components/Thumbnails/Thumbnails';
 import classes from './shopPage.module.css';
-import StarRating from '../../components/StarRating/StarRating';
 
 export default function ShopPage() {
   const [shop, setShop] = useState(null);
@@ -108,9 +107,6 @@ export default function ShopPage() {
         />
         <div className={classes.shop_details}>
           <h1 className={classes.shop_name}>{shop.name}</h1>
-          <div className={classes.rating}>
-            <StarRating stars={shop.stars} size={30} />
-          </div>
           <p className={classes.description}>{shop.description}</p>
           <p className={classes.address}>{shop.address}</p>
           <div className={classes.tags}>

@@ -5,7 +5,6 @@ import classes from './manageShops.module.css';
 import Title from '../../../components/Title/Title';
 import Button from '../../../components/Button/Button';
 import ShopForm from './ShopForm';
-import StarRating from '../../../components/StarRating/StarRating';
 import { useAuth } from '../../../hooks/useAuth';
 
 export default function ManageShops() {
@@ -145,7 +144,6 @@ export default function ManageShops() {
                   <tr>
                     <th>Image</th>
                     <th>Name</th>
-                    <th>Rating</th>
                     <th>Address</th>
                     <th>Actions</th>
                   </tr>
@@ -161,9 +159,6 @@ export default function ManageShops() {
                         />
                       </td>
                       <td>{shop.name || 'Unnamed Shop'}</td>
-                      <td>
-                        <StarRating stars={shop.stars || 0} size={20} />
-                      </td>
                       <td>{shop.address || 'No address'}</td>
                       <td>
                         <div className={classes.actions}>

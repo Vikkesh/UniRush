@@ -4,10 +4,10 @@ export const ShopSchema = new Schema(
   {
     name: { type: String, required: true },
     description: { type: String, required: true },
-    imageUrl: { type: String, required: true },
+    imageUrl: { type: String, required: false }, // Changed to optional
     address: { type: String, required: true },
     tags: { type: [String] },
-    stars: { type: Number, default: 3 },
+    // Removed stars field
   },
   {
     toJSON: {

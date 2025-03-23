@@ -1,26 +1,69 @@
 .table {
-    width: 100%;
-    border: 1px solid #8b0303;
-    margin-top: 1rem;
-    border-radius: 5px;
-    padding: 0.5rem 1rem;
+  width: 100%;
+  border: 1px solid #8b0303;
+  margin-top: 1rem;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+}
+
+.table td {
+  height: 3rem;
+}
+
+.table td img {
+  width: 3rem;
+  height: 3rem;
+  object-fit: cover;
+  border-radius: 100rem;
+}
+
+.table h3 {
+  margin-top: 0.5rem;
+  margin-left: 0.3rem;
+  color: grey;
+}
+
+.table a:hover {
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .table {
+    padding: 0.4rem 0.8rem;
   }
-  
+
   .table td {
-    height: 3rem;
+    height: 2.5rem;
   }
+
   .table td img {
-    width: 3rem;
-    height: 3rem;
-    object-fit: cover;
-    border-radius: 100rem;
+    width: 2.5rem;
+    height: 2.5rem;
   }
-  
+}
+
+@media (max-width: 480px) {
+  .table {
+    padding: 0.3rem 0.5rem;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table td {
+    height: 2rem;
+    white-space: nowrap;
+    padding: 0.3rem;
+  }
+
+  .table td img {
+    width: 2rem;
+    height: 2rem;
+  }
+
   .table h3 {
-    margin-top: 0.5rem;
-    margin-left: 0.3rem;
-    color: grey;
+    margin-top: 0.3rem;
+    margin-left: 0.2rem;
+    font-size: 0.9rem;
   }
-  .table a:hover {
-    opacity: 0.8;
-  }
+}

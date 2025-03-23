@@ -68,7 +68,6 @@ export default function HomePage() {
     name: shop.name || 'Unnamed Shop',
     price: 0, // Not relevant for shops but required by Thumbnails component
     imageUrl: shop.imageUrl || 'default-shop.jpg',
-    stars: shop.stars || 0,
     favorite: false, // Not relevant for shops
     origins: shop.address ? [shop.address] : ['No address'], // Using address as origin
     tags: shop.tags || [],

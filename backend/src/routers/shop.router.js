@@ -113,7 +113,7 @@ router.post(
   '/',
   auth,
   handler(async (req, res) => {
-    const { name, description, imageUrl, address, tags, stars } = req.body;
+    const { name, description, imageUrl, address, tags } = req.body;
 
     if (!req.user.isAdmin && !req.user.isOwner) {
       res.status(403).send('Only Admin or Owner Can Create Shops');
@@ -125,8 +125,7 @@ router.post(
       description,
       imageUrl,
       address,
-      tags,
-      stars: stars || 3
+      tags
     });
 
     res.send(shop);
@@ -137,7 +136,7 @@ router.put(
   '/:shopId',
   auth,
   handler(async (req, res) => {
-    const { name, description, imageUrl, address, tags, stars } = req.body;
+    const { name, description, imageUrl, address, tags } = req.body;
     const { shopId } = req.params;
 
     // Check if user has permission to update this shop
@@ -161,8 +160,7 @@ router.put(
         description,
         imageUrl,
         address,
-        tags,
-        stars
+        tags
       },
       { new: true }
     );
