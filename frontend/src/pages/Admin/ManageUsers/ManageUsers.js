@@ -7,7 +7,6 @@ import Button from '../../../components/Button/Button';
 import UserForm from './UserForm';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom'; 
-
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [shops, setShops] = useState([]);
@@ -75,11 +74,23 @@ export default function ManageUsers() {
   };
 
   const handleEditClick = (user) => {
+    // Check if current user is admin and target user is owner
+    if (currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner) {
+      toast.error('Admins cannot edit owner accounts');
+      return;
+    }
+    
     setUserToEdit({ ...user });
     setShowForm(true);
   };
   
   const handleToggleBlock = async (user) => {
+    // Check if current user is admin and target user is owner
+    if (currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner) {
+      toast.error('Admins cannot block owner accounts');
+      return;
+    }
+    
     try {
       const updatedUser = await userService.toggleBlockUser(user._id, !user.isBlocked);
       setUsers(users.map(u => u._id === updatedUser._id ? updatedUser : u));
@@ -203,7 +214,7 @@ export default function ManageUsers() {
     <div className={classes.container}>
       <div className={classes.header}>
         <Title title="Manage Users" />
-        <Button onClick={loadUsers} text="Refresh" />
+        <Button color=" #ece7e7" onClick={loadUsers} text="Refresh" />
       </div>
       
       {error && (
@@ -309,13 +320,15 @@ export default function ManageUsers() {
                           <button 
                             className={classes.edit_button}
                             onClick={() => handleEditClick(user)}
+                            disabled={currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner}
                           >
                             Edit
                           </button>
                           <button 
                             className={user.isBlocked ? classes.unblock_button : classes.block_button}
                             onClick={() => handleToggleBlock(user)}
-                            disabled={currentUser && user._id === currentUser.id} // Disable blocking own account
+                            disabled={(currentUser && user._id === currentUser.id) || 
+                                     (currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner)}
                           >
                             {user.isBlocked ? 'Unblock' : 'Block'}
                           </button>
@@ -356,7 +369,7 @@ export default function ManageUsers() {
               )}
             </div>
             <div className={classes.modal_buttons}>
-              <Button onClick={handleSaveShopAssignments} text="Save Assignments" />
+              <Button onClick={handleSaveShopAssignments} text="Save" />
               <Button onClick={() => setShowShopAssignModal(false)} text="Cancel" />
             </div>
           </div>

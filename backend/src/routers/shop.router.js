@@ -31,9 +31,16 @@ router.get(
       const shops = await ShopModel.find({ _id: { $in: req.user.managedShops } });
       return res.send(shops);
     }
+
+    // If user is delivery personnel, return all shops
+    // They need to see all shops to handle deliveries
+    if (req.user.isDelivery) {
+      const shops = await ShopModel.find({});
+      return res.send(shops);
+    }
     
-    // If not admin or shop admin, return forbidden
-    return res.status(403).send('Access Denied');
+    // If no valid role, return forbidden
+    res.status(403).send('Unauthorized to access shop information');
   })
 );
 

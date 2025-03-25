@@ -52,6 +52,8 @@
     display: inline-block;
 }
 
+
+
 .menu_container {
     position: relative;
     cursor: pointer;
@@ -133,6 +135,7 @@ nav {
     flex: 1;
     display: flex;
     justify-content: flex-end;
+    
 }
 
 nav ul {
@@ -142,10 +145,27 @@ nav ul {
     padding: 0;
     align-items: center;
     margin-left: auto;
+    width:100%;
+    justify-content: flex-end; /* Align all items to the right in desktop view */
+}
+.fullWidth {
+    width: auto;
+}
+nav ul li:last-child {
+    margin-left: auto;
+}
+nav ul .fullWidth{
+    margin-left: auto;  /* Push to the right */
+    margin-right: 1.5rem; /* Add space between login and cart */
+}
+
+nav ul li:last-child {
+    margin-left: 0; /* Reset the last child (cart) margin */
 }
 
 nav ul li {
     margin-left: 1.5rem;
+   
 }
 
 nav ul li a {
@@ -155,6 +175,7 @@ nav ul li a {
     transition: all 0.2s ease-in-out;
     display: flex;
     align-items: center;
+   
 }
 
 nav ul li a:hover {
@@ -297,6 +318,9 @@ nav ul li a:hover {
         opacity: 0;
         visibility: hidden;
         z-index: 1000;
+        padding-top: 0.4rem;
+        justify-content: flex-start;
+        
     }
 
     nav.open {
@@ -308,8 +332,10 @@ nav ul li a:hover {
     nav ul {
         flex-direction: column;
         align-items: flex-start;
+                
     }
 
+   
     nav ul li {
         width: 100%;
         margin: 0;
@@ -324,6 +350,19 @@ nav ul li a:hover {
         width: 100%;
         padding: 0.8rem;
         border-radius: 0.25rem;
+        font-size: 1rem;
+    }
+    .role_badge {
+        padding: 0.15rem 0.3rem;
+        font-size: 0.65rem;
+    }
+
+    /* Make login button take full width in hamburger menu */
+    .fullWidth {
+        width: 100%;
+        display: block;
+        padding: 0.8rem;
+        border-bottom: 2px solid rgba(23, 135, 255, 0.2);
     }
 
     .menu_container {
@@ -378,20 +417,22 @@ nav ul li a:hover {
 
     .logo {
         flex: 0 0 auto;
-        padding: 1rem;
+        padding: 1rem 0.5rem;
+        ;
         margin: 0;
         position: relative;
         left: 0;
+        font-size: 1.65rem;
     }
 }
 
 @media (max-width: 350px) {
     .hamburger {
-        width: 24px;
-        height: 17px;
+        width: 25px;
+        height: 19px;
         display: flex;
         margin-left: auto;
-        margin-right: 1rem;
+        margin-right: 0.75rem;
     }
 
     .hamburger span {
@@ -399,29 +440,32 @@ nav ul li a:hover {
     }
 
     .hamburger.open span:first-child {
-        transform: translateY(7.5px) rotate(45deg);
+        transform: translateY(8.5px) rotate(45deg);
     }
 
     .hamburger.open span:last-child {
-        transform: translateY(-7.5px) rotate(-45deg);
+        transform: translateY(-8.5px) rotate(-45deg);
     }
 
     .logo {
-        font-size: 1rem;
+        font-size: 1.65rem;
         padding: 0.5rem;
     }
 
     nav {
         width: 200px;
+        padding-inline-start: 0.45rem;
+        padding-top: 0.3rem;
     }
 
     nav ul li a {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         padding: 0.6rem;
     }
 
     .menu {
         min-width: 7rem;
+        
     }
 
     .menu a {
@@ -437,15 +481,23 @@ nav ul li a:hover {
 
     .role_badge {
         padding: 0.15rem 0.3rem;
-        font-size: 0.65rem;
+        font-size: 0.55rem;
     }
 
     .menu_container > a {
-        padding-right: 1.2rem;
+        padding-right: 2rem;
     }
 
     .menu_container > a::after {
         font-size: 0.7rem;
-        right: -0.5rem;
+        right: -0.7rem;
+    }
+}
+
+/* This will push all dashboard and profile menus to the right in desktop view */
+@media (min-width: 835px) {
+    nav ul .menu_container, 
+    nav ul li:last-child {
+        margin-left: 1.5rem;
     }
 }

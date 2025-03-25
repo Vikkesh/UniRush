@@ -87,10 +87,10 @@ export default function Header() {
                 </li>
               </>
             ) : (
-              <Link to="/login" onClick={closeNav}>Login</Link>
+              <Link to="/login" onClick={closeNav} className={classes.fullWidth}>Login</Link>
             )}
             <li>
-              <Link to="/cart" onClick={closeNav}>
+            <Link to="/cart" onClick={closeNav}>
                 Cart
                 {totalCartCount > 0 && (
                   <span className={classes.cart_count}>{totalCartCount}</span>

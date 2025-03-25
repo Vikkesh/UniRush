@@ -102,7 +102,7 @@ export default function CartPage() {
                                     onClick={() => handleCheckout(cart.shopId)}
                                     className={classes.checkout_button}
                                 >
-                                    Checkout this Order
+                                    Checkout
                                 </button>
                             </div>
                         </div>
