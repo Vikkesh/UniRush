@@ -71,23 +71,68 @@
 .buttons {
   display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   padding: 0 1rem;
   width: 100%;
 }
 
 .buttons button {
   flex: 1;
-  max-width: 200px;
+  max-width: 180px;
+  min-height: 2.5rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 1.2rem;
+  }
+
   .buttons {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+    padding: 0 0.8rem;
   }
 
   .buttons button {
     max-width: 100%;
+    min-height: 2.3rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .buttons {
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0 0.4rem;
+  }
+
+  .buttons button {
+    min-height: 2rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .container {
+    padding: 0.8rem;
+  }
+
+  .buttons {
+    gap: 0.4rem;
+    padding: 0;
+  }
+
+  .buttons button {
+    min-height: 1.8rem;
+    font-size: 0.8rem;
   }
 }

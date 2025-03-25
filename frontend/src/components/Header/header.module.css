@@ -384,3 +384,68 @@ nav ul li a:hover {
         left: 0;
     }
 }
+
+@media (max-width: 350px) {
+    .hamburger {
+        width: 24px;
+        height: 17px;
+        display: flex;
+        margin-left: auto;
+        margin-right: 1rem;
+    }
+
+    .hamburger span {
+        height: 1.5px;
+    }
+
+    .hamburger.open span:first-child {
+        transform: translateY(7.5px) rotate(45deg);
+    }
+
+    .hamburger.open span:last-child {
+        transform: translateY(-7.5px) rotate(-45deg);
+    }
+
+    .logo {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+
+    nav {
+        width: 200px;
+    }
+
+    nav ul li a {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+
+    .menu {
+        min-width: 7rem;
+    }
+
+    .menu a {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .cart_count {
+        width: 1rem;
+        height: 1rem;
+        font-size: 0.7rem;
+    }
+
+    .role_badge {
+        padding: 0.15rem 0.3rem;
+        font-size: 0.65rem;
+    }
+
+    .menu_container > a {
+        padding-right: 1.2rem;
+    }
+
+    .menu_container > a::after {
+        font-size: 0.7rem;
+        right: -0.5rem;
+    }
+}

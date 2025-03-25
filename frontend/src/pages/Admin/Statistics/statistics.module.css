@@ -204,6 +204,8 @@
   border-radius: 0.5rem;
   padding: 1.5rem;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
 }
 
 .section h3 {
@@ -213,6 +215,11 @@
   font-size: 1.2rem;
   border-bottom: 1px solid #eee;
   padding-bottom: 0.5rem;
+}
+
+.section_content {
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* Shop stats styling */
@@ -420,4 +427,315 @@
   .summary_cards {
     grid-template-columns: 1fr;
   }
+  
+  .container {
+    padding: 0.8rem;
+  }
+  
+  .section {
+    padding: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  .section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  .section_content {
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+    width: calc(100% + 1rem);
+  }
+}
+
+@media screen and (max-width: 768px) {
+    .status_stats_container {
+        margin: 0 -0.5rem;
+        padding: 0 0.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .status_stats_container table.stats_table {
+        font-size: 0.95rem;
+    }
+    
+    .status_stats_container .stats_table td,
+    .status_stats_container .stats_table th {
+        padding: 0.6rem;
+    }
+    
+    .status_chart {
+        height: 35px;
+    }
+    
+    .status_bar {
+        font-size: 0.75rem;
+    }
+    
+    .status_label {
+        padding: 0 6px;
+        font-size: 0.75rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .container {
+        padding: 0.6rem;
+    }
+    
+    .section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section_content {
+        margin: 0 -0.3rem;
+        padding: 0 0.3rem;
+        width: calc(100% + 0.6rem);
+    }
+    
+    .status_stats_container {
+        margin: 0 -0.3rem;
+        padding: 0 0.3rem;
+    }
+    
+    .status_stats_container table.stats_table {
+        font-size: 0.85rem;
+    }
+    
+    .status_stats_container .stats_table td,
+    .status_stats_container .stats_table th {
+        padding: 0.4rem;
+    }
+    
+    .status_chart {
+        height: 30px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .status_bar {
+        font-size: 0.7rem;
+    }
+    
+    .status_label {
+        padding: 0 4px;
+        font-size: 0.7rem;
+    }
+    
+    .status_indicator {
+        width: 10px;
+        height: 10px;
+        margin-right: 6px;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .container {
+        padding: 0.4rem;
+    }
+    
+    .section {
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .section h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .section_content {
+        margin: 0 -0.2rem;
+        padding: 0 0.2rem;
+        width: calc(100% + 0.4rem);
+    }
+    
+    .status_stats_container table.stats_table {
+        font-size: 0.8rem;
+        min-width: 250px;
+    }
+    
+    .status_stats_container .stats_table td,
+    .status_stats_container .stats_table th {
+        padding: 0.3rem;
+    }
+    
+    .status_chart {
+        height: 25px;
+    }
+    
+    .status_bar {
+        font-size: 0.65rem;
+    }
+    
+    .status_label {
+        padding: 0 3px;
+        font-size: 0.65rem;
+    }
+    
+    .status_indicator {
+        width: 8px;
+        height: 8px;
+        margin-right: 4px;
+    }
+}
+
+/* Shop stats and recent orders table responsiveness */
+.shop_stats_container,
+.recent_orders {
+    overflow-x: auto;
+}
+
+/* Common table styles for responsive tables */
+.shop_stats_container table.stats_table,
+.recent_orders table.stats_table {
+    min-width: 600px;
+}
+
+.shop_stats_container .stats_table td,
+.shop_stats_container .stats_table th,
+.recent_orders .stats_table td,
+.recent_orders .stats_table th {
+    white-space: nowrap;
+}
+
+@media screen and (max-width: 768px) {
+    .shop_stats_container,
+    .recent_orders {
+        margin: 0 -0.5rem;
+        padding: 0 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .shop_stats_container table.stats_table,
+    .recent_orders table.stats_table {
+        font-size: 0.95rem;
+    }
+    
+    .shop_stats_container .stats_table td,
+    .shop_stats_container .stats_table th,
+    .recent_orders .stats_table td,
+    .recent_orders .stats_table th {
+        padding: 0.6rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .shop_stats_container,
+    .recent_orders {
+        margin: 0 -0.3rem;
+        padding: 0 0.3rem;
+    }
+    
+    .shop_stats_container table.stats_table,
+    .recent_orders table.stats_table {
+        font-size: 0.85rem;
+    }
+    
+    .shop_stats_container .stats_table td,
+    .shop_stats_container .stats_table th,
+    .recent_orders .stats_table td,
+    .recent_orders .stats_table th {
+        padding: 0.4rem;
+    }
+    
+    .status_pill {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .shop_stats_container table.stats_table,
+    .recent_orders table.stats_table {
+        font-size: 0.8rem;
+    }
+    
+    .shop_stats_container .stats_table td,
+    .shop_stats_container .stats_table th,
+    .recent_orders .stats_table td,
+    .recent_orders .stats_table th {
+        padding: 0.3rem;
+    }
+    
+    .status_pill {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.35rem;
+    }
+}
+
+.toggle_button, .refresh_button {
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    min-width: 120px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.toggle_button:hover, .refresh_button:hover {
+    background-color: #303f9f;
+    transform: translateY(-1px);
+}
+
+.refresh_button {
+    background-color: #4caf50;
+}
+
+.refresh_button:hover {
+    background-color: #45a049;
+}
+
+.toggle_button:active, .refresh_button:active {
+    transform: translateY(0);
+    opacity: 0.9;
+}
+
+/* Apply loading state styles */
+.refresh_button.loading {
+    opacity: 0.7;
+    cursor: wait;
+    position: relative;
+}
+
+@media screen and (max-width: 768px) {
+    .toggle_button, .refresh_button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        min-width: 100px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .toggle_button, .refresh_button {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.8rem;
+        min-width: 90px;
+    }
+    
+    .section_header {
+        gap: 0.5rem;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .toggle_button, .refresh_button {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        min-width: 80px;
+    }
+    
+    .section_header {
+        gap: 0.4rem;
+    }
 }

@@ -1,16 +1,19 @@
 .container {
     position: relative;
-    width: 35rem;
+    width: 100%;
+    max-width: 35rem;
     height: 22rem;
     text-align: center;
-  }
+    margin: 0 auto;
+}
   
-  .map {
+.map {
     width: 100% !important;
     height: 100% !important;
-  }
+    border-radius: 0.5rem;
+}
   
-  .find_location {
+.find_location {
     position: absolute;
     margin: auto;
     width: 12rem;
@@ -25,33 +28,34 @@
     border-radius: 0 0 1rem 1rem;
     border: none;
     border-top: 1px solid lightgrey;
-  }
+}
   
-  .find_location:hover {
+.find_location:hover {
     background-color: whitesmoke;
-  }
+}
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
     .container {
-      width: 90vw;
-      height: 50vh;
+        height: 45vh;
+        min-height: 300px;
     }
   
     .find_location {
-      width: 10rem;
-      font-size: 0.9rem;
+        width: 10rem;
+        min-height: 2.2rem;
+        font-size: 0.9rem;
     }
-  }
-  
-  @media (max-width: 480px) {
+}
+
+@media (max-width: 480px) {
     .container {
-      width: 95vw;
-      height: 40vh;
+        height: 35vh;
+        min-height: 200px;
     }
   
     .find_location {
-      width: 8rem;
-      min-height: 2rem;
-      font-size: 0.8rem;
+        width: 8rem;
+        min-height: 2rem;
+        font-size: 0.8rem;
     }
-  }
+}

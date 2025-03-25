@@ -9,3 +9,36 @@
 .details{
     width: 28rem;
 }
+
+@media (max-width: 768px) {
+    .container {
+        margin-top: 2rem;
+    }
+
+    .details {
+        width: 24rem;
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        margin-top: 1.5rem;
+    }
+
+    .details {
+        width: 90%;
+        max-width: 20rem;
+    }
+}
+
+@media (max-width: 350px) {
+    .container {
+        margin-top: 1rem;
+    }
+
+    .details {
+        width: 95%;
+        max-width: 16rem;
+    }
+}

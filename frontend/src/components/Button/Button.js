@@ -2,14 +2,12 @@ import React from 'react'
 import classes from './button.module.css'
 
 export default function Button({
-   type = 'button',
+  type = 'button',
   text = 'Submit',
   onClick,
   color = 'white',
   backgroundColor = '#e72929',
-  fontSize = '1.3rem',
   width = '12rem',
-  height = '3.5rem',
   }) {
   return (
     <div className={classes.container}>
@@ -17,9 +15,7 @@ export default function Button({
       style={{
         color,
         backgroundColor,
-        fontSize,
         width,
-        height,
       }}
       type={type}
       onClick={onClick}
@@ -28,5 +24,4 @@ export default function Button({
     </button>
   </div>
   )
-  
 }

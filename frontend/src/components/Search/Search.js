@@ -25,6 +25,7 @@ export default function Search({
   const search = async () => {
     term ? navigate(searchRoute + term) : navigate(defaultRoute);
   };
+
   return (
     <div className={classes.container} style={{ margin }}>
       <input
