@@ -55,7 +55,7 @@ export default function Statistics() {
   // Helper function to format dates in YYYY-MM-DD format
   // This format works correctly with backend filtering
   const formatDate = (date) => {
-    // Add IST offset (UTC+5:30) to ensure dates are considered in Indian time
+    // Ensure we're working with a copy of the date
     const d = new Date(date);
     
     // Format with YYYY-MM-DD for API consistency
@@ -68,12 +68,16 @@ export default function Statistics() {
     const now = new Date();
     
     switch (timeFilter) {
-      case 'today':
+      case 'today': {
+        // Just use the date part for "today" to include all orders from the current date
+        // This will be converted to proper IST timezone range in the backend
+        const todayDate = formatDate(now);
         return {
-          startDate: formatDate(now),
-          endDate: formatDate(now)
+          startDate: todayDate,
+          endDate: todayDate
         };
-        
+      }
+      
       case 'yesterday': {
         const yesterday = new Date(now);
         yesterday.setDate(yesterday.getDate() - 1);
@@ -136,8 +140,6 @@ export default function Statistics() {
     
     try {
       const dateRange = getDateRange();
-      console.log('Date range for filter:', dateRange); // Log for debugging
-      
       const filters = {
         ...dateRange,
         status: statusFilter,

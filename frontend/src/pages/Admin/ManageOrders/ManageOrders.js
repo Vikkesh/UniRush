@@ -68,6 +68,69 @@ export default function ManageOrders() {
   const queryParams = new URLSearchParams(location.search);
   const queryFilter = queryParams.get('filter');
   
+  // Helper function to format dates in YYYY-MM-DD format
+  // This format works correctly with backend filtering
+  const formatDate = (date) => {
+    // Ensure we're working with a copy of the date
+    const d = new Date(date);
+    
+    // Format with YYYY-MM-DD for API consistency
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+  
+  // Calculate date ranges based on time filter
+  const getDateRange = () => {
+    // Create dates based on current time in local timezone
+    const now = new Date();
+    
+    switch (state.timeFilter) {
+      case 'today': {
+        // Just use the date part for "today" to include all orders from the current date
+        const todayDate = formatDate(now);
+        return {
+          startDate: todayDate,
+          endDate: todayDate
+        };
+      }
+      
+      case 'yesterday': {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        return {
+          startDate: formatDate(yesterday),
+          endDate: formatDate(yesterday)
+        };
+      }
+        
+      case 'last7days': {
+        const last7Days = new Date(now);
+        last7Days.setDate(last7Days.getDate() - 6);
+        return {
+          startDate: formatDate(last7Days),
+          endDate: formatDate(now)
+        };
+      }
+        
+      case 'last30days': {
+        const last30Days = new Date(now);
+        last30Days.setDate(last30Days.getDate() - 29);
+        return {
+          startDate: formatDate(last30Days),
+          endDate: formatDate(now)
+        };
+      }
+      
+      case 'custom':
+        return {
+          startDate: state.customStartDate,
+          endDate: state.customEndDate
+        };
+        
+      default:
+        return {};
+    }
+  };
+  
   const loadOrders = async () => {
     const filters = {};
     
@@ -76,27 +139,9 @@ export default function ManageOrders() {
       if (state.customStartDate) filters.startDate = state.customStartDate;
       if (state.customEndDate) filters.endDate = state.customEndDate;
     } else if (state.timeFilter !== 'all') {
-      const now = new Date();
-      switch (state.timeFilter) {
-        case 'today':
-          filters.startDate = now.toISOString().split('T')[0];
-          filters.endDate = filters.startDate;
-          break;
-        case 'last7days': {
-          const last7Days = new Date(now);
-          last7Days.setDate(last7Days.getDate() - 6);
-          filters.startDate = last7Days.toISOString().split('T')[0];
-          filters.endDate = now.toISOString().split('T')[0];
-          break;
-        }
-        case 'last30days': {
-          const last30Days = new Date(now);
-          last30Days.setDate(last30Days.getDate() - 29);
-          filters.startDate = last30Days.toISOString().split('T')[0];
-          filters.endDate = now.toISOString().split('T')[0];
-          break;
-        }
-      }
+      const dateRange = getDateRange();
+      filters.startDate = dateRange.startDate;
+      filters.endDate = dateRange.endDate;
     }
     
     // Add shop filter

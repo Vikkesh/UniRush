@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getAll, getAllStatus } from '../../services/orderService';
-import { getAdminShops } from '../../services/shopService';
+import { getAdminShops, getAll as getAllShops } from '../../services/shopService';
 import { useAuth } from '../../hooks/useAuth';
 import { DeliveryVisibleStatus } from '../../constants/orderStatus';
 import classes from './ordersPage.module.css';
@@ -47,6 +47,69 @@ export default function OrdersPage() {
   const { filter } = useParams();
   const { user } = useAuth();
 
+  // Helper function to format dates in YYYY-MM-DD format
+  // This format works correctly with backend filtering
+  const formatDate = (date) => {
+    // Ensure we're working with a copy of the date
+    const d = new Date(date);
+    
+    // Format with YYYY-MM-DD for API consistency
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+  
+  // Calculate date ranges based on time filter
+  const getDateRange = () => {
+    // Create dates based on current time in local timezone
+    const now = new Date();
+    
+    switch (state.timeFilter) {
+      case 'today': {
+        // Just use the date part for "today" to include all orders from the current date
+        const todayDate = formatDate(now);
+        return {
+          startDate: todayDate,
+          endDate: todayDate
+        };
+      }
+      
+      case 'yesterday': {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        return {
+          startDate: formatDate(yesterday),
+          endDate: formatDate(yesterday)
+        };
+      }
+        
+      case 'last7days': {
+        const last7Days = new Date(now);
+        last7Days.setDate(last7Days.getDate() - 6);
+        return {
+          startDate: formatDate(last7Days),
+          endDate: formatDate(now)
+        };
+      }
+        
+      case 'last30days': {
+        const last30Days = new Date(now);
+        last30Days.setDate(last30Days.getDate() - 29);
+        return {
+          startDate: formatDate(last30Days),
+          endDate: formatDate(now)
+        };
+      }
+      
+      case 'custom':
+        return {
+          startDate: state.customStartDate,
+          endDate: state.customEndDate
+        };
+        
+      default:
+        return {};
+    }
+  };
+
   const loadOrders = async () => {
     const filters = {};
     
@@ -55,27 +118,9 @@ export default function OrdersPage() {
       if (state.customStartDate) filters.startDate = state.customStartDate;
       if (state.customEndDate) filters.endDate = state.customEndDate;
     } else if (state.timeFilter !== 'all') {
-      const now = new Date();
-      switch (state.timeFilter) {
-        case 'today':
-          filters.startDate = now.toISOString().split('T')[0];
-          filters.endDate = filters.startDate;
-          break;
-        case 'last7days': {
-          const last7Days = new Date(now);
-          last7Days.setDate(last7Days.getDate() - 6);
-          filters.startDate = last7Days.toISOString().split('T')[0];
-          filters.endDate = now.toISOString().split('T')[0];
-          break;
-        }
-        case 'last30days': {
-          const last30Days = new Date(now);
-          last30Days.setDate(last30Days.getDate() - 29);
-          filters.startDate = last30Days.toISOString().split('T')[0];
-          filters.endDate = now.toISOString().split('T')[0];
-          break;
-        }
-      }
+      const dateRange = getDateRange();
+      filters.startDate = dateRange.startDate;
+      filters.endDate = dateRange.endDate;
     }
     
     // Add shop filter
@@ -96,9 +141,26 @@ export default function OrdersPage() {
       dispatch({ type: 'ALL_STATUS_FETCHED', payload: status });
     });
 
-    getAdminShops().then(shops => {
-      dispatch({ type: 'SHOPS_FETCHED', payload: shops });
-    });
+    // Only fetch shop data for the current user's orders
+    // Use the appropriate method based on user role
+    if (user?.isAdmin || user?.isOwner || user?.isShopAdmin || user?.isDelivery) {
+      // Admin users can use the admin shops endpoint
+      getAdminShops().then(shops => {
+        dispatch({ type: 'SHOPS_FETCHED', payload: shops });
+      }).catch(error => {
+        console.error('Error fetching admin shops:', error);
+        dispatch({ type: 'SHOPS_FETCHED', payload: [] });
+      });
+    } else {
+      // Regular customers don't need shop filtering - their orders are already filtered by user
+      // But we'll provide basic shop info from regular endpoint if needed
+      getAllShops().then(shops => {
+        dispatch({ type: 'SHOPS_FETCHED', payload: shops });
+      }).catch(error => {
+        console.error('Error fetching shops:', error);
+        dispatch({ type: 'SHOPS_FETCHED', payload: [] });
+      });
+    }
   }, [user]);
 
   useEffect(() => {

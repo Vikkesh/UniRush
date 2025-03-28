@@ -13,5 +13,11 @@ body{
    a{
     text-decoration: none;
    }
-   background-color:  rgba(250, 230, 210, 0.864)
+ /* background-image: var(--bg-image-url);*/
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* Keeping a background color as fallback */
+  background-color: rgba(250, 230, 210, 0.864);
 }

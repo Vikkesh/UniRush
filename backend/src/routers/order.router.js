@@ -161,15 +161,33 @@ router.get(
             if (startDate || endDate) {
                 filter.createdAt = {};
                 if (startDate) {
-                    // Set to start of day in UTC
+                    // Create a date object in IST timezone (UTC+5:30)
                     const startDateTime = new Date(startDate);
-                    startDateTime.setUTCHours(0, 0, 0, 0);
+                    // Adjust for IST timezone offset (UTC+5:30 = 330 minutes)
+                    const istOffset = 330; // minutes
+                    const localOffset = startDateTime.getTimezoneOffset(); // negative for timezones ahead of UTC
+                    const totalOffset = istOffset + localOffset;
+                    
+                    // Set to beginning of day in IST timezone
+                    startDateTime.setHours(0, 0, 0, 0);
+                    // Adjust for timezone differences to get correct UTC time
+                    startDateTime.setMinutes(startDateTime.getMinutes() - totalOffset);
+                    
                     filter.createdAt.$gte = startDateTime;
                 }
                 if (endDate) {
-                    // Set to end of day in UTC
+                    // Create a date object in IST timezone (UTC+5:30)
                     const endDateTime = new Date(endDate);
-                    endDateTime.setUTCHours(23, 59, 59, 999);
+                    // Adjust for IST timezone offset (UTC+5:30 = 330 minutes)
+                    const istOffset = 330; // minutes
+                    const localOffset = endDateTime.getTimezoneOffset(); // negative for timezones ahead of UTC
+                    const totalOffset = istOffset + localOffset;
+                    
+                    // Set to end of day in IST timezone
+                    endDateTime.setHours(23, 59, 59, 999);
+                    // Adjust for timezone differences to get correct UTC time
+                    endDateTime.setMinutes(endDateTime.getMinutes() - totalOffset);
+                    
                     filter.createdAt.$lte = endDateTime;
                 }
             }
@@ -290,8 +308,13 @@ router.get(
                 statusStats[status].count += 1;
                 statusStats[status].revenue += orderTotalPrice;
 
-                // Group by day for time-series data
-                const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+                // Group by day for time-series data with proper IST timezone handling
+                const orderDateObj = new Date(order.createdAt);
+                
+                // Convert to IST (UTC+5:30)
+                const istDateTime = new Date(orderDateObj.getTime() + (5.5 * 60 * 60 * 1000));
+                const orderDate = istDateTime.toISOString().split('T')[0];
+                
                 if (!dailyStats[orderDate]) {
                     dailyStats[orderDate] = {
                         date: orderDate,
@@ -403,11 +426,33 @@ router.get(
             if (startDate || endDate) {
                 filter.createdAt = {};
                 if (startDate) {
-                    filter.createdAt.$gte = new Date(startDate);
+                    // Create a date object in IST timezone (UTC+5:30)
+                    const startDateTime = new Date(startDate);
+                    // Adjust for IST timezone offset (UTC+5:30 = 330 minutes)
+                    const istOffset = 330; // minutes
+                    const localOffset = startDateTime.getTimezoneOffset(); // negative for timezones ahead of UTC
+                    const totalOffset = istOffset + localOffset;
+                    
+                    // Set to beginning of day in IST timezone
+                    startDateTime.setHours(0, 0, 0, 0);
+                    // Adjust for timezone differences to get correct UTC time
+                    startDateTime.setMinutes(startDateTime.getMinutes() - totalOffset);
+                    
+                    filter.createdAt.$gte = startDateTime;
                 }
                 if (endDate) {
+                    // Create a date object in IST timezone (UTC+5:30)
                     const endDateTime = new Date(endDate);
+                    // Adjust for IST timezone offset (UTC+5:30 = 330 minutes)
+                    const istOffset = 330; // minutes
+                    const localOffset = endDateTime.getTimezoneOffset(); // negative for timezones ahead of UTC
+                    const totalOffset = istOffset + localOffset;
+                    
+                    // Set to end of day in IST timezone
                     endDateTime.setHours(23, 59, 59, 999);
+                    // Adjust for timezone differences to get correct UTC time
+                    endDateTime.setMinutes(endDateTime.getMinutes() - totalOffset);
+                    
                     filter.createdAt.$lte = endDateTime;
                 }
             }
