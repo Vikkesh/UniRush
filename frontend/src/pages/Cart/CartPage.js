@@ -9,10 +9,10 @@ import NotFound from '../../components/NotFound/NotFound';
 
 export default function CartPage() {
     const { getAllCarts, removeFromCart, changeQuantity, switchCart } = useCart();
-    const carts = getAllCarts();
+    const carts = getAllCarts().filter(cart => cart.items.length > 0); // Only show carts with items
     const navigate = useNavigate();
     
-    // If there are no carts, show empty cart message
+    // If there are no carts with items, show empty cart message
     if (carts.length === 0) {
         return (
             <>

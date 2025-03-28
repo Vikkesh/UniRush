@@ -13,23 +13,22 @@ export default function AdminDashboardPage() {
   const { user } = useAuth();
   const location = useLocation();
   
-  // Wrap queryParams in useMemo to fix the exhaustive-deps warning
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   
-  // Get section from query params or default to appropriate section based on user role
-  const defaultSection = user?.isDelivery && !user?.isAdmin && !user?.isOwner ? 'orders' : '';
+  // Only default to 'orders' if user is delivery personnel
+  const defaultSection = user?.isDelivery && !user?.isAdmin && !user?.isOwner && !user?.isShopAdmin ? 'orders' : '';
   const [activeSection, setActiveSection] = useState(queryParams.get('section') || defaultSection);
   const [filter, setFilter] = useState(queryParams.get('filter') || null);
   
-  // Set page title based on user role - prioritize higher roles
+  // Set page title based on user role
   let pageTitle = "Dashboard";
   if (user?.isOwner) pageTitle = "Owner Dashboard";
   else if (user?.isAdmin) pageTitle = "Admin Dashboard";
   else if (user?.isShopAdmin) pageTitle = "Shop Admin Dashboard";
   else if (user?.isDelivery) pageTitle = "Delivery Dashboard";
 
+  // Update section when query params change
   useEffect(() => {
-    // Update active section when query params change
     const sectionParam = queryParams.get('section');
     if (sectionParam) {
       setActiveSection(sectionParam);
@@ -41,17 +40,14 @@ export default function AdminDashboardPage() {
     }
   }, [queryParams]);
 
-  // If delivery user tries to access other sections, redirect to orders
+  // Only redirect delivery users to orders section
   useEffect(() => {
-    if (user?.isDelivery && !user?.isAdmin && !user?.isOwner && activeSection && activeSection !== 'orders') {
+    if (user?.isDelivery && !user?.isAdmin && !user?.isOwner && !user?.isShopAdmin && activeSection && activeSection !== 'orders') {
       setActiveSection('orders');
     }
   }, [activeSection, user]);
   
-  // User with admin or owner privileges should see the admin interface
   const hasAdminPrivileges = user?.isAdmin || user?.isOwner;
-  
-  // Only consider someone a "shop admin only" if they have shop admin role but not admin/owner roles
   const isShopAdminOnly = user?.isShopAdmin && !hasAdminPrivileges;
   
   const renderContent = () => {

@@ -271,15 +271,15 @@ export default function ManageOrders() {
             to="/admin/dashboard?section=orders"
             className={!queryFilter ? classes.active : ''}
           >
-            All
+            <span>All</span>
           </Link>
           {state.filteredStatus.map(status => (
             <Link
               key={status}
               to={`/admin/dashboard?section=orders&filter=${status}`}
-              className={status === queryFilter ? classes.active : ''}
+              className={`${status === queryFilter ? classes.active : ''} ${classes['status_' + status.toLowerCase()]}`}
             >
-              {status}
+              <span>{status}</span>
             </Link>
           ))}
         </div>
@@ -296,11 +296,21 @@ export default function ManageOrders() {
         state.orders.map(order => (
           <div key={order.id} className={classes.order_summary}>
             <div className={classes.header}>
-              <span>{order.id}</span>
-              <span>
-                <DateTime date={order.createdAt} />
-              </span>
-              <span>{order.status}</span>
+              <div className={classes.order_id}>
+                <span className={classes.label}>Order ID:</span> 
+                <span className={classes.value}>{order.id}</span>
+              </div>
+              <div className={classes.order_date}>
+                <span className={classes.label}>Date:</span>
+                <span className={classes.value}>
+                  <DateTime date={order.createdAt} />
+                </span>
+              </div>
+              <div className={classes.order_status}>
+                <span className={`${classes.status_badge} ${classes['status_' + order.status.toLowerCase()]}`}>
+                  {order.status}
+                </span>
+              </div>
               
               {/* Shop admin quick action buttons for PAID orders */}
               {user?.isShopAdmin && order.status === OrderStatus.PAID && (
@@ -333,35 +343,40 @@ export default function ManageOrders() {
             </div>
             
             <div className={classes.shop_info}>
-              <span>Shop: {order.shopName}</span>
+              <strong>Shop:</strong> {order.shopName}
             </div>
             
             <div className={classes.customer_info}>
-              <span>
-                <strong>Customer:</strong> {order.name}&nbsp;&nbsp;&nbsp;
-              </span>
-              <span>
-                <strong>Phone:</strong> {order.contact || 'N/A'}&nbsp;&nbsp;&nbsp;
-              </span>
-              <span>
-                <strong>Address:</strong> {order.address}
-              </span>
+              <div><strong>Name:</strong> {order.name}</div>
+              <div><strong>Phone:</strong> {order.contact || 'N/A'}</div>
+              <div><strong>Address:</strong> {order.address}</div>
             </div>
             
-            <div className={classes.items}>
-              {order.items.map(item => (
-                <Link key={item.food.id} to={`/food/${item.food.id}`}>
-                  <img src={item.food.imageUrl} alt={item.food.name} />
-                  <span className={classes.quantity}>x{item.quantity}</span>
-                </Link>
-              ))}
+            <div className={classes.items_section}>
+              <h3>Order Items</h3>
+              <div className={classes.items_list}>
+                {order.items.map(item => (
+                  <div key={item.food.id} className={classes.item_row}>
+                    <div className={classes.item_name}>
+                      <Link to={`/food/${item.food.id}`}>{item.food.name}</Link>
+                    </div>
+                    <div className={classes.item_quantity}>
+                      x{item.quantity}
+                    </div>
+                    <div className={classes.item_price}>
+                      <Price price={item.food.price * item.quantity} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
             
             <div className={classes.footer}>
               <div>
                 <Link to={`/track/${order.id}`}>Show Order</Link>
               </div>
-              <div>
+              <div className={classes.total_price}>
+                <span className={classes.total_label}>Total:</span>
                 <span className={classes.price}>
                   <Price price={order.totalPrice} />
                 </span>

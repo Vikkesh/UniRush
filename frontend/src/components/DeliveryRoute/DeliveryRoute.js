@@ -11,7 +11,7 @@ export default function DeliveryRoute({ children }) {
   // If the user is a delivery person and accessing just the dashboard,
   // redirect them directly to the orders section
   useEffect(() => {
-    if (!hasRedirected && user && user.isDelivery && !user.isAdmin && !user.isOwner) {
+    if (!hasRedirected && user?.isDelivery && !user?.isAdmin && !user?.isOwner && !user?.isShopAdmin) {
       // Only redirect if they're accessing exactly /admin/dashboard with no params
       if (location.pathname === '/admin/dashboard' && !location.search) {
         setHasRedirected(true);

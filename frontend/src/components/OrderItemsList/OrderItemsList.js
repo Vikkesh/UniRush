@@ -6,9 +6,17 @@ import classes from './orderItemsList.module.css';
 export default function OrderItemsList({ order }) {
   return (
     <table className={classes.table}>
+      <thead>
+        <tr>
+          <th>Food Name</th>
+          <th>Unit Price</th>
+          <th>Quantity</th>
+          <th>Price</th>
+        </tr>
+      </thead>
       <tbody>
         <tr>
-          <td colSpan="5">
+          <td colSpan="4">
             <h3>Order Items:</h3>
           </td>
         </tr>
@@ -16,10 +24,9 @@ export default function OrderItemsList({ order }) {
           <tr key={item.food.id}>
             <td>
               <Link to={`/food/${item.food.id}`}>
-                <img src={item.food.imageUrl} alt={item.food.name} />
+                {item.food.name}
               </Link>
             </td>
-            <td>{item.food.name}</td>
             <td>
               <Price price={item.food.price} />
             </td>
@@ -31,7 +38,7 @@ export default function OrderItemsList({ order }) {
         ))}
 
         <tr>
-          <td colSpan="3"></td>
+          <td colSpan="2"></td>
           <td>
             <strong>Items Total:</strong>
           </td>
@@ -40,7 +47,7 @@ export default function OrderItemsList({ order }) {
           </td>
         </tr>
         <tr>
-          <td colSpan="3"></td>
+          <td colSpan="2"></td>
           <td>
             <strong>Delivery Fee:</strong>
           </td>
@@ -49,7 +56,7 @@ export default function OrderItemsList({ order }) {
           </td>
         </tr>
         <tr>
-          <td colSpan="3"></td>
+          <td colSpan="2"></td>
           <td>
             <strong>Order Total:</strong>
           </td>
