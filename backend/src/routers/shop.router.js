@@ -3,7 +3,7 @@ import { sample_shops } from "../data.js";
 import { ShopModel } from '../models/shop.model.js';
 import handler from 'express-async-handler';
 import { FoodModel } from '../models/food.model.js';
-import auth from '../middleware/auth.mid.js';
+import { verifyToken as auth } from '../middleware/auth.mid.js';
 
 const router = Router();
 

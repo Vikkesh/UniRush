@@ -5,8 +5,10 @@ import classes from './manageUsers.module.css';
 import Title from '../../../components/Title/Title';
 import Button from '../../../components/Button/Button';
 import UserForm from './UserForm';
+import ManageBypassList from './ManageBypassList';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom'; 
+
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [shops, setShops] = useState([]);
@@ -18,6 +20,7 @@ export default function ManageUsers() {
   const [showShopAssignModal, setShowShopAssignModal] = useState(false);
   const [selectedShopIds, setSelectedShopIds] = useState([]);
   const [userForShopAssign, setUserForShopAssign] = useState(null);
+  const [activeTab, setActiveTab] = useState('users'); // 'users' or 'bypass'
   
   const navigate = useNavigate();
   
@@ -209,171 +212,199 @@ export default function ManageUsers() {
   const handleCancelForm = () => {
     setShowForm(false);
   };
+
+  // Render tabs for Users and Email Bypass List
+  const renderTabs = () => {
+    return (
+      <div className={classes.tabs}>
+        <button 
+          className={`${classes.tab} ${activeTab === 'users' ? classes.active : ''}`}
+          onClick={() => setActiveTab('users')}
+        >
+          Manage Users
+        </button>
+        <button 
+          className={`${classes.tab} ${activeTab === 'bypass' ? classes.active : ''}`}
+          onClick={() => setActiveTab('bypass')}
+        >
+          Email Bypass List
+        </button>
+      </div>
+    );
+  };
   
   return (
     <div className={classes.container}>
-      <div className={classes.header}>
-        <Title title="Manage Users" />
-        <Button color=" #ece7e7" onClick={loadUsers} text="Refresh" />
-      </div>
+      {renderTabs()}
       
-      {error && (
-        <div className={classes.error_message}>
-          <p>{error}</p>
-          <Button onClick={loadUsers} text="Try Again" />
-        </div>
-      )}
-      
-      {showForm ? (
-        <UserForm 
-          user={userToEdit} 
-          onSubmit={handleFormSubmit} 
-          onCancel={handleCancelForm} 
-        />
-      ) : (
-        isLoading ? (
-          <p>Loading users...</p>
-        ) : (
-          <div className={classes.users_list}>
-            {!Array.isArray(users) || users.length === 0 ? (
-              <p>No users found.</p>
+      {activeTab === 'users' ? (
+        <>
+          <div className={classes.header}>
+            <Title title="Manage Users" />
+            <Button color=" #ece7e7" onClick={loadUsers} text="Refresh" />
+          </div>
+          
+          {error && (
+            <div className={classes.error_message}>
+              <p>{error}</p>
+              <Button onClick={loadUsers} text="Try Again" />
+            </div>
+          )}
+          
+          {showForm ? (
+            <UserForm 
+              user={userToEdit} 
+              onSubmit={handleFormSubmit} 
+              onCancel={handleCancelForm} 
+            />
+          ) : (
+            isLoading ? (
+              <p>Loading users...</p>
             ) : (
-              <table className={classes.users_table}>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Contact</th>
-                    <th>Address</th>
-                    <th>Owner</th>
-                    <th>Admin</th>
-                    <th>Shop Admin</th>
-                    <th>Delivery</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map(user => (
-                    <tr key={user._id} className={user.isBlocked ? classes.blocked_user : ''}>
-                      <td>{user.name}</td>
-                      <td>{user.email}</td>
-                      <td>{user.contact}</td>
-                      <td className={classes.address_cell}>{user.address}</td>
-                      <td>
-                        <div className={classes.checkbox_container}>
-                          {currentUser && currentUser.isOwner ? (
-                            <input 
-                              type="checkbox" 
-                              checked={user.isOwner} 
-                              onChange={() => handleToggleOwner(user)}
-                              disabled={currentUser && user._id === currentUser.id && user.isOwner}
+              <div className={classes.users_list}>
+                {!Array.isArray(users) || users.length === 0 ? (
+                  <p>No users found.</p>
+                ) : (
+                  <table className={classes.users_table}>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>Address</th>
+                        <th>Owner</th>
+                        <th>Admin</th>
+                        <th>Shop Admin</th>
+                        <th>Delivery</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.map(user => (
+                        <tr key={user._id} className={user.isBlocked ? classes.blocked_user : ''}>
+                          <td>{user.name}</td>
+                          <td>{user.email}</td>
+                          <td>{user.contact}</td>
+                          <td className={classes.address_cell}>{user.address}</td>
+                          <td>
+                            <div className={classes.checkbox_container}>
+                              {currentUser && currentUser.isOwner ? (
+                                <input 
+                                  type="checkbox" 
+                                  checked={user.isOwner} 
+                                  onChange={() => handleToggleOwner(user)}
+                                  disabled={currentUser && user._id === currentUser.id && user.isOwner}
+                                />
+                              ) : (
+                                <span>{user.isOwner ? 'Yes' : 'No'}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div className={classes.checkbox_container}>
+                              <input 
+                                type="checkbox" 
+                                checked={user.isAdmin} 
+                                onChange={() => handleToggleAdmin(user)}
+                                disabled={currentUser && user._id === currentUser.id && user.isAdmin}
+                              />
+                            </div>
+                          </td>
+                          <td>
+                            <div className={classes.checkbox_container}>
+                              <input 
+                                type="checkbox" 
+                                checked={user.isShopAdmin} 
+                                onChange={() => handleToggleShopAdmin(user)}
+                              />
+                              {user.isShopAdmin && (
+                                <button 
+                                  className={classes.assign_shops_button}
+                                  onClick={() => handleAssignShops(user)}
+                                >
+                                  Assign Shops
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div className={classes.checkbox_container}>
+                              <input 
+                                type="checkbox" 
+                                checked={user.isDelivery} 
+                                onChange={() => handleToggleDelivery(user)}
+                              />
+                            </div>
+                          </td>
+                          <td>
+                            <span className={user.isBlocked ? classes.blocked_status : classes.active_status}>
+                              {user.isBlocked ? 'Blocked' : 'Active'}
+                            </span>
+                          </td>
+                          <td>
+                            <div className={classes.actions}>
+                              <button 
+                                className={classes.edit_button}
+                                onClick={() => handleEditClick(user)}
+                                disabled={currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                className={user.isBlocked ? classes.unblock_button : classes.block_button}
+                                onClick={() => handleToggleBlock(user)}
+                                disabled={(currentUser && user._id === currentUser.id) || 
+                                        (currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner)}
+                              >
+                                {user.isBlocked ? 'Unblock' : 'Block'}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )
+          )}
+          
+          {/* Shop Assignment Modal */}
+          {showShopAssignModal && userForShopAssign && (
+            <div className={classes.modal_overlay}>
+              <div className={classes.modal_content}>
+                <h2>Assign Shops to {userForShopAssign.name}</h2>
+                <div className={classes.shops_list}>
+                  {shops.length === 0 ? (
+                    <p>No shops available to assign.</p>
+                  ) : (
+                    <div>
+                      {shops.map(shop => (
+                        <div key={shop._id} className={classes.shop_item}>
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={selectedShopIds.includes(shop._id)}
+                              onChange={() => handleShopCheckboxChange(shop._id)}
                             />
-                          ) : (
-                            <span>{user.isOwner ? 'Yes' : 'No'}</span>
-                          )}
+                            {shop.name} - {shop.address}
+                          </label>
                         </div>
-                      </td>
-                      <td>
-                        <div className={classes.checkbox_container}>
-                          <input 
-                            type="checkbox" 
-                            checked={user.isAdmin} 
-                            onChange={() => handleToggleAdmin(user)}
-                            disabled={currentUser && user._id === currentUser.id && user.isAdmin}
-                          />
-                        </div>
-                      </td>
-                      <td>
-                        <div className={classes.checkbox_container}>
-                          <input 
-                            type="checkbox" 
-                            checked={user.isShopAdmin} 
-                            onChange={() => handleToggleShopAdmin(user)}
-                          />
-                          {user.isShopAdmin && (
-                            <button 
-                              className={classes.assign_shops_button}
-                              onClick={() => handleAssignShops(user)}
-                            >
-                              Assign Shops
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <div className={classes.checkbox_container}>
-                          <input 
-                            type="checkbox" 
-                            checked={user.isDelivery} 
-                            onChange={() => handleToggleDelivery(user)}
-                          />
-                        </div>
-                      </td>
-                      <td>
-                        <span className={user.isBlocked ? classes.blocked_status : classes.active_status}>
-                          {user.isBlocked ? 'Blocked' : 'Active'}
-                        </span>
-                      </td>
-                      <td>
-                        <div className={classes.actions}>
-                          <button 
-                            className={classes.edit_button}
-                            onClick={() => handleEditClick(user)}
-                            disabled={currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner}
-                          >
-                            Edit
-                          </button>
-                          <button 
-                            className={user.isBlocked ? classes.unblock_button : classes.block_button}
-                            onClick={() => handleToggleBlock(user)}
-                            disabled={(currentUser && user._id === currentUser.id) || 
-                                     (currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner)}
-                          >
-                            {user.isBlocked ? 'Unblock' : 'Block'}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )
-      )}
-      
-      {/* Shop Assignment Modal */}
-      {showShopAssignModal && userForShopAssign && (
-        <div className={classes.modal_overlay}>
-          <div className={classes.modal_content}>
-            <h2>Assign Shops to {userForShopAssign.name}</h2>
-            <div className={classes.shops_list}>
-              {shops.length === 0 ? (
-                <p>No shops available to assign.</p>
-              ) : (
-                <div>
-                  {shops.map(shop => (
-                    <div key={shop._id} className={classes.shop_item}>
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={selectedShopIds.includes(shop._id)}
-                          onChange={() => handleShopCheckboxChange(shop._id)}
-                        />
-                        {shop.name} - {shop.address}
-                      </label>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
+                <div className={classes.modal_buttons}>
+                  <Button onClick={handleSaveShopAssignments} text="Save" />
+                  <Button onClick={() => setShowShopAssignModal(false)} text="Cancel" />
+                </div>
+              </div>
             </div>
-            <div className={classes.modal_buttons}>
-              <Button onClick={handleSaveShopAssignments} text="Save" />
-              <Button onClick={() => setShowShopAssignModal(false)} text="Cancel" />
-            </div>
-          </div>
-        </div>
+          )}
+        </>
+      ) : (
+        <ManageBypassList />
       )}
     </div>
   );

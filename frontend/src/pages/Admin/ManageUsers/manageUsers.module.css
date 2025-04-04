@@ -5,6 +5,37 @@
   padding: 1rem;
 }
 
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab {
+  padding: 0.8rem 1.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  bottom: -1px;
+}
+
+.tab:hover {
+  background-color: #e9e9e9;
+}
+
+.tab.active {
+  background-color: white;
+  border-bottom: 1px solid white;
+  color: #4CAF50;
+  font-weight: bold;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -272,6 +303,24 @@ button:disabled {
   .modal_content {
     padding: 1rem;
     margin: 0.5rem;
+  }
+  
+  .tabs {
+    flex-direction: column;
+    gap: 0.2rem;
+    border-bottom: none;
+    margin-bottom: 1.5rem;
+  }
+  
+  .tab {
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  .tab.active {
+    border-bottom: 1px solid #ddd;
+    background-color: #e8f5e9;
   }
 }
 

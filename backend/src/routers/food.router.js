@@ -2,7 +2,7 @@ import { Router } from "express";
 import { sample_foods, sample_tags } from "../data.js";
 import { FoodModel } from '../models/food.model.js';
 import handler from 'express-async-handler';
-import auth from '../middleware/auth.mid.js';
+import { verifyToken as auth } from '../middleware/auth.mid.js';
 
 const router = Router();
 

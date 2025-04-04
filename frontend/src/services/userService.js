@@ -11,13 +11,27 @@ export const login = async (email, contact, password) => {
   if (email) payload.email = email;
   if (contact) payload.contact = contact;
   
-  const { data } = await axios.post('api/users/login', payload);
+  const { data } = await axios.post('/api/users/login', payload);
   localStorage.setItem('user', JSON.stringify(data));
   return data;
 };     
 
+// Initiate registration with email and send OTP
+export const initiateRegister = async (email) => {
+  const { data } = await axios.post('/api/users/register/initiate', { email });
+  return data;
+};
+
+// Complete registration with OTP verification
+export const completeRegister = async (registerData) => {
+  const { data } = await axios.post('/api/users/register/complete', registerData);
+  localStorage.setItem('user', JSON.stringify(data));
+  return data;
+};
+
+// Legacy register function
 export const register = async registerData => {
-  const { data } = await axios.post('api/users/register', registerData);
+  const { data } = await axios.post('/api/users/register', registerData);
   localStorage.setItem('user', JSON.stringify(data));
   return data;
 };
@@ -93,7 +107,7 @@ export const toggleAdminRole = async (userId, isAdmin) => {
     throw new Error('Authentication required');
   }
   
-  const { data } = await axios.put(`/api/users/admin/${userId}/role`, { isAdmin }, {
+  const { data } = await axios.put(`/api/users/admin/${userId}/admin-role`, { isAdmin }, {
     headers: {
       'Authorization': `Bearer ${user.token}`,
       'Content-Type': 'application/json',
@@ -109,7 +123,7 @@ export const toggleDeliveryRole = async (userId, isDelivery) => {
     throw new Error('Authentication required');
   }
   
-  const { data } = await axios.put(`/api/users/admin/${userId}/delivery`, { isDelivery }, {
+  const { data } = await axios.put(`/api/users/admin/${userId}/delivery-role`, { isDelivery }, {
     headers: {
       'Authorization': `Bearer ${user.token}`,
       'Content-Type': 'application/json',
@@ -125,7 +139,7 @@ export const toggleOwnerRole = async (userId, isOwner) => {
     throw new Error('Authentication required');
   }
   
-  const { data } = await axios.put(`/api/users/admin/${userId}/owner`, { isOwner }, {
+  const { data } = await axios.put(`/api/users/admin/${userId}/owner-role`, { isOwner }, {
     headers: {
       'Authorization': `Bearer ${user.token}`,
       'Content-Type': 'application/json',
@@ -141,9 +155,9 @@ export const toggleShopAdminRole = async (userId, isShopAdmin) => {
     throw new Error('Authentication required');
   }
   
-  const { data } = await axios.put(`/api/users/admin/${userId}/shopAdmin`, { isShopAdmin }, {
+  const { data } = await axios.put(`/api/users/admin/${userId}/shop-admin-role`, { isShopAdmin }, {
     headers: {
-      'Access-Token': user.token,
+      'Authorization': `Bearer ${user.token}`,
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     }
@@ -151,15 +165,67 @@ export const toggleShopAdminRole = async (userId, isShopAdmin) => {
   return data;
 };
 
-export const updateManagedShops = async (userId, shopIds) => {
+export const updateManagedShops = async (userId, managedShops) => {
   const user = getUser();
   if (!user || !user.token) {
     throw new Error('Authentication required');
   }
   
-  const { data } = await axios.put(`/api/users/admin/${userId}/managedShops`, { shopIds }, {
+  const { data } = await axios.put(`/api/users/admin/${userId}/managed-shops`, { managedShops }, {
     headers: {
-      'Access-Token': user.token,
+      'Authorization': `Bearer ${user.token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};
+
+// Email Bypass List Management Functions
+export const getBypassList = async () => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.get('/api/users/admin/bypass-list', {
+    headers: {
+      'Authorization': `Bearer ${user.token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};
+
+export const addToBypassList = async (email, reason = '') => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.post('/api/users/admin/bypass-list', 
+    { email, reason }, 
+    {
+      headers: {
+        'Authorization': `Bearer ${user.token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    }
+  );
+  return data;
+};
+
+export const removeFromBypassList = async (id) => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.delete(`/api/users/admin/bypass-list/${id}`, {
+    headers: {
+      'Authorization': `Bearer ${user.token}`,
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     }
