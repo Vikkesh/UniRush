@@ -6,7 +6,7 @@ import crypto from 'crypto';
 const getTransporter = () => {
  
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: 'smtp-relay.brevo.com',
     port: 587,
     secure: false,
     auth: {
@@ -20,10 +20,10 @@ const getTransporter = () => {
 // Email content template for OTP
 const createOTPEmailContent = (email, otp) => {
   return {
-    from: `"SNU Food Site" <${process.env.SMTP_USER}>`,
+    from: `"UniRush SNU" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: 'Your OTP for SNU Food Site Registration',
-    text: `Your OTP for SNU Food Site registration is: ${otp}\nThis OTP is valid for a limited time.`,
+    subject: 'Your OTP for SNU UniRush Registration',
+    text: `Your OTP for SNU UniRush registration is: ${otp}\nThis OTP is valid for 5 mins.`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
         <h2 style="color: #4a4a4a; text-align: center;">SNU Food Site Registration</h2>
