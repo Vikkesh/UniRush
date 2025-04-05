@@ -11,10 +11,44 @@ export default function ShopPage() {
   const [allFoods, setAllFoods] = useState([]); // Store all foods to filter from
   const [foodTags, setFoodTags] = useState([]); // Store unique food tags
   const [selectedTag, setSelectedTag] = useState('All'); // Track selected tag
+  const [isOpen, setIsOpen] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   
+  // Function to check if shop is currently open
+  const checkIfOpen = (openingTime, closingTime) => {
+    if (!openingTime || !closingTime) return true; // Default to open if times not set
+    
+    // Get current time in IST (UTC+5:30)
+    const now = new Date();
+    // IST offset is 5 hours and 30 minutes ahead of UTC
+    const istTime = new Date(now.getTime() + (330 * 60000));
+    const currentHour = istTime.getUTCHours();
+    const currentMinute = istTime.getUTCMinutes();
+    const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+    
+    // Convert times to minutes for comparison
+    const currentMinutes = convertTimeToMinutes(currentTimeString);
+    const openingMinutes = convertTimeToMinutes(openingTime);
+    const closingMinutes = convertTimeToMinutes(closingTime);
+    
+    // Compare times
+    if (openingMinutes < closingMinutes) {
+      // Normal case (e.g., 9:00 - 17:00)
+      return currentMinutes >= openingMinutes && currentMinutes < closingMinutes;
+    } else {
+      // Overnight case (e.g., 22:00 - 6:00)
+      return currentMinutes >= openingMinutes || currentMinutes < closingMinutes;
+    }
+  };
+  
+  // Helper function to convert time (HH:MM) to minutes
+  const convertTimeToMinutes = (timeString) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
   // Extract tag from URL if present
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -41,6 +75,10 @@ export default function ShopPage() {
         
         // Apply filtering based on the selected tag
         filterFoodsByTag(shopFoods, selectedTag);
+
+        // Check if shop is currently open
+        const isOpen = checkIfOpen(shopData.openingTime, shopData.closingTime);
+        setIsOpen(isOpen);
       } catch (error) {
         console.error('Failed to load shop:', error);
         setShop(null);
@@ -113,6 +151,16 @@ export default function ShopPage() {
             {shop.tags && shop.tags.map(tag => (
               <span key={tag} className={classes.tag}>{tag}</span>
             ))}
+          </div>
+          
+          <div className={classes.hours_status}>
+            <div className={classes.hours}>
+              <span>Hours: </span>
+              <span>{shop.openingTime || '09:00'} - {shop.closingTime || '22:00'}</span>
+            </div>
+            <div className={`${classes.status} ${isOpen ? classes.open : classes.closed}`}>
+              {isOpen ? 'Open Now' : 'Closed Now'}
+            </div>
           </div>
         </div>
       </div>

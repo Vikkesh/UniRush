@@ -32,6 +32,12 @@ export const getAll = async (state, filters = {}) => {
     if (filters.shopId && filters.shopId !== 'all') {
       params.append('shopId', filters.shopId);
     }
+    if (filters.userFilter) {
+      params.append('userFilter', filters.userFilter);
+    }
+    if (filters.userId) {
+      params.append('userId', filters.userId);
+    }
     
     const url = `/api/orders/${state ?? ''}?${params.toString()}`;
     const { data } = await axios.get(url);

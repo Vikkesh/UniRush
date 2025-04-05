@@ -79,9 +79,6 @@ export default function ManageFoods() {
   };
   
   const handleEditClick = (food) => {
-    // Improved logging to verify all food data is available
-    console.log("Editing food item - full data:", JSON.stringify(food));
-    
     // Ensure we're creating a complete copy of the food data
     setFoodToEdit({...food});
     setShowForm(true);

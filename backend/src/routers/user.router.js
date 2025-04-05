@@ -108,6 +108,7 @@ router.post('/register/complete', async (req, res) => {
         isOwner: newUser.isOwner,
         isDelivery: newUser.isDelivery,
         isShopAdmin: newUser.isShopAdmin,
+        managedShops: newUser.isShopAdmin ? newUser.managedShops : undefined,
       }, 
       process.env.JWT_SECRET,
       { expiresIn: '30d' }
@@ -189,6 +190,7 @@ router.post('/register', async (req, res) => {
         isOwner: newUser.isOwner,
         isDelivery: newUser.isDelivery,
         isShopAdmin: newUser.isShopAdmin,
+        managedShops: newUser.isShopAdmin ? newUser.managedShops : undefined,
       }, 
       process.env.JWT_SECRET,
       { expiresIn: '30d' }
@@ -255,6 +257,7 @@ router.post('/login', async (req, res) => {
         isOwner: user.isOwner,
         isDelivery: user.isDelivery,
         isShopAdmin: user.isShopAdmin,
+        managedShops: user.isShopAdmin ? user.managedShops : undefined,
       }, 
       process.env.JWT_SECRET,
       { expiresIn: '30d' }
@@ -326,6 +329,7 @@ router.put('/updateProfile', verifyToken, async (req, res) => {
         isOwner: user.isOwner,
         isDelivery: user.isDelivery,
         isShopAdmin: user.isShopAdmin,
+        managedShops: user.isShopAdmin ? user.managedShops : undefined,
       }, 
       process.env.JWT_SECRET,
       { expiresIn: '30d' }

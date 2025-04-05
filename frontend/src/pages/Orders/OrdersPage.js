@@ -1,9 +1,8 @@
 import React, { useEffect, useReducer } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getAll, getAllStatus } from '../../services/orderService';
-import { getAdminShops, getAll as getAllShops } from '../../services/shopService';
+import { getAll as getAllShops } from '../../services/shopService';
 import { useAuth } from '../../hooks/useAuth';
-import { DeliveryVisibleStatus } from '../../constants/orderStatus';
 import classes from './ordersPage.module.css';
 import Title from '../../components/Title/Title';
 import DateTime from '../../components/DateTime/DateTime';
@@ -17,7 +16,8 @@ const initialState = {
   timeFilter: 'all',
   customStartDate: '',
   customEndDate: '',
-  selectedShop: 'all'
+  selectedShop: 'all',
+  showAllOrders: false // New state for show all toggle
 };
 
 const reducer = (state, action) => {
@@ -37,6 +37,8 @@ const reducer = (state, action) => {
       return { ...state, customEndDate: payload };
     case 'SET_SELECTED_SHOP':
       return { ...state, selectedShop: payload };
+    case 'TOGGLE_SHOW_ALL':
+      return { ...state, showAllOrders: !state.showAllOrders };
     default:
       return state;
   }
@@ -46,6 +48,19 @@ export default function OrdersPage() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { filter } = useParams();
   const { user } = useAuth();
+
+  // Toggle between showing all orders and limited orders
+  const toggleShowAll = () => {
+    dispatch({ type: 'TOGGLE_SHOW_ALL' });
+  };
+
+  // Get orders to display based on showAllOrders state
+  const getDisplayedOrders = () => {
+    if (state.showAllOrders || state.orders.length <= 10) {
+      return state.orders;
+    }
+    return state.orders.slice(0, 10);
+  };
 
   // Helper function to format dates in YYYY-MM-DD format
   // This format works correctly with backend filtering
@@ -111,6 +126,11 @@ export default function OrdersPage() {
   };
 
   const loadOrders = async () => {
+    if (!user || !user.id) {
+      console.log('User not loaded yet, skipping order fetch');
+      return;
+    }
+
     const filters = {};
     
     // Add date filters
@@ -127,50 +147,49 @@ export default function OrdersPage() {
     if (state.selectedShop !== 'all') {
       filters.shopId = state.selectedShop;
     }
+    
+    // CRITICAL: Always add the current user ID as a filter
+    // This ensures OrdersPage only shows the current user's orders
+    // regardless of their role
+    filters.userId = user.id;
 
+    console.log('Fetching orders with filters:', filters);
     const orders = await getAll(filter, filters);
+    console.log('Orders fetched:', orders.length);
     dispatch({ type: 'ORDERS_FETCHED', payload: orders });
   };
 
   useEffect(() => {
-    getAllStatus().then(status => {
-      // If user is delivery personnel, only show relevant statuses
-      if (user?.isDelivery && !user?.isAdmin && !user?.isOwner) {
-        status = status.filter(s => DeliveryVisibleStatus.includes(s));
-      }
-      dispatch({ type: 'ALL_STATUS_FETCHED', payload: status });
+    // Load all order statuses without any role-based filtering
+    getAllStatus().then(statuses => {
+      dispatch({ type: 'ALL_STATUS_FETCHED', payload: statuses });
     });
 
-    // Only fetch shop data for the current user's orders
-    // Use the appropriate method based on user role
-    if (user?.isAdmin || user?.isOwner || user?.isShopAdmin || user?.isDelivery) {
-      // Admin users can use the admin shops endpoint
-      getAdminShops().then(shops => {
+    // Fetch all shops for the filter dropdown, regardless of user role
+    const loadShops = async () => {
+      try {
+        // Get all shops for the user to filter their orders by
+        const shops = await getAllShops();
         dispatch({ type: 'SHOPS_FETCHED', payload: shops });
-      }).catch(error => {
-        console.error('Error fetching admin shops:', error);
-        dispatch({ type: 'SHOPS_FETCHED', payload: [] });
-      });
-    } else {
-      // Regular customers don't need shop filtering - their orders are already filtered by user
-      // But we'll provide basic shop info from regular endpoint if needed
-      getAllShops().then(shops => {
-        dispatch({ type: 'SHOPS_FETCHED', payload: shops });
-      }).catch(error => {
+      } catch (error) {
         console.error('Error fetching shops:', error);
         dispatch({ type: 'SHOPS_FETCHED', payload: [] });
-      });
-    }
-  }, [user]);
+      }
+    };
+    
+    loadShops();
+  }, []);
 
   useEffect(() => {
-    loadOrders();
-  }, [filter, state.timeFilter, state.customStartDate, state.customEndDate, state.selectedShop]);
+    if (user && user.id) {
+      loadOrders();
+    }
+  }, [filter, state.timeFilter, state.customStartDate, state.customEndDate, state.selectedShop, user]);
 
   return (
     <div className={classes.container}>
       <Title
-        title="Orders"
+        title="My Orders"
         margin="1.5rem 0 0 .2rem"
         fontSize="1.9rem"
       />
@@ -257,73 +276,89 @@ export default function OrdersPage() {
         />
       )}
 
-      {state.orders &&
-        state.orders.map(order => (
-          <div key={order.id} className={classes.order_summary}>
-            <div className={classes.header}>
-              <div className={classes.order_id}>
-                <span className={classes.label}>Order ID:</span> 
-                <span className={classes.value}>{order.id}</span>
-              </div>
-              <div className={classes.order_date}>
-                <span className={classes.label}>Date:</span>
-                <span className={classes.value}>
-                  <DateTime date={order.createdAt} />
-                </span>
-              </div>
-              <div className={classes.order_status}>
-                <span className={`${classes.status_badge} ${classes['status_' + order.status.toLowerCase()]}`}>
-                  {order.status}
-                </span>
-              </div>
+      {getDisplayedOrders().map(order => (
+        <div key={order.id} className={classes.order_summary}>
+          <div className={classes.header}>
+            <div className={classes.order_id}>
+              <span className={classes.label}>Order ID:</span> 
+              <span className={classes.value}>{order.id}</span>
             </div>
-            
-            <div className={classes.details_section}>
-              <div className={classes.shop_info}>
-                <strong>Shop:</strong> {order.shopName}
-              </div>
-              
-              <div className={classes.customer_info}>
-                <div><strong>Name:</strong> {order.name}</div>
-                <div><strong>Contact:</strong> {order.contact || 'N/A'}</div>
-                <div><strong>Address:</strong> {order.address}</div>
-              </div>
+            <div className={classes.order_date}>
+              <span className={classes.label}>Date:</span>
+              <span className={classes.value}>
+                <DateTime date={order.createdAt} />
+              </span>
             </div>
-            
-            <div className={classes.items_section}>
-              <h3>Order Items</h3>
-              <div className={classes.items_list}>
-                {order.items.map(item => (
-                  <div key={item.food.id} className={classes.item_row}>
-                    <div className={classes.item_name}>
-                      <Link to={`/food/${item.food.id}`}>{item.food.name}</Link>
-                    </div>
-                    <div className={classes.item_quantity}>
-                      x{item.quantity}
-                    </div>
-                    <div className={classes.item_price}>
-                      <Price price={item.food.price * item.quantity} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className={classes.footer}>
-              <div className={classes.track_button}>
-                <Link to={`/track/${order.id}`} className={classes.track_link}>
-                  Track Order
-                </Link>
-              </div>
-              <div className={classes.total_price}>
-                <span className={classes.total_label}>Total:</span>
-                <span className={classes.price}>
-                  <Price price={order.totalPrice} />
-                </span>
-              </div>
+            <div className={classes.order_status}>
+              <span className={`${classes.status_badge} ${classes['status_' + order.status.toLowerCase()]}`}>
+                {order.status}
+              </span>
             </div>
           </div>
-        ))}
+          
+          <div className={classes.details_section}>
+            <div className={classes.shop_info}>
+              <strong>Shop:</strong> {order.shopName}
+            </div>
+            
+            <div className={classes.customer_info}>
+              <div><strong>Name:</strong> {order.name}</div>
+              <div><strong>Contact:</strong> {order.contact || 'N/A'}</div>
+              <div><strong>Address:</strong> {order.address}</div>
+            </div>
+          </div>
+          
+          <div className={classes.items_section}>
+            <h3>Order Items</h3>
+            <div className={classes.items_list}>
+              {order.items.map(item => (
+                <div key={item.food.id} className={classes.item_row}>
+                  <div className={classes.item_name}>
+                    <Link to={`/food/${item.food.id}`}>{item.food.name}</Link>
+                  </div>
+                  <div className={classes.item_quantity}>
+                    x{item.quantity}
+                  </div>
+                  <div className={classes.item_price}>
+                    <Price price={item.food.price * item.quantity} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className={classes.footer}>
+            <div className={classes.track_button}>
+              <Link to={`/track/${order.id}`} className={classes.track_link}>
+                Track Order
+              </Link>
+            </div>
+            <div className={classes.total_price}>
+              <span className={classes.total_label}>Total:</span>
+              <span className={classes.price}>
+                <Price price={order.totalPrice} />
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
+      
+      {/* Show All / Show Less button */}
+      {state.orders && state.orders.length > 10 && (
+        <div className={classes.show_all_container}>
+          <button 
+            onClick={toggleShowAll}
+            className={classes.toggle_button}
+          >
+            {state.showAllOrders ? 'Show Less' : 'Show All'}
+          </button>
+          {!state.showAllOrders && (
+            <div className={classes.show_more}>
+              <span>{state.orders.length - 10} more orders match your filters</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -375,51 +375,69 @@ router.get(
     handler(async (req, res) => {
         try {
             const status = req.params.status;
-            const { startDate, endDate, shopId } = req.query;
+            const { startDate, endDate, shopId, userId } = req.query;
             const filter = {};
             
             // Try to find the user
             const user = await UserModel.findById(req.user.id);
             
-            // If user doesn't exist, just filter by the user ID we have
-            if (!user) {
-                filter.user = req.user.id;
+            // If userId is specifically provided, this is the OrdersPage component
+            // and we should filter by the user regardless of their role
+            if (userId) {
+                // Set the user filter directly without additional checks
+                filter.user = userId;
             } else {
-                // If user is delivery personnel, admin, or owner, don't filter by user
-                if (!user.isAdmin && !user.isDelivery && !user.isOwner && !user.isShopAdmin) {
-                    filter.user = user._id;
-                }
+                // This is the ManageOrders component - apply role-based filtering
+                
+                // If user doesn't exist, just filter by the user ID we have
+                if (!user) {
+                    filter.user = req.user.id;
+                } else {
+                    // For regular users, only show their own orders
+                    if (!user.isAdmin && !user.isDelivery && !user.isOwner && !user.isShopAdmin) {
+                        filter.user = user._id;
+                    }
 
-                // For delivery personnel, only show allowed statuses
-                if (user.isDelivery && !user.isAdmin && !user.isOwner && !user.isShopAdmin) {
-                    if (status) {
-                        if (!DeliveryVisibleStatus.includes(status)) {
-                            return res.status(BAD_REQUEST).send('Status not accessible for delivery personnel');
+                    // For delivery personnel in ManageOrders, only show allowed statuses
+                    if (user.isDelivery && !user.isAdmin && !user.isOwner && !user.isShopAdmin) {
+                        if (status) {
+                            if (!DeliveryVisibleStatus.includes(status)) {
+                                return res.status(BAD_REQUEST).send('Status not accessible for delivery personnel');
+                            }
+                            filter.status = status;
+                        } else {
+                            filter.status = { $in: DeliveryVisibleStatus };
                         }
+                    } else if (status) {
                         filter.status = status;
-                    } else {
-                        filter.status = { $in: DeliveryVisibleStatus };
                     }
-                } else if (status) {
-                    filter.status = status;
-                }
 
-                // For shop admins, only show orders for their managed shops
-                if (user.isShopAdmin && !user.isAdmin && !user.isOwner) {
-                    if (shopId && shopId !== 'all') {
-                        // Check if this shop is in their managed shops
-                        if (!user.managedShops.some(managedShop => managedShop.toString() === shopId)) {
-                            return res.status(UNAUTHORIZED).send('You do not have permission to view this shop');
+                    // For shop admins in ManageOrders, only show orders for their managed shops
+                    if (user.isShopAdmin && !user.isAdmin && !user.isOwner) {
+                        if (shopId && shopId !== 'all') {
+                            // Check if this shop is in their managed shops
+                            if (!user.managedShops.some(managedShop => managedShop.toString() === shopId)) {
+                                return res.status(UNAUTHORIZED).send('You do not have permission to view this shop');
+                            }
+                            filter.shopId = shopId;
+                        } else {
+                            // No specific shop selected, filter by all managed shops
+                            filter.shopId = { $in: user.managedShops };
                         }
-                        filter.shopId = shopId;
-                    } else {
-                        // No specific shop selected, filter by all managed shops
-                        filter.shopId = { $in: user.managedShops };
                     }
-                } else if (shopId && shopId !== 'all') {
-                    // Admin/owner can filter by any shop
-                    filter.shopId = shopId;
                 }
+            }
+            
+            // Common filtering logic for both components
+            
+            // Add shop filter if provided and not already set by shop admin logic
+            if (shopId && shopId !== 'all' && !filter.shopId) {
+                filter.shopId = shopId;
+            }
+            
+            // Apply status filter if provided and not already set by delivery logic
+            if (status && !filter.status) {
+                filter.status = status;
             }
 
             // Apply date range filter if provided

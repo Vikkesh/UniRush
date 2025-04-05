@@ -15,6 +15,39 @@ export default function ManageShops() {
   const [showForm, setShowForm] = useState(false);
   const { user } = useAuth();
   
+  // Function to check if shop is currently open
+  const isShopOpen = (openingTime, closingTime) => {
+    if (!openingTime || !closingTime) return true; // Default to open if times not set
+    
+    // Get current time in IST (UTC+5:30)
+    const now = new Date();
+    // IST offset is 5 hours and 30 minutes ahead of UTC
+    const istTime = new Date(now.getTime() + (330 * 60000));
+    const currentHour = istTime.getUTCHours();
+    const currentMinute = istTime.getUTCMinutes();
+    const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+    
+    // Convert times to minutes for comparison
+    const currentMinutes = convertTimeToMinutes(currentTimeString);
+    const openingMinutes = convertTimeToMinutes(openingTime);
+    const closingMinutes = convertTimeToMinutes(closingTime);
+    
+    // Compare times
+    if (openingMinutes < closingMinutes) {
+      // Normal case (e.g., 9:00 - 17:00)
+      return currentMinutes >= openingMinutes && currentMinutes < closingMinutes;
+    } else {
+      // Overnight case (e.g., 22:00 - 6:00)
+      return currentMinutes >= openingMinutes || currentMinutes < closingMinutes;
+    }
+  };
+  
+  // Helper function to convert time (HH:MM) to minutes
+  const convertTimeToMinutes = (timeString) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+  
   // Determine if the user is a shop admin without admin/owner privileges
   const isShopAdminOnly = user?.isShopAdmin && !user?.isAdmin && !user?.isOwner;
   
@@ -57,9 +90,6 @@ export default function ManageShops() {
   };
   
   const handleEditClick = (shop) => {
-    // Improved logging to verify all shop data is available
-    console.log("Editing shop - full data:", JSON.stringify(shop));
-    
     // Ensure we're creating a complete copy of the shop data
     setShopToEdit({...shop});
     setShowForm(true);
@@ -145,6 +175,7 @@ export default function ManageShops() {
                     <th>Image</th>
                     <th>Name</th>
                     <th>Address</th>
+                    <th>Hours</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -160,6 +191,12 @@ export default function ManageShops() {
                       </td>
                       <td>{shop.name || 'Unnamed Shop'}</td>
                       <td>{shop.address || 'No address'}</td>
+                      <td>
+                        {shop.openingTime || '09:00'} - {shop.closingTime || '22:00'}
+                        <span className={`${classes.status_indicator} ${isShopOpen(shop.openingTime, shop.closingTime) ? classes.open_indicator : classes.closed_indicator}`}>
+                          {isShopOpen(shop.openingTime, shop.closingTime) ? 'Open' : 'Closed'}
+                        </span>
+                      </td>
                       <td>
                         <div className={classes.actions}>
                           <Link to={`/shop/${shop._id}`} className={classes.view_button}>

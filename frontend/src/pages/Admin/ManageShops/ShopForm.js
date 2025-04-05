@@ -10,14 +10,18 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
     description: '',
     imageUrl: '',
     address: '',
-    tags: ''
+    tags: '',
+    openingTime: '09:00',
+    closingTime: '22:00'
   });
 
   const [errors, setErrors] = useState({
     name: '',
     description: '',
     imageUrl: '',
-    address: ''
+    address: '',
+    openingTime: '',
+    closingTime: ''
   });
 
   useEffect(() => {
@@ -28,7 +32,9 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
         description: shop.description || '',
         imageUrl: shop.imageUrl || '',
         address: shop.address || '',
-        tags: Array.isArray(shop.tags) ? shop.tags.join(', ') : ''
+        tags: Array.isArray(shop.tags) ? shop.tags.join(', ') : '',
+        openingTime: shop.openingTime || '09:00',
+        closingTime: shop.closingTime || '22:00'
       });
     }
   }, [shop]);
@@ -140,6 +146,34 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
           onChange={handleChange}
         />
         <p className={classes.help_text}>Example: Pizza, Italian, Fast</p>
+        
+        <div className={classes.time_inputs}>
+          <div className={classes.form_group}>
+            <label>Opening Time</label>
+            <input
+              type="time"
+              name="openingTime"
+              value={formData.openingTime}
+              onChange={handleChange}
+              className={errors.openingTime ? classes.error : ''}
+            />
+            {errors.openingTime && <p className={classes.error_text}>{errors.openingTime}</p>}
+            <p className={classes.help_text}>Enter time in 24hr format (e.g., 09:00)</p>
+          </div>
+          
+          <div className={classes.form_group}>
+            <label>Closing Time</label>
+            <input
+              type="time"
+              name="closingTime"
+              value={formData.closingTime}
+              onChange={handleChange}
+              className={errors.closingTime ? classes.error : ''}
+            />
+            {errors.closingTime && <p className={classes.error_text}>{errors.closingTime}</p>}
+            <p className={classes.help_text}>Enter time in 24hr format (e.g., 22:00)</p>
+          </div>
+        </div>
         
         <div className={classes.buttons}>
           <Button type="submit" text={shop ? 'Save Changes' : 'Create Shop'} />

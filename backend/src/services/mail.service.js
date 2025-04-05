@@ -20,7 +20,7 @@ const getTransporter = () => {
 // Email content template for OTP
 const createOTPEmailContent = (email, otp) => {
   return {
-    from: `"UniRush SNU" <${process.env.SMTP_USER}>`,
+    from: `UniRush <unirush.team@unirush.in>`,
     to: email,
     subject: 'Your OTP for SNU UniRush Registration',
     text: `Your OTP for SNU UniRush registration is: ${otp}\nThis OTP is valid for 5 mins.`,

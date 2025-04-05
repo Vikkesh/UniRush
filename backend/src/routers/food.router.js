@@ -3,6 +3,7 @@ import { sample_foods, sample_tags } from "../data.js";
 import { FoodModel } from '../models/food.model.js';
 import handler from 'express-async-handler';
 import { verifyToken as auth } from '../middleware/auth.mid.js';
+import mongoose from 'mongoose';  // Import mongoose for ObjectId conversion
 
 const router = Router();
 
@@ -27,7 +28,18 @@ router.get(
     
     // If user is shop admin, return only foods from their managed shops
     if (req.user.isShopAdmin) {
-      const foods = await FoodModel.find({ shop: { $in: req.user.managedShops } }).populate('shop');
+      // Check if managedShops exists before trying to map it
+      if (!req.user.managedShops || !Array.isArray(req.user.managedShops)) {
+        // If managedShops doesn't exist or isn't an array, return empty array
+        return res.send([]);
+      }
+      
+      // Convert managedShops IDs to MongoDB ObjectId to ensure proper matching
+      const shopIds = req.user.managedShops.map(id => 
+        mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : id
+      );
+      
+      const foods = await FoodModel.find({ shop: { $in: shopIds } }).populate('shop');
       return res.send(foods);
     }
     
@@ -109,6 +121,12 @@ router.post(
     if (req.user.isAdmin || req.user.isOwner) {
       // Admin or owner can create food for any shop
     } else if (req.user.isShopAdmin) {
+      // Ensure managedShops exists and is an array
+      if (!req.user.managedShops || !Array.isArray(req.user.managedShops)) {
+        res.status(403).send('You do not have permission to add food items');
+        return;
+      }
+      
       // Check if shop admin has permission for this shop
       if (!req.user.managedShops.some(managedShop => managedShop.toString() === shop)) {
         res.status(403).send('You do not have permission to add food items to this shop');
@@ -150,6 +168,12 @@ router.put(
     if (req.user.isAdmin || req.user.isOwner) {
       // Admin or owner can update any food
     } else if (req.user.isShopAdmin) {
+      // Ensure managedShops exists and is an array
+      if (!req.user.managedShops || !Array.isArray(req.user.managedShops)) {
+        res.status(403).send('You do not have permission to update food items');
+        return;
+      }
+      
       // Check if shop admin has permission for this shop
       const existingShopId = existingFood.shop.toString();
       if (!req.user.managedShops.some(managedShop => managedShop.toString() === existingShopId)) {
@@ -202,6 +226,12 @@ router.delete(
     if (req.user.isAdmin || req.user.isOwner) {
       // Admin or owner can delete any food
     } else if (req.user.isShopAdmin) {
+      // Ensure managedShops exists and is an array
+      if (!req.user.managedShops || !Array.isArray(req.user.managedShops)) {
+        res.status(403).send('You do not have permission to delete food items');
+        return;
+      }
+      
       // Check if shop admin has permission for this shop
       const existingShopId = existingFood.shop.toString();
       if (!req.user.managedShops.some(managedShop => managedShop.toString() === existingShopId)) {
