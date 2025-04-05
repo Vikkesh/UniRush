@@ -23,16 +23,15 @@ const createOTPEmailContent = (email, otp) => {
     from: `UniRush <unirush.team@unirush.in>`,
     to: email,
     subject: 'Your OTP for SNU UniRush Registration',
-    text: `Your OTP for SNU UniRush registration is: ${otp}\nThis OTP is valid for 5 mins.`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-        <h2 style="color: #4a4a4a; text-align: center;">SNU Food Site Registration</h2>
+        <h2 style="color: #4a4a4a; text-align: center;">SNU UniRush Registration</h2>
         <p style="color: #666; font-size: 16px;">Hi there,</p>
-        <p style="color: #666; font-size: 16px;">Your One-Time Password (OTP) for SNU Food Site registration is:</p>
+        <p style="color: #666; font-size: 16px;">Your One-Time Password (OTP) for SNU UniRush registration is:</p>
         <div style="background-color: #f7f7f7; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
           ${otp}
         </div>
-        <p style="color: #666; font-size: 14px;">This OTP is valid for a limited time. Please do not share it with anyone.</p>
+        <p style="color: #666; font-size: 14px;">This OTP is valid for 5 mins. Please do not share it with anyone.</p>
         <p style="color: #888; font-size: 12px; text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
           This is an automated email. Please do not reply.
         </p>
