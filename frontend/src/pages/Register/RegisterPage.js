@@ -10,7 +10,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 export default function RegisterPage() {
     const auth = useAuth(); 
-    const { user, registerStep, initiateRegister, verifyOTP, completeRegister, resetRegistration } = auth;
+    const { user, registerStep, initiateRegister, verifyOTP, completeRegister, resetRegistration, validateReturnUrl } = auth;
     const navigate = useNavigate();
     const [params] = useSearchParams();
     const returnUrl = params.get('returnUrl');
@@ -20,8 +20,9 @@ export default function RegisterPage() {
     
     useEffect(() => {
         if (!user) return;
-        returnUrl ? navigate(returnUrl) : navigate('/');
-    }, [user, navigate, returnUrl]);
+        const validatedUrl = validateReturnUrl(returnUrl, user);
+        navigate(validatedUrl, { replace: true });
+    }, [user, navigate, returnUrl, validateReturnUrl]);
     
     // Form for email entry
     const EmailForm = () => {

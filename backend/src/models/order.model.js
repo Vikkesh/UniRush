@@ -15,8 +15,9 @@ export const LatLngSchema = new Schema(
 
 export const OrderItemSchema = new Schema(
     {
-      // Use Schema.Types.ObjectId instead of direct schema reference
-      food: { type: Schema.Types.ObjectId, required: true, ref: 'food' },
+      // Make food field optional for custom orders
+      food: { type: Schema.Types.ObjectId, required: false, ref: 'food' },
+      name: { type: String, required: true }, // Add name field which is required
       price: { type: Number, required: true },
       quantity: { type: Number, required: true },
     },

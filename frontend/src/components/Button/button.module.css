@@ -47,7 +47,7 @@
         margin: 0.45rem auto;      /* Further reduced margin */
         padding: 0 0.42rem;        /* Further reduced padding */
         border-radius: 0.5rem;     /* Further reduced radius */
-        font-size: 0.85rem;        /* Further reduced font size */
+        font-size: 0.75rem;        /* Further reduced font size */
         min-width: 60px;           /* Adjusted minimum width */
         letter-spacing: -0.02em;    /* Slightly tighter letter spacing */
     }

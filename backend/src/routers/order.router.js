@@ -86,16 +86,29 @@ router.get(
             
             const filter = { _id: orderId };
             
-            // Check if user exists and is not admin, owner or delivery, then filter by user
+            // Check if user exists
             if (user) {
-                if (!user.isAdmin && !user.isDelivery && !user.isOwner) {
+                // If user is admin, owner, or delivery personnel, they can see any order
+                if (user.isAdmin || user.isDelivery || user.isOwner) {
+                    // No additional filters needed - they can see all orders
+                } 
+                // For shop admins, filter by their managed shops
+                else if (user.isShopAdmin) {
+                    // Shop admins can see orders from their managed shops
+                    filter.shopId = { $in: user.managedShops };
+                }
+                // For regular users, filter by their own orders
+                else {
                     filter.user = user._id;
                 }
             } else {
                 filter.user = req.user.id;
             }
             
-            const order = await OrderModel.findOne(filter).populate('shopId');
+            const order = await OrderModel.findOne(filter)
+                .populate('shopId')
+                .populate('items.food');
+                
             if (!order) {
                 return res.status(UNAUTHORIZED).send('Order not found');
             }
@@ -477,6 +490,7 @@ router.get(
 
             const orders = await OrderModel.find(filter)
                 .populate('shopId')
+                .populate('items.food')
                 .populate('user', 'name contact')
                 .sort('-createdAt');
             

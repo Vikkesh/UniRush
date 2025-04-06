@@ -12,6 +12,35 @@ export default function RazorpayButtons({ order, user }) { // receive user props
 
   const initiatePayment = async () => {
     try {
+      // Process items to ensure they have proper structure
+      const processedItems = order.items.map(item => {
+        // If it's a custom order item (no food field but has name)
+        if (!item.food && item.name) {
+          return {
+            name: item.name,
+            price: item.price, // Ensure price is per unit
+            quantity: item.quantity
+          };
+        }
+        
+        // For regular food items
+        if (item.food) {
+          return {
+            food: typeof item.food === 'object' ? item.food.id || item.food._id : item.food,
+            name: item.food.name || 'Menu Item',
+            price: item.price, // Ensure price is per unit
+            quantity: item.quantity
+          };
+        }
+        
+        // Default fallback
+        return {
+          name: item.name || 'Unknown Item',
+          price: item.price, // Ensure price is per unit
+          quantity: item.quantity
+        };
+      });
+      
       const payload = {
         orderItems: order.items,
         totalPrice: order.totalPrice
@@ -41,6 +70,7 @@ export default function RazorpayButtons({ order, user }) { // receive user props
             // Create order in database with PAID status after payment verification
             const dbOrder = await createOrder({ 
               ...order,
+              items: processedItems, // Use processed items
               status: 'PAID',
               paymentId: response.razorpay_payment_id
             });

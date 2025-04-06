@@ -4,6 +4,43 @@ import { toast } from 'react-toastify';
 
 const AuthContext = createContext(null);
 
+// Function to validate access to specific routes based on user roles
+const validateReturnUrl = (url, user) => {
+  if (!url) return '/';
+  
+  // Admin dashboard and related routes
+  if (url.startsWith('/admin')) {
+    // If not logged in or no permissions, redirect to home
+    if (!user) return '/';
+    
+    // Dashboard access based on role
+    if (url.startsWith('/admin/dashboard')) {
+      // Admin, owner, shop admin, or delivery can access dashboard
+      if (user.isAdmin || user.isOwner || user.isShopAdmin || user.isDelivery) {
+        // For delivery personnel without other roles, force them to orders section
+        if (user.isDelivery && !user.isAdmin && !user.isOwner && !user.isShopAdmin) {
+          return '/admin/dashboard?section=orders';
+        }
+        return url;
+      }
+      return '/';
+    }
+    
+    // Only admin or owner can access these routes
+    if (url.includes('/users') || url.includes('/shops') || url.includes('/settings')) {
+      return (user.isAdmin || user.isOwner) ? url : '/';
+    }
+  }
+  
+  // Profile and orders pages require any authenticated user
+  if (url.startsWith('/profile') || url.startsWith('/orders')) {
+    return user ? url : '/';
+  }
+  
+  // If no specific rules, return the original URL or home for invalid URLs
+  return url;
+};
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(userService.getUser());
     const [registerStep, setRegisterStep] = useState('email'); // 'email', 'otp', 'details'
@@ -148,7 +185,8 @@ export const AuthProvider = ({ children }) => {
           setRegisterStep,
           registrationData,
           updateProfile, 
-          changePassword 
+          changePassword,
+          validateReturnUrl
         }}
       >
         {children}

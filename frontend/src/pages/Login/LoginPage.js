@@ -17,7 +17,7 @@ export default function LoginPage() {
     reset
   } = useForm();
   const navigate = useNavigate();
-  const { user, login } = useAuth();
+  const { user, login, validateReturnUrl } = useAuth();
   const [params] = useSearchParams();
   const returnUrl = params.get('returnUrl');
   const location = useLocation();
@@ -25,12 +25,12 @@ export default function LoginPage() {
   useEffect(() => {
     if (!user) return;
     
-    // Use a more stable way to redirect to avoid infinite loops
-    const destination = returnUrl || '/';
+    // Validate the return URL based on user's permissions
+    const validatedUrl = validateReturnUrl(returnUrl, user);
     if (location.pathname === '/login') {
-      navigate(destination, { replace: true });
+      navigate(validatedUrl, { replace: true });
     }
-  }, [user, returnUrl, navigate, location.pathname]);
+  }, [user, returnUrl, navigate, location.pathname, validateReturnUrl]);
 
   const submit = async (data) => {
     try {

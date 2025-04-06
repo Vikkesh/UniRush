@@ -94,7 +94,7 @@ export default function HomePage() {
       <div className={classes.container}>
         {error && <p className={classes.error}>{error}</p>}
         {!loading && shops.length === 0 && <NotFound message="No shops found" linkText="Reset" linkRoute="/" />}
-        <h2 className={classes.title}>All Restaurants</h2>
+        <h2 className={classes.title}>All Shops</h2>
         {shopsThumbnails.length > 0 && <Thumbnails items={shopsThumbnails} />}
       </div>
     </>

@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import * as shopService from '../../services/shopService';
+import { useAuth } from '../../hooks/useAuth';
+import { useForm } from 'react-hook-form';
 import NotFound from '../../components/NotFound/NotFound';
 import Thumbnails from '../../components/Thumbnails/Thumbnails';
+import Input from '../../components/Input/Input';
+import Button from '../../components/Button/Button';
+import Map from '../../components/Map/Map';
 import classes from './shopPage.module.css';
 
 export default function ShopPage() {
@@ -12,9 +17,18 @@ export default function ShopPage() {
   const [foodTags, setFoodTags] = useState([]); // Store unique food tags
   const [selectedTag, setSelectedTag] = useState('All'); // Track selected tag
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('menu'); // 'menu' or 'customOrder'
+  const [customOrderAddressLatLng, setCustomOrderAddressLatLng] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
+  
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm();
   
   // Function to check if shop is currently open
   const checkIfOpen = (openingTime, closingTime) => {
@@ -133,6 +147,51 @@ export default function ShopPage() {
     navigate(`/shop/${id}?tag=${tagName}`);
   };
 
+  // Handle custom order submission
+  const submitCustomOrder = (data) => {
+    if (!customOrderAddressLatLng) {
+      alert('Please select your location on the map');
+      return;
+    }
+
+    // Calculate delivery fee based on item total
+    const itemsTotal = parseFloat(data.totalPrice);
+    const deliveryFee = calculateDeliveryFee(itemsTotal);
+    const totalPrice = itemsTotal + deliveryFee;
+
+    // Create a custom order object
+    const customOrder = {
+      name: data.name,
+      address: data.address,
+      addressLatLng: customOrderAddressLatLng,
+      shopId: shop._id,
+      shopName: shop.name,
+      itemsTotal: itemsTotal,
+      totalPrice: totalPrice,
+      deliveryFee: deliveryFee,
+      orderDescription: data.orderDescription,
+      items: [
+        {
+          name: 'Custom Items',
+          price: itemsTotal,
+          quantity: 1
+        }
+      ]
+    };
+
+    // Store in session storage for the payment page
+    sessionStorage.setItem('checkoutData', JSON.stringify(customOrder));
+    navigate('/payment');
+  };
+
+  // Helper function to calculate delivery fee
+  const calculateDeliveryFee = (itemsTotal) => {
+    if (itemsTotal <= 100) {
+      return 30;
+    }
+    return 30 + (itemsTotal - 100) * 0.1;
+  };
+
   if (!shop) return <NotFound message="Shop Not Found!" linkRoute="/" linkText="Go To Home Page" />;
 
   return (
@@ -192,11 +251,86 @@ export default function ShopPage() {
       </div>
       
       <div className={classes.foods_container}>
-        <h2>Menu {selectedTag !== 'All' && `- ${selectedTag}`}</h2>
-        {foods.length === 0 ? (
-          <p>No food items available in this category.</p>
-        ) : (
-          <Thumbnails items={foods} />
+        <div className={classes.tabs}>
+          <button 
+            className={`${classes.tab} ${activeTab === 'menu' ? classes.active_tab : ''}`}
+            onClick={() => setActiveTab('menu')}
+          >
+            Menu {selectedTag !== 'All' && `- ${selectedTag}`}
+          </button>
+          <button 
+            className={`${classes.tab} ${activeTab === 'customOrder' ? classes.active_tab : ''}`}
+            onClick={() => setActiveTab('customOrder')}
+          >
+            Custom Orders
+          </button>
+        </div>
+        
+        {activeTab === 'menu' && (
+          <>
+            {foods.length === 0 ? (
+              <p>No food items available in this category.</p>
+            ) : (
+              <Thumbnails items={foods} />
+            )}
+          </>
+        )}
+        
+        {activeTab === 'customOrder' && (
+          <div className={classes.custom_order_container}>
+            <div className={classes.custom_order_info}>
+              <p>If you want to make any orders that aren't available in the menu, please contact the shop and fill in the necessary details in the form.</p>
+              <p>Phone: <strong>{shop.contact || 'Not available'}</strong></p>
+            </div>
+            
+            <form onSubmit={handleSubmit(submitCustomOrder)} className={classes.custom_order_form}>
+              <div className={classes.form_content}>
+                <div className={classes.form_inputs}>
+                  <Input
+                    defaultValue={user?.name || ''}
+                    label="Name"
+                    {...register('name', { required: 'Name is required' })}
+                    error={errors.name}
+                  />
+                  <Input
+                    defaultValue={user?.address || ''}
+                    label="Address"
+                    {...register('address', { required: 'Address is required' })}
+                    error={errors.address}
+                  />
+                  <Input
+                    type="number"
+                    label="Total Items Price (₹)"
+                    {...register('totalPrice', { 
+                      required: 'Price is required',
+                      min: {
+                        value: 1,
+                        message: 'Price must be at least ₹1'
+                      }
+                    })}
+                    error={errors.totalPrice}
+                  />
+                </div>
+                
+                <div className={classes.location_section}>
+                  <h3>Choose Your Location</h3>
+                  <Map
+                    location={customOrderAddressLatLng}
+                    onChange={latlng => setCustomOrderAddressLatLng(latlng)}
+                  />
+                </div>
+              </div>
+              
+              <div className={classes.submit_button}>
+                <Button
+                  type="submit"
+                  text="Proceed to Payment"
+                  width="100%"
+                  height="3rem"
+                />
+              </div>
+            </form>
+          </div>
         )}
       </div>
     </div>

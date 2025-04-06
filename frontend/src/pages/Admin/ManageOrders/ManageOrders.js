@@ -416,10 +416,12 @@ export default function ManageOrders() {
             <h3>Order Items</h3>
             <div className={classes.items_list}>
               {order.items.map(item => (
-                <div key={item.food?.id || `item-${Math.random()}`} className={classes.item_row}>
+                <div key={item.food?._id || item._id || `item-${Math.random()}`} className={classes.item_row}>
                   <div className={classes.item_name}>
-                    {item.food ? (
-                      <Link to={`/food/${item.food.id}`}>{item.food.name}</Link>
+                    {item.food? (
+                      <Link to={`/food/${item.food._id}`}>{item.food.name}</Link>
+                    ) : item.name ? (
+                      <span>{item.name}</span>
                     ) : (
                       <span>Deleted Food Item</span>
                     )}
@@ -428,7 +430,7 @@ export default function ManageOrders() {
                     x{item.quantity}
                   </div>
                   <div className={classes.item_price}>
-                    <Price price={item.price * item.quantity} />
+                    <Price price={item.price} />
                   </div>
                 </div>
               ))}
