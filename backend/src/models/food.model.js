@@ -1,4 +1,6 @@
 import { model, Schema } from 'mongoose';
+// Remove the circular import
+// import { OrderModel } from './order.model.js';
 
 export const FoodSchema = new Schema(
   {
@@ -7,9 +9,8 @@ export const FoodSchema = new Schema(
     tags: { type: [String] },
     shop: { type: Schema.Types.ObjectId, ref: 'shop', required: true }, 
     favorite: { type: Boolean, default: false },
-    stars: { type: Number, default: 3 },
     imageUrl: { type: String, required: false }, // Changed to optional
-    // Removed origins and cookTime fields
+    // Removed stars field
   },
   {
     toJSON: {

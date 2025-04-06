@@ -1,7 +1,6 @@
 import React from 'react';
-import classes from './thumbnails.module.css';
 import { Link } from 'react-router-dom';
-import StarRating from '../StarRating/StarRating';
+import classes from './thumbnails.module.css';
 import Price from '../Price/Price';
 
 export default function Thumbnails({ items }) {
@@ -29,13 +28,6 @@ export default function Thumbnails({ items }) {
                   ❤
                 </span>
               </div>
-              
-              {/* Only show star ratings for food items (those with a price > 0) */}
-              {item.price > 0 && item.stars && (
-                <div className={classes.stars}>
-                  <StarRating stars={item.stars} />
-                </div>
-              )}
               
               {/* Display address for shops (items with price = 0) */}
               {item.price === 0 && item.origins && item.origins[0] && (

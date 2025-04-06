@@ -162,6 +162,16 @@ export default function ShopPage() {
               {isOpen ? 'Open Now' : 'Closed Now'}
             </div>
           </div>
+          
+          <div className={classes.contact_info}>
+            <span>Contact: </span>
+            <span>{shop.contact || 'Not available'}</span>
+          </div>
+          
+          <div className={classes.order_note}>
+            <h4 className={classes.note_heading}>NOTE:</h4>
+            <p>If your order status hasn't been updated to <span className={classes.accepted_status}>ACCEPTED</span> within 5 minutes, you can contact the shop directly.</p>
+          </div>
         </div>
       </div>
       

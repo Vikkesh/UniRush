@@ -10,6 +10,7 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
     description: '',
     imageUrl: '',
     address: '',
+    contact: '',
     tags: '',
     openingTime: '09:00',
     closingTime: '22:00'
@@ -20,6 +21,7 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
     description: '',
     imageUrl: '',
     address: '',
+    contact: '',
     openingTime: '',
     closingTime: ''
   });
@@ -32,6 +34,7 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
         description: shop.description || '',
         imageUrl: shop.imageUrl || '',
         address: shop.address || '',
+        contact: shop.contact || '',
         tags: Array.isArray(shop.tags) ? shop.tags.join(', ') : '',
         openingTime: shop.openingTime || '09:00',
         closingTime: shop.closingTime || '22:00'
@@ -73,6 +76,16 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
     } else {
       newErrors.address = '';
     }
+    
+    if (!formData.contact.trim()) {
+      newErrors.contact = 'Contact number is required';
+      valid = false;
+    } else if (!/^\d{10}$/.test(formData.contact.trim())) {
+      newErrors.contact = 'Contact must be exactly 10 digits';
+      valid = false;
+    } else {
+      newErrors.contact = '';
+    }
 
     setErrors(newErrors);
     return valid;
@@ -103,14 +116,14 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
         <Input
           type="text"
           name="name"
-          label="Shop Name"
+          label={<>Shop Name <span className={classes.required}>Required</span></>}
           defaultValue={formData.name}
           onChange={handleChange}
           error={errors.name}
         />
         
         <div className={classes.form_group}>
-          <label>Description</label>
+          <label>Description <span className={classes.required}>Required</span></label>
           <textarea
             name="description"
             defaultValue={formData.description}
@@ -123,7 +136,7 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
         <Input
           type="text"
           name="imageUrl"
-          label="Image URL (optional)"
+          label="Image URL (Optional)"
           defaultValue={formData.imageUrl}
           onChange={handleChange}
           error={errors.imageUrl}
@@ -132,11 +145,24 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
         <Input
           type="text"
           name="address"
-          label="Address"
+          label={<>Address <span className={classes.required}>Required</span></>}
           defaultValue={formData.address}
           onChange={handleChange}
           error={errors.address}
         />
+        
+        <Input
+          type="tel"
+          name="contact"
+          label={<>Contact Number <span className={classes.required}>Required</span></>}
+          defaultValue={formData.contact}
+          onChange={handleChange}
+          error={errors.contact}
+        />
+        {!formData.contact && <p className={classes.error_text}>This field is required</p>}
+        {formData.contact && !/^\d{10}$/.test(formData.contact) && (
+          <p className={classes.error_text}>Phone number must be exactly 10 digits</p>
+        )}
         
         <Input
           type="text"

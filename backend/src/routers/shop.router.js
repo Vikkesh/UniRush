@@ -175,7 +175,7 @@ router.post(
   '/',
   auth,
   handler(async (req, res) => {
-    const { name, description, imageUrl, address, tags, openingTime, closingTime } = req.body;
+    const { name, description, imageUrl, address, contact, tags, openingTime, closingTime } = req.body;
 
     if (!req.user.isAdmin && !req.user.isOwner) {
       res.status(403).send('Only Admin or Owner Can Create Shops');
@@ -187,6 +187,7 @@ router.post(
       description,
       imageUrl,
       address,
+      contact,
       tags,
       openingTime: openingTime || '09:00',
       closingTime: closingTime || '22:00'
@@ -200,7 +201,7 @@ router.put(
   '/:shopId',
   auth,
   handler(async (req, res) => {
-    const { name, description, imageUrl, address, tags, openingTime, closingTime } = req.body;
+    const { name, description, imageUrl, address, contact, tags, openingTime, closingTime } = req.body;
     const { shopId } = req.params;
 
     // Check if user has permission to update this shop
@@ -230,6 +231,7 @@ router.put(
         description,
         imageUrl,
         address,
+        contact,
         tags,
         openingTime,
         closingTime
@@ -253,13 +255,10 @@ router.delete(
       return;
     }
 
-    // Check if there are foods assigned to this shop
-    const foodCount = await FoodModel.countDocuments({ shop: shopId });
-    if (foodCount > 0) {
-      res.status(400).send(`Cannot delete shop with ${foodCount} food items assigned to it. Please reassign or delete these items first.`);
-      return;
-    }
+    // Delete all foods associated with this shop first
+    await FoodModel.deleteMany({ shop: shopId });
 
+    // Then delete the shop
     await ShopModel.findByIdAndDelete(shopId);
     res.send({ success: true });
   })

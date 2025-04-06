@@ -16,7 +16,6 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
     tags: '',
     shop: '',
     favorite: false,
-    stars: 3,
     imageUrl: '',
   });
 
@@ -37,7 +36,6 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
         tags: food.tags ? food.tags.join(', ') : '',
         shop: food.shop ? food.shop._id : '',
         favorite: food.favorite || false,
-        stars: food.stars || 3,
         imageUrl: food.imageUrl || '',
       });
     } else if (shops && shops.length > 0) {
@@ -62,14 +60,6 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value
-    });
-  };
-
-  const handleStarsChange = (e) => {
-    const value = parseFloat(e.target.value);
-    setFormData({
-      ...formData,
-      stars: value
     });
   };
 
@@ -137,7 +127,7 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
         
         <div className={classes.form_row}>
           <div className={classes.form_group}>
-            <label>Name</label>
+            <label>Name <span className={classes.required}>Required</span></label>
             <Input
               type="text"
               name="name"
@@ -148,7 +138,7 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
           </div>
           
           <div className={classes.form_group}>
-            <label>Price</label>
+            <label>Price <span className={classes.required}>Required</span></label>
             <Input
               type="text"
               name="price"
@@ -160,7 +150,7 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
         </div>
         
         <div className={classes.form_group}>
-          <label>Shop</label>
+          <label>Shop <span className={classes.required}>Required</span></label>
           <select
             name="shop"
             value={formData.shop}
@@ -201,23 +191,6 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
             onChange={handleChange}
           />
           <p className={classes.help_text}>Example: Pizza, FastFood, Lunch</p>
-        </div>
-        
-        <div className={classes.form_group}>
-          <label>Rating (1-5)</label>
-          <div className={classes.range_container}>
-            <input
-              type="range"
-              name="stars"
-              min="1"
-              max="5"
-              step="0.5"
-              value={formData.stars}
-              onChange={handleStarsChange}
-              className={classes.range_input}
-            />
-            <span className={classes.range_value}>{formData.stars}</span>
-          </div>
         </div>
         
         <div className={classes.form_group_checkbox}>

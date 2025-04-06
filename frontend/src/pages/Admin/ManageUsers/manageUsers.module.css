@@ -146,6 +146,26 @@
   background-color: #f57c00;
 }
 
+.delete_button {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.delete_button:hover {
+  background-color: #c82333;
+}
+
+.delete_button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .checkbox_container {
   display: flex;
   justify-content: center;

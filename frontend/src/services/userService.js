@@ -232,3 +232,19 @@ export const removeFromBypassList = async (id) => {
   });
   return data;
 };
+
+export const deleteUser = async (userId) => {
+  const user = getUser();
+  if (!user || !user.token) {
+    throw new Error('Authentication required');
+  }
+  
+  const { data } = await axios.delete(`/api/users/admin/${userId}`, {
+    headers: {
+      'Authorization': `Bearer ${user.token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return data;
+};

@@ -21,14 +21,18 @@ export default function OrderItemsList({ order }) {
           </td>
         </tr>
         {order.items.map(item => (
-          <tr key={item.food.id}>
+          <tr key={item.food?.id || `item-${Math.random()}`}>
             <td>
-              <Link to={`/food/${item.food.id}`}>
-                {item.food.name}
-              </Link>
+              {item.food ? (
+                <Link to={`/food/${item.food.id}`}>
+                  {item.food.name}
+                </Link>
+              ) : (
+                <span>Deleted Food Item</span>
+              )}
             </td>
             <td>
-              <Price price={item.food.price} />
+              <Price price={item.food?.price || item.price} />
             </td>
             <td>{item.quantity}</td>
             <td>

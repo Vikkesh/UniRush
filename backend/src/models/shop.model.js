@@ -6,6 +6,7 @@ export const ShopSchema = new Schema(
     description: { type: String, required: true },
     imageUrl: { type: String, required: false }, // Changed to optional
     address: { type: String, required: true },
+    contact: { type: String, required: true }, // Added contact field
     tags: { type: [String] },
     openingTime: { type: String, default: '12:00' }, // 24-hour format (HH:MM)
     closingTime: { type: String, default: '00:00' }, // 24-hour format (HH:MM)

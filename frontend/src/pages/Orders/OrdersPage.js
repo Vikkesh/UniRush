@@ -312,15 +312,19 @@ export default function OrdersPage() {
             <h3>Order Items</h3>
             <div className={classes.items_list}>
               {order.items.map(item => (
-                <div key={item.food.id} className={classes.item_row}>
+                <div key={item.food?.id || `item-${Math.random()}`} className={classes.item_row}>
                   <div className={classes.item_name}>
-                    <Link to={`/food/${item.food.id}`}>{item.food.name}</Link>
+                    {item.food ? (
+                      <Link to={`/food/${item.food.id}`}>{item.food.name}</Link>
+                    ) : (
+                      <span>Deleted Food Item</span>
+                    )}
                   </div>
                   <div className={classes.item_quantity}>
                     x{item.quantity}
                   </div>
                   <div className={classes.item_price}>
-                    <Price price={item.food.price * item.quantity} />
+                    <Price price={item.price * item.quantity} />
                   </div>
                 </div>
               ))}

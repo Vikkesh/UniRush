@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react'
-import classes from './foodPage.module.css'
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import classes from './foodPage.module.css';
+import { useCart } from '../../hooks/useCart';
 import { getById } from '../../services/foodService';
 import Price from '../../components/Price/Price';
 import Tags from '../../components/Tags/Tags';
-import StarRating from '../../components/StarRating/StarRating';
-import { useCart } from '../../hooks/useCart';
 import NotFound from '../../components/NotFound/NotFound';
 import Button from '../../components/Button/Button';
 import { toast } from 'react-toastify';
@@ -77,9 +76,6 @@ export default function FoodPage() {
           >
             ❤
           </span>
-        </div>
-        <div className={classes.rating}>
-          <StarRating stars={food.stars} size={25} />
         </div>
 
         {/* Shop information */}

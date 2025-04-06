@@ -213,6 +213,31 @@ export default function ManageUsers() {
     setShowForm(false);
   };
 
+  const handleDeleteUser = async (user) => {
+    // Check if current user is admin and target user is owner
+    if (currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner) {
+      toast.error('Admins cannot delete owner accounts');
+      return;
+    }
+    
+    // Prevent deleting self
+    if (user._id === currentUser.id) {
+      toast.error('You cannot delete your own account');
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete ${user.name}? This action cannot be undone.`)) {
+      try {
+        await userService.deleteUser(user._id);
+        setUsers(users.filter(u => u._id !== user._id));
+        toast.success('User deleted successfully');
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        toast.error(error.response?.data || 'Failed to delete user');
+      }
+    }
+  };
+
   // Render tabs for Users and Email Bypass List
   const renderTabs = () => {
     return (
@@ -358,6 +383,14 @@ export default function ManageUsers() {
                                         (currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner)}
                               >
                                 {user.isBlocked ? 'Unblock' : 'Block'}
+                              </button>
+                              <button 
+                                className={classes.delete_button}
+                                onClick={() => handleDeleteUser(user)}
+                                disabled={(currentUser && user._id === currentUser.id) || 
+                                        (currentUser && !currentUser.isOwner && currentUser.isAdmin && user.isOwner)}
+                              >
+                                Delete
                               </button>
                             </div>
                           </td>

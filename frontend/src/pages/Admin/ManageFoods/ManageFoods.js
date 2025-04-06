@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import * as foodService from '../../../services/foodService';
 import * as shopService from '../../../services/shopService';
 import classes from './manageFoods.module.css';
 import Title from '../../../components/Title/Title';
 import Button from '../../../components/Button/Button';
 import FoodForm from './FoodForm';
-import StarRating from '../../../components/StarRating/StarRating';
 import { useAuth } from '../../../hooks/useAuth';
 
 export default function ManageFoods() {
@@ -185,7 +185,6 @@ export default function ManageFoods() {
                     <th>Name</th>
                     <th>Shop</th>
                     <th>Price</th>
-                    <th>Rating</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -202,9 +201,6 @@ export default function ManageFoods() {
                       <td>{food.name || 'Unnamed Food'}</td>
                       <td>{food.shop ? (food.shop.name || 'Unknown') : 'Unknown'}</td>
                       <td>₹{(food.price || 0).toFixed(2)}</td>
-                      <td>
-                        <StarRating stars={food.stars || 0} size={20} />
-                      </td>
                       <td>
                         <div className={classes.actions}>
                           <button 

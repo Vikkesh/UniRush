@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 import { OrderStatus } from '../constants/orderStatus.js';
-import { FoodModel } from './food.model.js';
+// Remove the circular import
+// import { FoodModel } from './food.model.js';
 
 export const LatLngSchema = new Schema(
     {
@@ -14,7 +15,8 @@ export const LatLngSchema = new Schema(
 
 export const OrderItemSchema = new Schema(
     {
-      food: { type: FoodModel.schema, required: true },
+      // Use Schema.Types.ObjectId instead of direct schema reference
+      food: { type: Schema.Types.ObjectId, required: true, ref: 'food' },
       price: { type: Number, required: true },
       quantity: { type: Number, required: true },
     },

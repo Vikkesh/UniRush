@@ -704,4 +704,38 @@ router.delete('/admin/bypass-list/:id', verifyToken, isAdminOrOwner, async (req,
   }
 });
 
+router.delete('/admin/:userId', verifyToken, isAdminOrOwner, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    // Validate userId format
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(BAD_REQUEST).send('Invalid user ID');
+    }
+    
+    // Prevent deleting self
+    if (userId === req.user.id) {
+      return res.status(BAD_REQUEST).send('You cannot delete your own account');
+    }
+    
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(NOT_FOUND).send('User not found');
+    }
+    
+    // Prevent admin from deleting owner unless they are also owner
+    if (user.isOwner && !req.user.isOwner) {
+      return res.status(FORBIDDEN).send('You do not have permission to delete an owner account');
+    }
+    
+    // Delete the user
+    await UserModel.findByIdAndDelete(userId);
+    
+    res.send({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(INTERNAL_SERVER_ERROR).send('Failed to delete user');
+  }
+});
+
 export default router;

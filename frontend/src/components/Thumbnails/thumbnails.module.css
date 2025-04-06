@@ -71,10 +71,6 @@
     color: rgb(174, 174, 174);
 }
 
-.stars {
-    margin: 0.4rem 0;
-}
-
 .tags {
     display: flex;
     flex-wrap: wrap;
