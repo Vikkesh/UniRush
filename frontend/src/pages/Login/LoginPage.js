@@ -110,6 +110,9 @@ export default function LoginPage() {
             })}
             error={errors.password}
           />
+          <div className={classes.forgotPasswordLink}>
+            <Link to="/forgot-password">Forgot password?</Link>
+          </div>
           <Button text="Login" type="submit" />
           <div className={classes.register}>
             New user? &nbsp;

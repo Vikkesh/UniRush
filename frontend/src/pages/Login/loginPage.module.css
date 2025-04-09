@@ -30,6 +30,21 @@
     color: #e72929;
   }
 
+  .forgotPasswordLink {
+    text-align: right;
+    margin-bottom: 1rem;
+  }
+
+  .forgotPasswordLink a {
+    color: #e72929;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .forgotPasswordLink a:hover {
+    text-decoration: underline;
+  }
+
 @media (max-width: 768px) {
     .details {
         width: 24rem;

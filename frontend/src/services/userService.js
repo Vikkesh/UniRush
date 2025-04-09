@@ -29,6 +29,12 @@ export const completeRegister = async (registerData) => {
   return data;
 };
 
+// Verify registration OTP
+export const verifyRegistrationOTP = async (email, otp) => {
+  const { data } = await axios.post('/api/users/register/verify-otp', { email, otp });
+  return data;
+};
+
 // Legacy register function
 export const register = async registerData => {
   const { data } = await axios.post('/api/users/register', registerData);
@@ -245,6 +251,28 @@ export const deleteUser = async (userId) => {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     }
+  });
+  return data;
+};
+
+// Forgot Password - Initiate reset by sending OTP
+export const initiatePasswordReset = async (email) => {
+  const { data } = await axios.post('/api/users/forgot-password/initiate', { email });
+  return data;
+};
+
+// Forgot Password - Verify OTP
+export const verifyPasswordResetOTP = async (email, otp) => {
+  const { data } = await axios.post('/api/users/forgot-password/verify', { email, otp });
+  return data;
+};
+
+// Forgot Password - Reset Password
+export const resetPassword = async (email, otp, newPassword) => {
+  const { data } = await axios.post('/api/users/forgot-password/reset', { 
+    email, 
+    otp, 
+    newPassword 
   });
   return data;
 };

@@ -6,6 +6,7 @@ import FoodPage from './pages/Food/FoodPage';
 import CartPage from './pages/Cart/CartPage';
 import LoginPage from './pages/Login/LoginPage';
 import RegisterPage from './pages/Register/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPassword/ForgotPasswordPage';
 import AuthRoute from './components/AuthRoute/AuthRoute';
 import CheckoutPage from './pages/Checkout/CheckoutPage';
 import PaymentPage from './pages/Payment/PaymentPage';
@@ -26,6 +27,7 @@ export default function AppRoutes() {
       <Route path="/cart" element={<CartPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route
         path="/checkout"
         element={

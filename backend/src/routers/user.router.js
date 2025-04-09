@@ -137,6 +137,30 @@ router.post('/register/complete', async (req, res) => {
   }
 });
 
+// Endpoint to verify registration OTP without completing registration
+router.post('/register/verify-otp', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    
+    // Validate required fields
+    if (!email || !otp) {
+      return res.status(BAD_REQUEST).send('Email and OTP are required');
+    }
+    
+    // Verify OTP
+    const otpRecord = await OTPModel.findOne({ email });
+    if (!otpRecord || otpRecord.otp !== otp) {
+      return res.status(BAD_REQUEST).send('Invalid or expired OTP');
+    }
+    
+    // OTP is valid
+    res.status(OK).send('OTP verified successfully');
+  } catch (error) {
+    console.error('Error in registration OTP verification:', error);
+    res.status(INTERNAL_SERVER_ERROR).send('Something went wrong. Please try again.');
+  }
+});
+
 // Legacy register endpoint (keep for backward compatibility)
 router.post('/register', async (req, res) => {
   try {
@@ -377,6 +401,99 @@ router.put('/changePassword', verifyToken, async (req, res) => {
     res.status(OK).send('Password updated successfully');
   } catch (error) {
     console.error('Error in password change:', error);
+    res.status(INTERNAL_SERVER_ERROR).send('Something went wrong. Please try again.');
+  }
+});
+
+// Forgot Password - Step 1: Initiate password reset (send OTP)
+router.post('/forgot-password/initiate', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // Validate email format
+    if (!email || !email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,63}$/i)) {
+      return res.status(BAD_REQUEST).send('Invalid email format');
+    }
+    
+    // Check if the email exists
+    const existingUser = await UserModel.findOne({ email });
+    if (!existingUser) {
+      return res.status(BAD_REQUEST).send('No account exists with this email address');
+    }
+    
+    // Check if user is blocked
+    if (existingUser.isBlocked) {
+      return res.status(UNAUTHORIZED).send('Your account has been blocked. Please contact administration.');
+    }
+    
+    // Generate OTP and send email for password reset
+    await generateAndSendOTP(email, true);
+    
+    res.status(OK).send('Password reset OTP sent successfully');
+  } catch (error) {
+    console.error('Error in password reset initiation:', error);
+    res.status(INTERNAL_SERVER_ERROR).send('Something went wrong. Please try again.');
+  }
+});
+
+// Forgot Password - Step 2: Verify OTP
+router.post('/forgot-password/verify', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    
+    // Validate required fields
+    if (!email || !otp) {
+      return res.status(BAD_REQUEST).send('Email and OTP are required');
+    }
+    
+    // Verify OTP
+    const otpRecord = await OTPModel.findOne({ email });
+    if (!otpRecord || otpRecord.otp !== otp) {
+      return res.status(BAD_REQUEST).send('Invalid or expired OTP');
+    }
+    
+    // OTP is valid - Note: We don't delete the OTP yet to prevent unauthorized attempts
+    
+    res.status(OK).send('OTP verified successfully');
+  } catch (error) {
+    console.error('Error in password reset OTP verification:', error);
+    res.status(INTERNAL_SERVER_ERROR).send('Something went wrong. Please try again.');
+  }
+});
+
+// Forgot Password - Step 3: Reset password
+router.post('/forgot-password/reset', async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    
+    // Validate required fields
+    if (!email || !otp || !newPassword) {
+      return res.status(BAD_REQUEST).send('All fields are required');
+    }
+    
+    // Verify OTP
+    const otpRecord = await OTPModel.findOne({ email });
+    if (!otpRecord || otpRecord.otp !== otp) {
+      return res.status(BAD_REQUEST).send('Invalid or expired OTP');
+    }
+    
+    // Find user
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(BAD_REQUEST).send('User not found');
+    }
+    
+    // Hash new password
+    const encryptedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = encryptedPassword;
+    await user.save();
+    
+    // Delete OTP record after successful password reset
+    await OTPModel.findOneAndDelete({ email });
+    
+    res.status(OK).send('Password reset successfully');
+  } catch (error) {
+    console.error('Error in password reset:', error);
     res.status(INTERNAL_SERVER_ERROR).send('Something went wrong. Please try again.');
   }
 });

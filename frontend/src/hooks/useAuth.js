@@ -1,4 +1,5 @@
 import { useState, createContext, useContext } from 'react';
+import axios from 'axios';
 import * as userService from '../services/userService';
 import { toast } from 'react-toastify';
 
@@ -45,6 +46,8 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(userService.getUser());
     const [registerStep, setRegisterStep] = useState('email'); // 'email', 'otp', 'details'
     const [registrationData, setRegistrationData] = useState({});
+    const [passwordResetStep, setPasswordResetStep] = useState('email'); // 'email', 'otp', 'reset'
+    const [passwordResetData, setPasswordResetData] = useState({});
   
     const login = async (email, contact, password) => {
       try {
@@ -82,25 +85,36 @@ export const AuthProvider = ({ children }) => {
     // Verify OTP and move to details step
     const verifyOTP = async (otp) => {
       try {
-        // Just verify here, don't submit yet
+        // Make sure we have an email stored
         if (!registrationData.email) {
           toast.error('Email address missing. Please start over.');
           setRegisterStep('email');
           return false;
         }
         
-        // Save OTP for later submission
-        setRegistrationData({
-          ...registrationData,
-          otp
-        });
-        
-        // Move to details step
-        setRegisterStep('details');
-        toast.success('OTP verified successfully!');
-        return true;
+        // Actually verify the OTP with backend before proceeding
+        try {
+          // Use the dedicated registration OTP verification endpoint
+          await userService.verifyRegistrationOTP(registrationData.email, otp);
+          
+          // If no error is thrown, the OTP is valid
+          // Save OTP for later submission
+          setRegistrationData({
+            ...registrationData,
+            otp
+          });
+          
+          // Move to details step
+          setRegisterStep('details');
+          toast.success('OTP verified successfully!');
+          return true;
+        } catch (err) {
+          // If verification fails, show an error
+          toast.error(err.response?.data || 'Invalid or expired OTP');
+          return false;
+        }
       } catch (err) {
-        toast.error(err.response?.data || 'Invalid OTP');
+        toast.error(err.response?.data || 'OTP verification failed');
         return false;
       }
     };
@@ -133,6 +147,83 @@ export const AuthProvider = ({ children }) => {
     const resetRegistration = () => {
       setRegistrationData({});
       setRegisterStep('email');
+    };
+
+    // Forgot Password - Step 1: Initiate by sending OTP
+    const initiatePasswordReset = async (email) => {
+      try {
+        await userService.initiatePasswordReset(email);
+        
+        // Save email for later steps
+        setPasswordResetData({ email });
+        setPasswordResetStep('otp');
+        
+        toast.success('Password reset OTP sent to your email!');
+        return true;
+      } catch (err) {
+        toast.error(err.response?.data || 'Failed to initiate password reset');
+        return false;
+      }
+    };
+    
+    // Forgot Password - Step 2: Verify OTP
+    const verifyPasswordResetOTP = async (otp) => {
+      try {
+        if (!passwordResetData.email) {
+          toast.error('Email address missing. Please start over.');
+          setPasswordResetStep('email');
+          return false;
+        }
+        
+        // Verify OTP
+        await userService.verifyPasswordResetOTP(passwordResetData.email, otp);
+        
+        // Store OTP for reset step
+        setPasswordResetData({
+          ...passwordResetData,
+          otp
+        });
+        
+        // Move to reset password step
+        setPasswordResetStep('reset');
+        toast.success('OTP verified successfully!');
+        return true;
+      } catch (err) {
+        toast.error(err.response?.data || 'Invalid OTP');
+        return false;
+      }
+    };
+    
+    // Forgot Password - Step 3: Reset Password
+    const completePasswordReset = async (newPassword) => {
+      try {
+        if (!passwordResetData.email || !passwordResetData.otp) {
+          toast.error('Missing reset information. Please start over.');
+          resetPasswordReset();
+          return false;
+        }
+        
+        await userService.resetPassword(
+          passwordResetData.email,
+          passwordResetData.otp,
+          newPassword
+        );
+        
+        // Reset password reset state
+        resetPasswordReset();
+        
+        toast.success('Password reset successful! Please login with your new password.');
+        return true;
+      } catch (err) {
+        toast.error(err.response?.data || 'Password reset failed');
+        return false;
+      }
+    };
+    
+    // Reset password reset state
+    const resetPasswordReset = () => {
+      setPasswordResetData({});
+      setPasswordResetStep('email');
     };
 
     // Legacy register function
@@ -186,7 +277,14 @@ export const AuthProvider = ({ children }) => {
           registrationData,
           updateProfile, 
           changePassword,
-          validateReturnUrl
+          validateReturnUrl,
+          // Forgot Password
+          initiatePasswordReset,
+          verifyPasswordResetOTP,
+          completePasswordReset,
+          resetPasswordReset,
+          passwordResetStep,
+          passwordResetData
         }}
       >
         {children}
