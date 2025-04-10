@@ -8,8 +8,9 @@ export const FoodSchema = new Schema(
     price: { type: Number, required: true },
     tags: { type: [String] },
     shop: { type: Schema.Types.ObjectId, ref: 'shop', required: true }, 
-    favorite: { type: Boolean, default: false },
     imageUrl: { type: String, required: false }, // Changed to optional
+    description: { type: String, required: false }, // Added optional description field
+    enabled: { type: Boolean, default: true }, // Added field to control visibility
     // Removed stars field
   },
   {

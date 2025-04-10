@@ -20,13 +20,6 @@ export default function Thumbnails({ items }) {
             <div className={classes.content}>
               <div className={classes.header}>
                 <div className={classes.name}>{item.name}</div>
-                <span
-                  className={`${classes.favorite} ${
-                    item.favorite ? '' : classes.not
-                  }`}
-                >
-                  ❤
-                </span>
               </div>
               
               {/* Display address for shops (items with price = 0) */}

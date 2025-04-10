@@ -1,13 +1,15 @@
 .container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 3rem;
+  display: block;
+ margin: 3rem auto;
+  width: auto;
+  max-width: fit-content;
+  /* Add some padding on sides to create visual space */
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 .container > * {
-  min-width: 25rem;
+  width: 100%;
   max-width: 40rem;
 }
 
@@ -38,15 +40,6 @@
   font-weight: bold;
 }
 
-.favorite {
-  color: #ff1e1e;
-  font-size: 2.5rem;
-}
-
-.favorite.not {
-  color: rgb(174, 174, 174);
-}
-
 .shop_info {
   margin: 1rem 0;
   padding: 0.75rem;
@@ -67,8 +60,28 @@
   font-size: 1.1rem;
 }
 
-.rating {
-  margin: 1rem 0;
+/* Description styles */
+.description {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 0.8rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.description_title {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.description_text {
+  margin: 0;
+  line-height: 1.6;
+  color: #555;
+  font-size: 1rem;
+  white-space: pre-line;
 }
 
 .price {
@@ -100,7 +113,11 @@
 
 @media (max-width: 768px) {
   .container {
-    margin: 2rem 1rem;
+    margin: 2rem auto;
+    max-width: fit-content;
+    /* Reduced side padding */
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
   .container > * {
@@ -117,10 +134,6 @@
     font-size: 1.8rem;
   }
 
-  .favorite {
-    font-size: 2.2rem;
-  }
-
   .price {
     font-size: 1.6rem;
     margin: 1.2rem 0;
@@ -130,15 +143,34 @@
     font-size: 1.1rem;
     padding: 0.9rem;
   }
+
+  .description {
+    padding: 0.8rem;
+    margin: 1.2rem 0;
+  }
+  
+  .description_title {
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+  }
+  
+  .description_text {
+    font-size: 0.95rem;
+  }
 }
 
 @media (max-width: 480px) {
   .container {
-    margin: 1rem 0.5rem;
+    margin: 1rem auto;
+    max-width: fit-content;
+    /* Reduced side padding */
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .container > * {
     min-width: 15rem;
+    max-width: 30rem;
   }
 
   .details {
@@ -148,10 +180,6 @@
 
   .name {
     font-size: 1.5rem;
-  }
-
-  .favorite {
-    font-size: 2rem;
   }
 
   .shop_info {
@@ -171,5 +199,72 @@
   .container button {
     font-size: 1rem;
     padding: 0.8rem;
+  }
+
+  .description {
+    padding: 0.7rem;
+    margin: 1rem 0;
+  }
+  
+  .description_title {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .description_text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .container {
+    margin: 0.75rem auto;
+    max-width: fit-content;
+    /* Minimum side padding */
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .container > * {
+    min-width: auto;
+    max-width: 100%;
+  }
+
+  .details {
+    padding: 0.75rem;
+    border-radius: 0.8rem;
+  }
+
+  .name {
+    font-size: 1.3rem;
+  }
+
+  .shop_info {
+    margin: 0.6rem 0;
+    padding: 0.5rem;
+  }
+
+  .shop_name {
+    font-size: 0.9rem;
+  }
+
+  .price {
+    font-size: 1.2rem;
+    margin: 0.8rem 0;
+  }
+  
+  .description {
+    padding: 0.6rem;
+    margin: 0.8rem 0;
+  }
+  
+  .description_title {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  .description_text {
+    font-size: 0.8rem;
+    line-height: 1.4;
   }
 }

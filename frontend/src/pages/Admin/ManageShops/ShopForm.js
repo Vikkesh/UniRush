@@ -203,7 +203,7 @@ export default function ShopForm({ shop, onSubmit, onCancel }) {
         
         <div className={classes.buttons}>
           <Button type="submit" text={shop ? 'Save Changes' : 'Create Shop'} />
-          <Button type="button" onClick={onCancel} text="Cancel" color="secondary" />
+          <Button type="button" onClick={onCancel} text="Cancel" />
         </div>
       </form>
     </div>

@@ -71,11 +71,6 @@ export default function FoodPage() {
       <div className={classes.details}>
         <div className={classes.header}>
           <span className={classes.name}>{food.name}</span>
-          <span
-            className={`${classes.favorite} ${food.favorite ? '' : classes.not}`}
-          >
-            ❤
-          </span>
         </div>
 
         {/* Shop information */}
@@ -83,6 +78,14 @@ export default function FoodPage() {
           <div className={classes.shop_info}>
             <span className={classes.shop_label}>Restaurant:</span>
             <span className={classes.shop_name}>{food.shop.name}</span>
+          </div>
+        )}
+
+        {/* Description */}
+        {food.description && (
+          <div className={classes.description}>
+            <h3 className={classes.description_title}>Description</h3>
+            <p className={classes.description_text}>{food.description}</p>
           </div>
         )}
 

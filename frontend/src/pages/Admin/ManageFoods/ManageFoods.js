@@ -17,6 +17,7 @@ export default function ManageFoods() {
   const [foodToEdit, setFoodToEdit] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedShop, setSelectedShop] = useState('all');
+  const [isAllFoodsEnabled, setIsAllFoodsEnabled] = useState(true);
   const { user } = useAuth();
   
   // Determine if the user is a shop admin without admin/owner privileges
@@ -119,6 +120,61 @@ export default function ManageFoods() {
   
   const handleShopFilterChange = (e) => {
     setSelectedShop(e.target.value);
+    
+    // Check if all foods for this shop are enabled
+    if (e.target.value !== 'all') {
+      const shopFoods = foods.filter(food => 
+        food.shop && (food.shop._id === e.target.value || food.shop === e.target.value)
+      );
+      const allEnabled = shopFoods.every(food => food.enabled !== false);
+      setIsAllFoodsEnabled(allEnabled);
+    }
+  };
+
+  // Handle toggling a single food item's enabled status
+  const handleToggleEnabled = async (food) => {
+    try {
+      const newEnabled = !food.enabled;
+      await foodService.toggleFoodEnabled(food._id, newEnabled);
+      
+      // Update local state after successful API call
+      setFoods(prevFoods => 
+        prevFoods.map(f => 
+          f._id === food._id ? { ...f, enabled: newEnabled } : f
+        )
+      );
+    } catch (error) {
+      console.error('Error toggling food visibility:', error);
+      alert('Failed to update food visibility');
+    }
+  };
+  
+  // Handle toggling all foods for a shop
+  const handleToggleAllFoods = async () => {
+    if (selectedShop === 'all') {
+      alert('Please select a specific shop first');
+      return;
+    }
+    
+    try {
+      // Toggle to the opposite of current state
+      const newEnabledState = !isAllFoodsEnabled;
+      await foodService.toggleAllFoodsForShop(selectedShop, newEnabledState);
+      
+      // Update local state
+      setFoods(prevFoods => 
+        prevFoods.map(food => 
+          food.shop && (food.shop._id === selectedShop || food.shop === selectedShop)
+            ? { ...food, enabled: newEnabledState }
+            : food
+        )
+      );
+      
+      setIsAllFoodsEnabled(newEnabledState);
+    } catch (error) {
+      console.error('Error toggling all foods:', error);
+      alert('Failed to update food visibility');
+    }
   };
   
   // Filter foods by selected shop - ensure both foods and shops are arrays
@@ -161,6 +217,16 @@ export default function ManageFoods() {
             </option>
           ))}
         </select>
+        
+        {/* Toggle all foods button (only visible when a specific shop is selected) */}
+        {selectedShop !== 'all' && (user?.isAdmin || user?.isOwner || user?.isShopAdmin) && (
+          <button 
+            className={`${classes.toggle_all_button} ${isAllFoodsEnabled ? classes.enabled : classes.disabled}`}
+            onClick={handleToggleAllFoods}
+          >
+            {isAllFoodsEnabled ? 'Disable All Foods' : 'Enable All Foods'}
+          </button>
+        )}
       </div>
       
       {showForm ? (
@@ -185,12 +251,13 @@ export default function ManageFoods() {
                     <th>Name</th>
                     <th>Shop</th>
                     <th>Price</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredFoods.map(food => (
-                    <tr key={food._id || `food-${Math.random()}`}>
+                    <tr key={food._id || `food-${Math.random()}`} className={food.enabled === false ? classes.disabled_row : ''}>
                       <td>
                         <img 
                           src={food.imageUrl || 'default-food.jpg'} 
@@ -201,6 +268,21 @@ export default function ManageFoods() {
                       <td>{food.name || 'Unnamed Food'}</td>
                       <td>{food.shop ? (food.shop.name || 'Unknown') : 'Unknown'}</td>
                       <td>₹{(food.price || 0).toFixed(2)}</td>
+                      <td>
+                        <div className={classes.toggle_container}>
+                          <label className={classes.switch}>
+                            <input 
+                              type="checkbox"
+                              checked={food.enabled !== false}
+                              onChange={() => handleToggleEnabled(food)}
+                            />
+                            <span className={`${classes.slider} ${classes.round}`}></span>
+                          </label>
+                          <span className={classes.status_text}>
+                            {food.enabled === false ? 'Disabled' : 'Enabled'}
+                          </span>
+                        </div>
+                      </td>
                       <td>
                         <div className={classes.actions}>
                           <button 

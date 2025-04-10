@@ -47,3 +47,15 @@ export const deleteFood = async foodId => {
     const { data } = await axios.delete('/api/foods/' + foodId);
     return data;
 };
+
+// Function to toggle food visibility
+export const toggleFoodEnabled = async (foodId, enabled) => {
+    const { data } = await axios.patch(`/api/foods/${foodId}/toggle-enabled`, { enabled });
+    return data;
+};
+
+// Function to toggle all foods for a shop
+export const toggleAllFoodsForShop = async (shopId, enabled) => {
+    const { data } = await axios.patch(`/api/foods/shop/${shopId}/toggle-all`, { enabled });
+    return data;
+};

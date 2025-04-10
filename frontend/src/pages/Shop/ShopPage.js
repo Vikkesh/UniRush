@@ -80,19 +80,28 @@ export default function ShopPage() {
         const shopData = await shopService.getById(id);
         setShop(shopData);
         
-        const shopFoods = await shopService.getFoodsByShop(id);
-        setAllFoods(shopFoods); // Store all unfiltered foods
-        
-        // Extract unique tags from all food items
-        const uniqueTags = extractUniqueTags(shopFoods);
-        setFoodTags(uniqueTags);
-        
-        // Apply filtering based on the selected tag
-        filterFoodsByTag(shopFoods, selectedTag);
-
         // Check if shop is currently open
         const isOpen = checkIfOpen(shopData.openingTime, shopData.closingTime);
         setIsOpen(isOpen);
+        
+        if (isOpen) {
+          const shopFoods = await shopService.getFoodsByShop(id);
+          // Filter out disabled food items
+          const enabledFoods = shopFoods.filter(food => food.enabled !== false);
+          setAllFoods(enabledFoods); // Store all unfiltered foods
+          
+          // Extract unique tags from all food items
+          const uniqueTags = extractUniqueTags(enabledFoods);
+          setFoodTags(uniqueTags);
+          
+          // Apply filtering based on the selected tag
+          filterFoodsByTag(enabledFoods, selectedTag);
+        } else {
+          // Shop is closed, no foods available
+          setAllFoods([]);
+          setFoodTags([{name: 'All', count: 0}]);
+          setFoods([]);
+        }
       } catch (error) {
         console.error('Failed to load shop:', error);
         setShop(null);

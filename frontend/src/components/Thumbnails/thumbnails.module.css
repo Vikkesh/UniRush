@@ -57,18 +57,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
-    padding-right: 1.5rem;
-}
-
-.favorite {
-    font-size: 1rem;
-    color: #ff1e1e;
-    margin-left: 0.5rem;
-    flex-shrink: 0;
-}
-
-.favorite.not {
-    color: rgb(174, 174, 174);
 }
 
 .tags {

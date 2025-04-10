@@ -22,6 +22,10 @@
     line-height: 1;
     text-align: center;
 }
+.container[style*="width: 100%"] button {
+    max-width: none;           /* Allow full width */
+    width: 100%;               /* Ensure button takes full container width */
+    }
   
 .container button:hover {
     cursor: pointer;
@@ -38,6 +42,10 @@
         font-size: 1rem;        /* Reduced by 35% from 1.3rem */
         min-width: 80px;           /* Minimum width to ensure text readability */
     }
+    .container[style*="width: 100%"] button {
+        max-width: none;           /* Allow full width */
+        width: 100%;               /* Ensure button takes full container width */
+        }
 }
 
 @media (max-width: 480px) {
@@ -51,6 +59,10 @@
         min-width: 60px;           /* Adjusted minimum width */
         letter-spacing: -0.02em;    /* Slightly tighter letter spacing */
     }
+    .container[style*="width: 100%"] button {
+        max-width: none;           /* Allow full width */
+        width: 100%;               /* Ensure button takes full container width */
+        }
 }
 
 @media (max-width: 350px) {
@@ -60,8 +72,14 @@
         margin: 0.3rem auto;       /* Further reduced margin */
         padding: 0 0.27rem;        /* Further reduced padding */
         border-radius: 0.4rem;     /* Further reduced radius */
-        font-size: 0.66rem;        /* Further reduced by 35% */
+        font-size: 0.66rem !important;        /* Important to override any inline styles */
         min-width: 40px;           /* Adjusted minimum width */
         letter-spacing: -0.03em;    /* Even tighter letter spacing */
     }
+    
+    /* Special case for full-width buttons (like "Add to Cart") */
+    .container[style*="width: 100%"] button {
+        max-width: none;           /* Allow full width */
+        width: 100%;               /* Ensure button takes full container width */
+        }
 }

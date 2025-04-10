@@ -10,7 +10,8 @@ const router = Router();
 router.get(
   '/',
   handler(async (req, res) => {
-    const foods = await FoodModel.find({}).populate('shop');
+    // Only return enabled food items to regular users
+    const foods = await FoodModel.find({ enabled: true }).populate('shop');
     res.send(foods);
   })
 );
@@ -115,7 +116,7 @@ router.post(
   '/',
   auth,
   handler(async (req, res) => {
-    const { name, price, tags, shop, favorite, imageUrl } = req.body;
+    const { name, price, tags, shop, imageUrl, description } = req.body;
     
     // Check if user has permission to create food items
     if (req.user.isAdmin || req.user.isOwner) {
@@ -142,8 +143,8 @@ router.post(
       price,
       tags: tags || [],
       shop,
-      favorite: favorite || false,
-      imageUrl
+      imageUrl,
+      description
     });
     res.send(await food.populate('shop'));
   })
@@ -153,7 +154,7 @@ router.put(
   '/:foodId',
   auth,
   handler(async (req, res) => {
-    const { name, price, tags, shop, favorite, imageUrl } = req.body;
+    const { name, price, tags, shop, imageUrl, description } = req.body;
     const { foodId } = req.params;
     
     // First find the existing food to check permissions
@@ -197,8 +198,8 @@ router.put(
         price,
         tags: Array.isArray(tags) ? tags : [],
         shop,
-        favorite: favorite || false,
-        imageUrl
+        imageUrl,
+        description
       },
       { new: true }
     ).populate('shop');
@@ -243,6 +244,92 @@ router.delete(
     
     await FoodModel.findByIdAndDelete(foodId);
     res.send({ success: true });
+  })
+);
+
+// Add a new endpoint to toggle food enabled status
+router.patch(
+  '/:foodId/toggle-enabled',
+  auth,
+  handler(async (req, res) => {
+    const { foodId } = req.params;
+    const { enabled } = req.body;
+    
+    // First find the existing food to check permissions
+    const existingFood = await FoodModel.findById(foodId);
+    if (!existingFood) {
+      res.status(404).send('Food not found!');
+      return;
+    }
+
+    // Check if user has permission to update this food item
+    if (req.user.isAdmin || req.user.isOwner) {
+      // Admin or owner can update any food
+    } else if (req.user.isShopAdmin) {
+      // Ensure managedShops exists and is an array
+      if (!req.user.managedShops || !Array.isArray(req.user.managedShops)) {
+        res.status(403).send('You do not have permission to update food items');
+        return;
+      }
+      
+      // Check if shop admin has permission for this shop
+      const existingShopId = existingFood.shop.toString();
+      if (!req.user.managedShops.some(managedShop => managedShop.toString() === existingShopId)) {
+        res.status(403).send('You do not have permission to update food items for this shop');
+        return;
+      }
+    } else {
+      res.status(403).send('Only Admin, Owner, or Shop Admin Can Update Food Items');
+      return;
+    }
+    
+    const updatedFood = await FoodModel.findByIdAndUpdate(
+      foodId,
+      { enabled: enabled },
+      { new: true }
+    ).populate('shop');
+    
+    res.send(updatedFood);
+  })
+);
+
+// Add an endpoint to toggle all foods for a shop
+router.patch(
+  '/shop/:shopId/toggle-all',
+  auth,
+  handler(async (req, res) => {
+    const { shopId } = req.params;
+    const { enabled } = req.body;
+    
+    // Check if user has permission to update foods for this shop
+    if (req.user.isAdmin || req.user.isOwner) {
+      // Admin or owner can update any food
+    } else if (req.user.isShopAdmin) {
+      // Ensure managedShops exists and is an array
+      if (!req.user.managedShops || !Array.isArray(req.user.managedShops)) {
+        res.status(403).send('You do not have permission to update food items');
+        return;
+      }
+      
+      // Check if shop admin has permission for this shop
+      if (!req.user.managedShops.some(managedShop => managedShop.toString() === shopId)) {
+        res.status(403).send('You do not have permission to update food items for this shop');
+        return;
+      }
+    } else {
+      res.status(403).send('Only Admin, Owner, or Shop Admin Can Update Food Items');
+      return;
+    }
+    
+    // Update all foods for the specified shop
+    await FoodModel.updateMany(
+      { shop: shopId },
+      { enabled: enabled }
+    );
+    
+    // Return the updated foods
+    const updatedFoods = await FoodModel.find({ shop: shopId }).populate('shop');
+    res.send(updatedFoods);
   })
 );
 

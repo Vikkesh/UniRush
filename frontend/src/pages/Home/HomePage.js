@@ -14,6 +14,39 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   const { searchTerm, tag } = useParams();
 
+  // Function to check if shop is currently open
+  const checkIfOpen = (openingTime, closingTime) => {
+    if (!openingTime || !closingTime) return true; // Default to open if times not set
+    
+    // Get current time in IST (UTC+5:30)
+    const now = new Date();
+    // IST offset is 5 hours and 30 minutes ahead of UTC
+    const istTime = new Date(now.getTime() + (330 * 60000));
+    const currentHour = istTime.getUTCHours();
+    const currentMinute = istTime.getUTCMinutes();
+    const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+    
+    // Convert times to minutes for comparison
+    const currentMinutes = convertTimeToMinutes(currentTimeString);
+    const openingMinutes = convertTimeToMinutes(openingTime);
+    const closingMinutes = convertTimeToMinutes(closingTime);
+    
+    // Compare times
+    if (openingMinutes < closingMinutes) {
+      // Normal case (e.g., 9:00 - 17:00)
+      return currentMinutes >= openingMinutes && currentMinutes < closingMinutes;
+    } else {
+      // Overnight case (e.g., 22:00 - 6:00)
+      return currentMinutes >= openingMinutes || currentMinutes < closingMinutes;
+    }
+  };
+  
+  // Helper function to convert time (HH:MM) to minutes
+  const convertTimeToMinutes = (timeString) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
   useEffect(() => {
     const loadShops = async () => {
       try {
@@ -26,7 +59,11 @@ export default function HomePage() {
         
         // Ensure we have an array
         if (Array.isArray(shopsData)) {
-          setShops(shopsData);
+          // Filter out closed shops
+          const openShops = shopsData.filter(shop => 
+            checkIfOpen(shop.openingTime, shop.closingTime)
+          );
+          setShops(openShops);
         } else {
           console.error('API did not return an array:', shopsData);
           setShops([]);
@@ -47,12 +84,39 @@ export default function HomePage() {
   useEffect(() => {
     const loadTags = async () => {
       try {
-        const tagsData = await shopService.getAllTags();
-        if (Array.isArray(tagsData)) {
-          setTags(tagsData);
-        } else {
-          setTags([]);
+        // First get all shops to filter by open status
+        const allShops = await shopService.getAll();
+        
+        // Filter to keep only open shops
+        const openShops = Array.isArray(allShops) 
+          ? allShops.filter(shop => checkIfOpen(shop.openingTime, shop.closingTime))
+          : [];
+        
+        // Extract unique tags only from open shops
+        const openShopsTags = new Set();
+        openShops.forEach(shop => {
+          if (shop.tags && Array.isArray(shop.tags)) {
+            shop.tags.forEach(tag => openShopsTags.add(tag));
+          }
+        });
+        
+        // Convert to the format expected by the Tags component
+        const formattedTags = Array.from(openShopsTags).map(tag => ({
+          name: tag,
+          count: openShops.filter(shop => 
+            shop.tags && Array.isArray(shop.tags) && shop.tags.includes(tag)
+          ).length
+        }));
+        
+        // Add "All" tag if there are any open shops
+        if (formattedTags.length > 0) {
+          formattedTags.unshift({
+            name: 'All',
+            count: openShops.length
+          });
         }
+        
+        setTags(formattedTags);
       } catch (error) {
         console.error('Error loading tags:', error);
         setTags([]);
@@ -93,7 +157,7 @@ export default function HomePage() {
       <Tags tags={tags} />
       <div className={classes.container}>
         {error && <p className={classes.error}>{error}</p>}
-        {!loading && shops.length === 0 && <NotFound message="No shops found" linkText="Reset" linkRoute="/" />}
+        {!loading && shops.length === 0 && <NotFound message="All shops are closed, please come back some other time" linkText="Reset" linkRoute="/" />}
         <h2 className={classes.title}>All Shops</h2>
         {shopsThumbnails.length > 0 && <Thumbnails items={shopsThumbnails} />}
       </div>

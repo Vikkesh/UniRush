@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
                 
                 <Button 
                     type="submit" 
-                    text={isLoading ? "Sending..." : "Send Verification Code"} 
+                    text={isLoading ? "Sending..." : "Send Code"} 
                     disabled={isLoading}
                 />
                 

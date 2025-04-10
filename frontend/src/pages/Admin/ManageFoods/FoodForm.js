@@ -15,8 +15,8 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
     price: '',
     tags: '',
     shop: '',
-    favorite: false,
     imageUrl: '',
+    description: '', // Added description field
   });
 
   const [errors, setErrors] = useState({
@@ -35,8 +35,8 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
         price: food.price ? food.price.toString() : '',
         tags: food.tags ? food.tags.join(', ') : '',
         shop: food.shop ? food.shop._id : '',
-        favorite: food.favorite || false,
         imageUrl: food.imageUrl || '',
+        description: food.description || '', // Added description
       });
     } else if (shops && shops.length > 0) {
       // For new foods, if shop admin has only one shop, preselect it
@@ -183,6 +183,19 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
         </div>
         
         <div className={classes.form_group}>
+          <label>Description (optional)</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            className={classes.textarea}
+            placeholder="Enter a detailed description of the food item"
+            rows={4}
+          />
+          <p className={classes.help_text}>Provide details about ingredients, preparation methods, or special features</p>
+        </div>
+        
+        <div className={classes.form_group}>
           <label>Tags (comma separated)</label>
           <Input
             type="text"
@@ -193,21 +206,9 @@ export default function FoodForm({ food, shops, onSubmit, onCancel }) {
           <p className={classes.help_text}>Example: Pizza, FastFood, Lunch</p>
         </div>
         
-        <div className={classes.form_group_checkbox}>
-          <input
-            type="checkbox"
-            name="favorite"
-            checked={formData.favorite}
-            onChange={handleChange}
-            id="favorite"
-            className={classes.checkbox}
-          />
-          <label htmlFor="favorite" className={classes.checkbox_label}>Mark as favourite</label>
-        </div>
-        
         <div className={classes.buttons}>
           <Button type="submit" text={food ? 'Save Changes' : 'Create Food Item'} />
-          <Button type="button" onClick={onCancel} text="Cancel" color="secondary" />
+          <Button type="button" onClick={onCancel} text="Cancel" />
         </div>
       </form>
     </div>
