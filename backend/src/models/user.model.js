@@ -5,7 +5,7 @@ export const UserSchema = new Schema(
       email: { type: String, required: true, unique: true },
       password: { type: String, required: true },
       address: { type: String, required: true },
-      contact: { type: String, required: true, unique: true }, // Updated to make it required and unique
+      contact: { type: String, required: true }, // Removed unique constraint to handle it at application level
       isAdmin: { type: Boolean, default: false },
       isOwner: { type: Boolean, default: false }, // Added owner role
       isDelivery: { type: Boolean, default: false }, // Added delivery role

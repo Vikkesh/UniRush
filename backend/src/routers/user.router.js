@@ -23,6 +23,12 @@ const isEmailDomainValid = async (email) => {
   return !!bypassEntry;
 };
 
+// Helper function to check if contact uniqueness should be enforced
+const shouldEnforceContactUniqueness = (user) => {
+  // If user has any administrative role, don't enforce contact uniqueness
+  return !(user.isAdmin || user.isOwner || user.isShopAdmin || user.isDelivery);
+};
+
 // Step 1: Initiate Registration (Email Validation & OTP Generation)
 router.post('/register/initiate', async (req, res) => {
   try {
@@ -70,7 +76,8 @@ router.post('/register/complete', async (req, res) => {
       return res.status(BAD_REQUEST).send('Contact must be a 10-digit number');
     }
     
-    // Check if contact already exists
+    // Check if contact already exists (but only for regular users)
+    // For new registrations, all users start as regular users, so always check uniqueness
     const existingContact = await UserModel.findOne({ contact });
     if (existingContact) {
       return res.status(BAD_REQUEST).send('Contact already exists');
@@ -308,7 +315,7 @@ router.post('/login', async (req, res) => {
 
 router.put('/updateProfile', verifyToken, async (req, res) => {
   try {
-    const { name, email, address, contact } = req.body;
+    const { name, email, address, contact, otp } = req.body;
     const user = await UserModel.findById(req.user.id);
     
     if (!user) {
@@ -327,13 +334,25 @@ router.put('/updateProfile', verifyToken, async (req, res) => {
       if (!isValidDomain) {
         return res.status(FORBIDDEN).send('Only @snu.edu.in emails are allowed. Contact administration for exceptions.');
       }
+      
+      // Verify OTP if email is being changed
+      const otpRecord = await OTPModel.findOne({ email });
+      if (!otpRecord || otpRecord.otp !== otp) {
+        return res.status(BAD_REQUEST).send('Invalid or expired OTP. Please verify your new email address first.');
+      }
+      
+      // Delete OTP record after successful verification
+      await OTPModel.findOneAndDelete({ email });
     }
     
     // Check if contact is being changed and already exists for another user
     if (contact !== user.contact) {
-      const existingContact = await UserModel.findOne({ contact });
-      if (existingContact) {
-        return res.status(BAD_REQUEST).send('Contact already exists');
+      // Only check for uniqueness if the user is a regular customer (not admin/owner/shopAdmin/delivery)
+      if (shouldEnforceContactUniqueness(user)) {
+        const existingContact = await UserModel.findOne({ contact });
+        if (existingContact) {
+          return res.status(BAD_REQUEST).send('Contact already exists');
+        }
       }
     }
     
@@ -545,9 +564,12 @@ router.put('/admin/:userId', verifyToken, isAdminOrOwner, async (req, res) => {
     
     // Check if contact is being changed and already exists for another user
     if (contact !== user.contact) {
-      const existingContact = await UserModel.findOne({ contact, _id: { $ne: userId } });
-      if (existingContact) {
-        return res.status(BAD_REQUEST).send('Contact already exists');
+      // Only check for uniqueness if the user is a regular customer (not admin/owner/shopAdmin/delivery)
+      if (shouldEnforceContactUniqueness(user)) {
+        const existingContact = await UserModel.findOne({ contact, _id: { $ne: userId } });
+        if (existingContact) {
+          return res.status(BAD_REQUEST).send('Contact already exists');
+        }
       }
     }
     
@@ -852,6 +874,62 @@ router.delete('/admin/:userId', verifyToken, isAdminOrOwner, async (req, res) =>
   } catch (error) {
     console.error('Error deleting user:', error);
     res.status(INTERNAL_SERVER_ERROR).send('Failed to delete user');
+  }
+});
+
+// Email Change - Step 1: Initiate email change (send OTP)
+router.post('/email-change/initiate', verifyToken, async (req, res) => {
+  try {
+    const { newEmail } = req.body;
+    const userId = req.user.id;
+    
+    // Validate email format
+    if (!newEmail || !newEmail.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,63}$/i)) {
+      return res.status(BAD_REQUEST).send('Invalid email format');
+    }
+    
+    // Check if the email already exists
+    const existingUser = await UserModel.findOne({ email: newEmail });
+    if (existingUser) {
+      return res.status(BAD_REQUEST).send('Email already exists');
+    }
+    
+    // Validate email domain or check bypass list
+    const isValidDomain = await isEmailDomainValid(newEmail);
+    if (!isValidDomain) {
+      return res.status(FORBIDDEN).send('Only @snu.edu.in emails are allowed to register. Contact administration for exceptions.');
+    }
+    
+    // Generate OTP and send email - Pass true for isEmailChange parameter
+    await generateAndSendOTP(newEmail, false, true);
+    
+    res.status(OK).send('OTP sent successfully');
+  } catch (error) {
+    console.error('Error in email change initiation:', error);
+    res.status(INTERNAL_SERVER_ERROR).send('Something went wrong. Please try again.');
+  }
+});
+
+// Email Change - Step 2: Verify OTP
+router.post('/email-change/verify', verifyToken, async (req, res) => {
+  try {
+    const { newEmail, otp } = req.body;
+    
+    // Validate required fields
+    if (!newEmail || !otp) {
+      return res.status(BAD_REQUEST).send('Email and OTP are required');
+    }
+    
+    // Verify OTP
+    const otpRecord = await OTPModel.findOne({ email: newEmail });
+    if (!otpRecord || otpRecord.otp !== otp) {
+      return res.status(BAD_REQUEST).send('Invalid or expired OTP');
+    }
+    
+    res.status(OK).send('OTP verified successfully');
+  } catch (error) {
+    console.error('Error in email change OTP verification:', error);
+    res.status(INTERNAL_SERVER_ERROR).send('Something went wrong. Please try again.');
   }
 });
 

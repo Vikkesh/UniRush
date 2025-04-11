@@ -276,3 +276,14 @@ export const resetPassword = async (email, otp, newPassword) => {
   });
   return data;
 };
+
+// Email change verification functions
+export const initiateEmailChange = async (newEmail) => {
+  const { data } = await axios.post('/api/users/email-change/initiate', { newEmail });
+  return data;
+};
+
+export const verifyEmailChangeOTP = async (newEmail, otp) => {
+  const { data } = await axios.post('/api/users/email-change/verify', { newEmail, otp });
+  return data;
+};

@@ -63,8 +63,31 @@ const createPasswordResetEmailContent = (email, otp) => {
   };
 };
 
+// Email content template for Email Change Verification OTP
+const createEmailChangeEmailContent = (email, otp) => {
+  return {
+    from: `UniRush <unirush.team@unirush.in>`,
+    to: email,
+    subject: 'Verify Your New Email Address for SNU UniRush',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <h2 style="color: #4a4a4a; text-align: center;">SNU UniRush Email Verification</h2>
+        <p style="color: #666; font-size: 16px;">Hi there,</p>
+        <p style="color: #666; font-size: 16px;">You requested to change your email address on SNU UniRush. To verify this new email address, please use the following One-Time Password (OTP):</p>
+        <div style="background-color: #f7f7f7; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
+          ${otp}
+        </div>
+        <p style="color: #666; font-size: 14px;">This OTP is valid for 5 mins. If you did not request this change, please ignore this email or contact support.</p>
+        <p style="color: #888; font-size: 12px; text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+          This is an automated email. Please do not reply.
+        </p>
+      </div>
+    `,
+  };
+};
+
 // Send OTP email
-export const sendOTPEmail = async (email, otp, isPasswordReset = false) => {
+export const sendOTPEmail = async (email, otp, isPasswordReset = false, isEmailChange = false) => {
   try {
     // For development purposes, log OTP to console
     if (process.env.NODE_ENV !== 'production') {
@@ -74,9 +97,16 @@ export const sendOTPEmail = async (email, otp, isPasswordReset = false) => {
     // Only send actual email in production to avoid email service restrictions
     if (process.env.NODE_ENV === 'production') {
       const transporter = getTransporter();
-      const emailContent = isPasswordReset 
-        ? createPasswordResetEmailContent(email, otp) 
-        : createOTPEmailContent(email, otp);
+      let emailContent;
+      
+      if (isEmailChange) {
+        emailContent = createEmailChangeEmailContent(email, otp);
+      } else if (isPasswordReset) {
+        emailContent = createPasswordResetEmailContent(email, otp);
+      } else {
+        emailContent = createOTPEmailContent(email, otp);
+      }
+      
       const info = await transporter.sendMail(emailContent);
       console.log(`Email sent to ${email}: ${info.messageId}`);
     }
@@ -90,7 +120,7 @@ export const sendOTPEmail = async (email, otp, isPasswordReset = false) => {
 };
 
 // Generate OTP and send email
-export const generateAndSendOTP = async (email, isPasswordReset = false) => {
+export const generateAndSendOTP = async (email, isPasswordReset = false, isEmailChange = false) => {
   try {
     // Generate a 6-digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -100,7 +130,7 @@ export const generateAndSendOTP = async (email, isPasswordReset = false) => {
     await OTPModel.create({ email, otp });
     
     // Send OTP via email
-    await sendOTPEmail(email, otp, isPasswordReset);
+    await sendOTPEmail(email, otp, isPasswordReset, isEmailChange);
     
     return true;
   } catch (error) {

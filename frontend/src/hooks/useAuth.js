@@ -48,6 +48,8 @@ export const AuthProvider = ({ children }) => {
     const [registrationData, setRegistrationData] = useState({});
     const [passwordResetStep, setPasswordResetStep] = useState('email'); // 'email', 'otp', 'reset'
     const [passwordResetData, setPasswordResetData] = useState({});
+    const [emailChangeStep, setEmailChangeStep] = useState('email'); // 'email', 'otp', 'complete'
+    const [emailChangeData, setEmailChangeData] = useState({});
   
     const login = async (email, contact, password) => {
       try {
@@ -226,6 +228,56 @@ export const AuthProvider = ({ children }) => {
       setPasswordResetStep('email');
     };
 
+    // Email change functionality
+    const initiateEmailChange = async (newEmail) => {
+      try {
+        await userService.initiateEmailChange(newEmail);
+        // Save new email for later and move to OTP verification step
+        setEmailChangeData({ newEmail });
+        setEmailChangeStep('otp');
+        toast.success('OTP sent to your new email!');
+        return true;
+      } catch (err) {
+        toast.error(err.response?.data || 'Failed to initiate email change');
+        return false;
+      }
+    };
+
+    // Verify OTP for email change
+    const verifyEmailChangeOTP = async (otp) => {
+      try {
+        // Make sure we have a new email stored
+        if (!emailChangeData.newEmail) {
+          toast.error('New email address missing. Please start over.');
+          setEmailChangeStep('email');
+          return false;
+        }
+        
+        await userService.verifyEmailChangeOTP(emailChangeData.newEmail, otp);
+        
+        // If no error is thrown, the OTP is valid
+        // Save OTP for later submission
+        setEmailChangeData({
+          ...emailChangeData,
+          otp
+        });
+        
+        // Move to complete step
+        setEmailChangeStep('complete');
+        toast.success('OTP verified successfully!');
+        return true;
+      } catch (err) {
+        toast.error(err.response?.data || 'Invalid or expired OTP');
+        return false;
+      }
+    };
+
+    // Reset email change state
+    const resetEmailChange = () => {
+      setEmailChangeData({});
+      setEmailChangeStep('email');
+    };
+
     // Legacy register function
     const register = async (registerData) => {
       try {
@@ -243,15 +295,40 @@ export const AuthProvider = ({ children }) => {
         toast.success('Logout Successful');
       };
 
-    const updateProfile = async user => {
+    const updateProfile = async userData => {
       try {
-        const updatedUser = await userService.updateProfile(user);
+        // If we're changing email and have verified OTP, add it to the request
+        let updatedUserData = { ...userData };
+        
+        if (emailChangeStep === 'complete' && emailChangeData.newEmail && emailChangeData.otp) {
+          // Only add OTP if the email in the form matches the verified email
+          if (userData.email === emailChangeData.newEmail) {
+            updatedUserData.otp = emailChangeData.otp;
+          } else {
+            toast.error('Email address does not match verified email. Please verify again.');
+            resetEmailChange();
+            return false;
+          }
+        } else if (user.email !== userData.email) {
+          // If trying to change email without verification
+          toast.error('You must verify your new email address first');
+          setEmailChangeStep('email');
+          setEmailChangeData({ newEmail: userData.email });
+          return false;
+        }
+        
+        const updatedUser = await userService.updateProfile(updatedUserData);
         if (updatedUser) {
           setUser(updatedUser);
           toast.success('Profile Update Was Successful');
+          
+          // Reset email change state after successful update
+          resetEmailChange();
+          return true;
         }
       } catch (err) {
-        toast.error(err.response.data);
+        toast.error(err.response?.data || 'Profile update failed');
+        return false;
       }
     };
 
@@ -284,7 +361,13 @@ export const AuthProvider = ({ children }) => {
           completePasswordReset,
           resetPasswordReset,
           passwordResetStep,
-          passwordResetData
+          passwordResetData,
+          // Email Change
+          initiateEmailChange,
+          verifyEmailChangeOTP,
+          emailChangeStep,
+          resetEmailChange,
+          emailChangeData
         }}
       >
         {children}
