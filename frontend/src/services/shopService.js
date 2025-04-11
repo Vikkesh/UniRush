@@ -51,3 +51,15 @@ export const deleteShop = async shopId => {
   const { data } = await axios.delete('/api/shops/' + shopId);
   return data;
 };
+
+// Function to toggle shop enabled status
+export const toggleShopEnabled = async (shopId, enabled) => {
+  const { data } = await axios.patch(`/api/shops/${shopId}/toggle-enabled`, { enabled });
+  return data;
+};
+
+// Function to toggle all shops enabled status
+export const toggleAllShopsEnabled = async (enabled) => {
+  const { data } = await axios.patch(`/api/shops/toggle-all-shops`, { enabled });
+  return data;
+};

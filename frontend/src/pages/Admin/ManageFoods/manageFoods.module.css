@@ -269,7 +269,7 @@ input:checked + .slider:before {
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 518px) {
     .container {
         padding: 0 0.5rem;
     }
@@ -316,7 +316,8 @@ input:checked + .slider:before {
     }
 }
 
-@media (max-width: 350px) {
+@media (max-width: 415px) {
+
     .filter_section {
         padding: 0.5rem;
         margin-bottom: 0.8rem;
@@ -348,9 +349,8 @@ input:checked + .slider:before {
         padding: 0.2rem 0.4rem;
         font-size: 0.7rem;
     }
-}
-@media (max-width: 325px) {
-    .header{
+
+.header{
         flex-direction: column;
         align-items:center;
         text-align: center;
@@ -360,4 +360,10 @@ input:checked + .slider:before {
         margin-bottom: 0.5rem; 
 
     }
+}
+
+
+.action_buttons {
+  display: flex;
+  gap: 10px;
 }

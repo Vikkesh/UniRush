@@ -4,6 +4,24 @@ import { FoodModel } from '../models/food.model.js';
 import handler from 'express-async-handler';
 import { verifyToken as auth } from '../middleware/auth.mid.js';
 import mongoose from 'mongoose';  // Import mongoose for ObjectId conversion
+import multer from 'multer';
+import xlsx from 'xlsx';
+import path from 'path';
+
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext === '.xlsx' || ext === '.xls' || ext === '.csv') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only Excel and CSV files are allowed'), false);
+    }
+  }
+});
 
 const router = Router();
 
@@ -330,6 +348,111 @@ router.patch(
     // Return the updated foods
     const updatedFoods = await FoodModel.find({ shop: shopId }).populate('shop');
     res.send(updatedFoods);
+  })
+);
+
+// Add an endpoint to bulk import foods from a spreadsheet
+router.post(
+  '/bulk-import',
+  auth,
+  upload.single('spreadsheet'),
+  handler(async (req, res) => {
+    try {
+      const { shop: shopId } = req.body;
+      
+      if (!shopId) {
+        return res.status(400).send('Shop ID is required');
+      }
+      
+      // Check if user has permission to add foods to this shop
+      if (req.user.isAdmin || req.user.isOwner) {
+        // Admin or owner can add foods to any shop
+      } else if (req.user.isShopAdmin) {
+        // Ensure managedShops exists and is an array
+        if (!req.user.managedShops || !Array.isArray(req.user.managedShops)) {
+          return res.status(403).send('You do not have permission to add food items');
+        }
+        
+        // Check if shop admin has permission for this shop
+        if (!req.user.managedShops.some(managedShop => managedShop.toString() === shopId)) {
+          return res.status(403).send('You do not have permission to add food items to this shop');
+        }
+      } else {
+        return res.status(403).send('Only Admin, Owner, or Shop Admin can bulk import food items');
+      }
+
+      if (!req.file) {
+        return res.status(400).send('No file uploaded');
+      }
+
+      // Read the spreadsheet
+      const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const data = xlsx.utils.sheet_to_json(worksheet);
+      
+      if (!data || data.length === 0) {
+        return res.status(400).send('Spreadsheet is empty or has invalid format');
+      }
+      
+      const results = {
+        success: 0,
+        failed: 0,
+        errors: []
+      };
+      
+      // Process each row in the spreadsheet
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+        
+        // Check for required columns: name and price
+        const foodName = row['Food Name'] || row['Name'] || row['name'] || row['food name'] || row[0];
+        let foodPrice = row['Price'] || row['price'] || row[1];
+        
+        // Validate the row data
+        if (!foodName) {
+          results.failed++;
+          results.errors.push(`Row ${i + 1}: Missing food name`);
+          continue;
+        }
+
+        // Convert price to number if it's a string
+        if (typeof foodPrice === 'string') {
+          foodPrice = parseFloat(foodPrice.replace(/[^0-9.]/g, ''));
+        }
+
+        if (isNaN(foodPrice) || foodPrice <= 0) {
+          results.failed++;
+          results.errors.push(`Row ${i + 1}: Invalid price for '${foodName}'`);
+          continue;
+        }
+
+        try {
+          // Create the food item
+          await FoodModel.create({
+            name: foodName,
+            price: foodPrice,
+            tags: [],  // Default empty tags
+            shop: shopId,
+            description: row['Description'] || row['description'] || '',
+            enabled: true
+          });
+          
+          results.success++;
+        } catch (error) {
+          results.failed++;
+          results.errors.push(`Row ${i + 1}: Failed to add '${foodName}' - ${error.message}`);
+        }
+      }
+      
+      res.status(200).send({
+        message: `Successfully imported ${results.success} food items. ${results.failed} items failed.`,
+        results
+      });
+    } catch (error) {
+      console.error('Bulk import error:', error);
+      res.status(500).send(`Bulk import failed: ${error.message}`);
+    }
   })
 );
 

@@ -19,6 +19,8 @@ export default function ShopPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('menu'); // 'menu' or 'customOrder'
   const [customOrderAddressLatLng, setCustomOrderAddressLatLng] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -76,8 +78,19 @@ export default function ShopPage() {
 
   useEffect(() => {
     const loadShop = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
         const shopData = await shopService.getById(id);
+        
+        // Check if shop is disabled
+        if (shopData.enabled === false) {
+          setError('This shop is currently unavailable');
+          setShop(null);
+          setIsLoading(false);
+          return;
+        }
+        
         setShop(shopData);
         
         // Check if shop is currently open
@@ -104,7 +117,14 @@ export default function ShopPage() {
         }
       } catch (error) {
         console.error('Failed to load shop:', error);
+        if (error.response && error.response.status === 404) {
+          setError('Shop not found or is currently unavailable');
+        } else {
+          setError('Failed to load shop information');
+        }
         setShop(null);
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -201,7 +221,13 @@ export default function ShopPage() {
     return 30 + (itemsTotal - 100) * 0.1;
   };
 
-  if (!shop) return <NotFound message="Shop Not Found!" linkRoute="/" linkText="Go To Home Page" />;
+  if (isLoading) {
+    return <div className={classes.loading}>Loading shop information...</div>;
+  }
+
+  if (error || !shop) {
+    return <NotFound message={error || "Shop Not Found!"} linkRoute="/" linkText="Browse Other Shops" />;
+  }
 
   return (
     <div className={classes.container}>
@@ -243,105 +269,116 @@ export default function ShopPage() {
         </div>
       </div>
       
-      {/* Food tags filter */}
-      <div className={classes.food_tags_container}>
-        <h3>Filter by Category:</h3>
-        <div className={classes.food_tags}>
-          {foodTags.map(tag => (
-            <button 
-              key={tag.name}
-              className={`${classes.food_tag} ${selectedTag === tag.name ? classes.active : ''}`}
-              onClick={() => handleTagClick(tag.name)}
-            >
-              {tag.name} ({tag.count})
-            </button>
-          ))}
-        </div>
-      </div>
-      
-      <div className={classes.foods_container}>
-        <div className={classes.tabs}>
-          <button 
-            className={`${classes.tab} ${activeTab === 'menu' ? classes.active_tab : ''}`}
-            onClick={() => setActiveTab('menu')}
-          >
-            Menu {selectedTag !== 'All' && `- ${selectedTag}`}
-          </button>
-          <button 
-            className={`${classes.tab} ${activeTab === 'customOrder' ? classes.active_tab : ''}`}
-            onClick={() => setActiveTab('customOrder')}
-          >
-            Custom Orders
-          </button>
-        </div>
-        
-        {activeTab === 'menu' && (
-          <>
-            {foods.length === 0 ? (
-              <p>No food items available in this category.</p>
-            ) : (
-              <Thumbnails items={foods} />
-            )}
-          </>
-        )}
-        
-        {activeTab === 'customOrder' && (
-          <div className={classes.custom_order_container}>
-            <div className={classes.custom_order_info}>
-              <p>If you want to make any orders that aren't available in the menu, please contact the shop and fill in the necessary details in the form.</p>
-              <p>Phone: <strong>{shop.contact || 'Not available'}</strong></p>
+      {isOpen ? (
+        <>
+          {/* Food tags filter */}
+          <div className={classes.food_tags_container}>
+            <h3>Filter by Category:</h3>
+            <div className={classes.food_tags}>
+              {foodTags.map(tag => (
+                <button 
+                  key={tag.name}
+                  className={`${classes.food_tag} ${selectedTag === tag.name ? classes.active : ''}`}
+                  onClick={() => handleTagClick(tag.name)}
+                >
+                  {tag.name} ({tag.count})
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className={classes.foods_container}>
+            <div className={classes.tabs}>
+              <button 
+                className={`${classes.tab} ${activeTab === 'menu' ? classes.active_tab : ''}`}
+                onClick={() => setActiveTab('menu')}
+              >
+                Menu {selectedTag !== 'All' && `- ${selectedTag}`}
+              </button>
+              <button 
+                className={`${classes.tab} ${activeTab === 'customOrder' ? classes.active_tab : ''}`}
+                onClick={() => setActiveTab('customOrder')}
+              >
+                Custom Orders
+              </button>
             </div>
             
-            <form onSubmit={handleSubmit(submitCustomOrder)} className={classes.custom_order_form}>
-              <div className={classes.form_content}>
-                <div className={classes.form_inputs}>
-                  <Input
-                    defaultValue={user?.name || ''}
-                    label="Name"
-                    {...register('name', { required: 'Name is required' })}
-                    error={errors.name}
-                  />
-                  <Input
-                    defaultValue={user?.address || ''}
-                    label="Address"
-                    {...register('address', { required: 'Address is required' })}
-                    error={errors.address}
-                  />
-                  <Input
-                    type="number"
-                    label="Total Items Price (₹)"
-                    {...register('totalPrice', { 
-                      required: 'Price is required',
-                      min: {
-                        value: 1,
-                        message: 'Price must be at least ₹1'
-                      }
-                    })}
-                    error={errors.totalPrice}
-                  />
+            {activeTab === 'menu' && (
+              <>
+                {foods.length === 0 ? (
+                  <p>No food items available in this category.</p>
+                ) : (
+                  <Thumbnails items={foods} />
+                )}
+              </>
+            )}
+            
+            {activeTab === 'customOrder' && (
+              <div className={classes.custom_order_container}>
+                <div className={classes.custom_order_info}>
+                  <p>If you want to make any orders that aren't available in the menu, please contact the shop and fill in the necessary details in the form.</p>
+                  <p>Phone: <strong>{shop.contact || 'Not available'}</strong></p>
                 </div>
                 
-                <div className={classes.location_section}>
-                  <h3>Choose Your Location</h3>
-                  <Map
-                    location={customOrderAddressLatLng}
-                    onChange={latlng => setCustomOrderAddressLatLng(latlng)}
-                  />
-                </div>
+                <form onSubmit={handleSubmit(submitCustomOrder)} className={classes.custom_order_form}>
+                  <div className={classes.form_content}>
+                    <div className={classes.form_inputs}>
+                      <Input
+                        defaultValue={user?.name || ''}
+                        label="Name"
+                        {...register('name', { required: 'Name is required' })}
+                        error={errors.name}
+                      />
+                      <Input
+                        defaultValue={user?.address || ''}
+                        label="Address"
+                        {...register('address', { required: 'Address is required' })}
+                        error={errors.address}
+                      />
+                      <Input
+                        type="number"
+                        label="Total Items Price (₹)"
+                        {...register('totalPrice', { 
+                          required: 'Price is required',
+                          min: {
+                            value: 1,
+                            message: 'Price must be at least ₹1'
+                          }
+                        })}
+                        error={errors.totalPrice}
+                      />
+                    </div>
+                    
+                    <div className={classes.location_section}>
+                      <h3>Choose Your Location</h3>
+                      <Map
+                        location={customOrderAddressLatLng}
+                        onChange={latlng => setCustomOrderAddressLatLng(latlng)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className={classes.submit_button}>
+                    <Button
+                      type="submit"
+                      text="Proceed to Payment"
+                      width="100%"
+                      height="3rem"
+                    />
+                  </div>
+                </form>
               </div>
-              
-              <div className={classes.submit_button}>
-                <Button
-                  type="submit"
-                  text="Proceed to Payment"
-                  width="100%"
-                  height="3rem"
-                />
-              </div>
-            </form>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        <div className={classes.shop_closed_message}>
+          <h2>This shop is currently closed</h2>
+          <p>Please check back during operating hours:</p>
+          <p className={classes.hours_display}>{shop.openingTime || '09:00'} - {shop.closingTime || '22:00'}</p>
+          <Button text="Browse Other Shops" onClick={() => navigate('/')} />
+        </div>
+      )}
     </div>
   );
 }

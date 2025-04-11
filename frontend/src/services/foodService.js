@@ -59,3 +59,17 @@ export const toggleAllFoodsForShop = async (shopId, enabled) => {
     const { data } = await axios.patch(`/api/foods/shop/${shopId}/toggle-all`, { enabled });
     return data;
 };
+
+// Add bulk import function
+export const bulkImportFoods = async (file, shopId) => {
+    const formData = new FormData();
+    formData.append('spreadsheet', file);
+    formData.append('shop', shopId);
+    
+    const { data } = await axios.post('/api/foods/bulk-import', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return data;
+};

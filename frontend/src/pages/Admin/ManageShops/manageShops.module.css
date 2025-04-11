@@ -12,6 +12,12 @@
     gap: 1rem;
 }
 
+.action_buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
 .header button {
     min-height: 2.5rem;
     font-size: 0.95rem;
@@ -97,6 +103,11 @@
     max-width: 250px;
 }
 
+.disabled_row {
+    background-color: #f9f9f9;
+    opacity: 0.8;
+}
+
 @media (max-width: 480px) {
     .shops_table td:nth-child(2) {
         min-width: 100px;
@@ -174,6 +185,54 @@
     gap: 0.5rem;
 }
 
+.toggle_button {
+    margin-left: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle_button.enabled {
+    background-color: #f44336;
+    color: white;
+}
+
+.toggle_button.disabled {
+    background-color: #4caf50;
+    color: white;
+}
+
+.toggle_all_button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 150px;
+}
+
+.toggle_all_button.enabled {
+    background-color: #f44336;
+    color: white;
+}
+
+.toggle_all_button.enabled:hover {
+    background-color: #e53935;
+}
+
+.toggle_all_button.disabled {
+    background-color: #4caf50;
+    color: white;
+}
+
+.toggle_all_button.disabled:hover {
+    background-color: #43a047;
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 0 0.8rem;
@@ -182,6 +241,14 @@
     .header {
         gap: 0.8rem;
         margin-bottom: 1.5rem;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .action_buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
     }
 
     .header button {
@@ -208,6 +275,13 @@
     .shop_image {
         width: 55px;
         height: 55px;
+    }
+
+    .toggle_button {
+        margin-top: 0.5rem;
+        margin-left: 0;
+        display: block;
+        width: 100%;
     }
 }
 
@@ -260,17 +334,16 @@
 }
 
 @media (max-width: 350px) {
-   
-        .header{
-            flex-direction: column;
-            align-items:center;
-            text-align: center;
-            
-        }
-        .header h1{
-            margin-bottom: 0.5rem; 
+    .header{
+        flex-direction: column;
+        align-items:center;
+        text-align: center;
+    }
     
-        }
+    .header h1{
+        margin-bottom: 0.5rem; 
+    }
+    
     .shops_list {
         padding: 0.4rem;
         max-height: calc(100vh - 240px);
@@ -342,4 +415,71 @@
   background-color: #ffebee;
   color: #c62828;
   border: 1px solid #ef9a9a;
+}
+
+/* Toggle switch styling */
+.toggle_container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+}
+
+input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #4CAF50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.status_text {
+    font-size: 14px;
+    transition: color 0.3s ease;
 }

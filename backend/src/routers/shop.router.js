@@ -19,14 +19,18 @@ router.get(
     const currentMinute = istTime.getUTCMinutes();
     const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
     
-    // Find all shops
-    let shops = await ShopModel.find({});
+    // Find all shops that are enabled
+    let shops = await ShopModel.find({ enabled: { $ne: false } });
     
     // Filter shops based on opening/closing time
     shops = shops.filter(shop => {
       // If shop doesn't have timing info, show it
       if (!shop.openingTime || !shop.closingTime) return true;
       
+      // If shop has manual override and is enabled, show it regardless of schedule
+      if (shop.manualOverride && shop.enabled !== false) return true;
+      
+      // Otherwise check regular opening hours
       return isShopOpen(currentTimeString, shop.openingTime, shop.closingTime);
     });
     
@@ -102,7 +106,11 @@ router.get(
 router.get(
   '/tags',
   handler(async (req, res) => {
+    // Only include enabled shops in tag counts
     const tags = await ShopModel.aggregate([
+      {
+        $match: { enabled: { $ne: false } }
+      },
       {
         $unwind: '$tags',
       },
@@ -123,7 +131,7 @@ router.get(
 
     const all = {
       name: 'All',
-      count: await ShopModel.countDocuments(),
+      count: await ShopModel.countDocuments({ enabled: { $ne: false } }),
     };
 
     tags.unshift(all);
@@ -138,7 +146,11 @@ router.get(
     const { searchTerm } = req.params;
     const searchRegex = new RegExp(searchTerm, 'i');
 
-    const shops = await ShopModel.find({ name: { $regex: searchRegex } });
+    // Only search among enabled shops
+    const shops = await ShopModel.find({ 
+      name: { $regex: searchRegex },
+      enabled: { $ne: false }
+    });
     res.send(shops);
   })
 );
@@ -147,7 +159,11 @@ router.get(
   '/tag/:tag',
   handler(async (req, res) => {
     const { tag } = req.params;
-    const shops = await ShopModel.find({ tags: tag });
+    // Only return enabled shops for the given tag
+    const shops = await ShopModel.find({ 
+      tags: tag,
+      enabled: { $ne: false }
+    });
     res.send(shops);
   })
 );
@@ -157,6 +173,12 @@ router.get(
   handler(async (req, res) => {
     const { shopId } = req.params;
     const shop = await ShopModel.findById(shopId);
+    
+    // If the shop doesn't exist or is disabled, return 404
+    if (!shop || shop.enabled === false) {
+      return res.status(404).send('Shop not found or unavailable');
+    }
+    
     res.send(shop);
   })
 );
@@ -165,6 +187,18 @@ router.get(
   '/:shopId/foods',
   handler(async (req, res) => {
     const { shopId } = req.params;
+    
+    // First check if shop exists and is enabled
+    const shop = await ShopModel.findById(shopId);
+    if (!shop) {
+      return res.status(404).send('Shop not found');
+    }
+    
+    // If shop is disabled, return an empty list of foods
+    if (shop.enabled === false) {
+      return res.send([]);
+    }
+    
     const foods = await FoodModel.find({ shop: shopId });
     res.send(foods);
   })
@@ -260,6 +294,130 @@ router.delete(
 
     // Then delete the shop
     await ShopModel.findByIdAndDelete(shopId);
+    res.send({ success: true });
+  })
+);
+
+// Add a new endpoint to toggle shop enabled status
+router.patch(
+  '/:shopId/toggle-enabled',
+  auth,
+  handler(async (req, res) => {
+    const { shopId } = req.params;
+    const { enabled } = req.body;
+    
+    // First find the existing shop to check permissions
+    const existingShop = await ShopModel.findById(shopId);
+    if (!existingShop) {
+      res.status(404).send('Shop not found!');
+      return;
+    }
+
+    // Check if user has permission to update this shop
+    if (req.user.isAdmin || req.user.isOwner) {
+      // Admin or owner can update any shop
+    } else if (req.user.isShopAdmin) {
+      // Ensure managedShops exists and is an array
+      if (!req.user.managedShops || !Array.isArray(req.user.managedShops)) {
+        res.status(403).send('You do not have permission to update shops');
+        return;
+      }
+      
+      // Check if this shop is in their managedShops
+      if (!req.user.managedShops.some(id => id.toString() === shopId)) {
+        res.status(403).send('You do not have permission to update this shop');
+        return;
+      }
+    } else {
+      res.status(403).send('Only Admin, Owner, or Shop Admin Can Update Shop Status');
+      return;
+    }
+
+    // Determine if this is an override situation
+    let manualOverride = false;
+    const now = new Date();
+    
+    // Get current time in IST (UTC+5:30)
+    const istTime = new Date(now.getTime() + (330 * 60000));
+    const currentHour = istTime.getUTCHours();
+    const currentMinute = istTime.getUTCMinutes();
+    const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+    
+    // Check if the current time is within opening hours
+    const isRegularlyOpen = isShopOpen(currentTimeString, existingShop.openingTime, existingShop.closingTime);
+    
+    // If manual status differs from the natural status, it's an override
+    if ((enabled && !isRegularlyOpen) || (!enabled && isRegularlyOpen)) {
+      manualOverride = true;
+    } else {
+      manualOverride = false;
+    }
+    
+    // Update the shop with new status
+    const updatedShop = await ShopModel.findByIdAndUpdate(
+      shopId, 
+      { 
+        enabled, 
+        manualOverride,
+        lastOverrideTime: manualOverride ? now : existingShop.lastOverrideTime 
+      },
+      { new: true }
+    );
+    
+    res.send(updatedShop);
+  })
+);
+
+// Add endpoint to toggle enabled status for all shops a user manages
+router.patch(
+  '/toggle-all-shops',
+  auth,
+  handler(async (req, res) => {
+    const { enabled } = req.body;
+    
+    if (!req.user.isAdmin && !req.user.isOwner && !req.user.isShopAdmin) {
+      res.status(403).send('You do not have permission to update shop status');
+      return;
+    }
+    
+    let filter = {};
+    
+    // If shop admin, restrict to only managed shops
+    if (req.user.isShopAdmin && !req.user.isAdmin && !req.user.isOwner) {
+      if (!req.user.managedShops || !req.user.managedShops.length === 0) {
+        res.status(403).send('You do not manage any shops');
+        return;
+      }
+      
+      filter = { _id: { $in: req.user.managedShops } };
+    }
+    
+    // Get current time in IST (UTC+5:30)
+    const now = new Date();
+    const istTime = new Date(now.getTime() + (330 * 60000));
+    const currentHour = istTime.getUTCHours();
+    const currentMinute = istTime.getUTCMinutes();
+    const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+    
+    // Get all affected shops
+    const shops = await ShopModel.find(filter);
+    
+    // Update each shop, handling manual override logic
+    const updatePromises = shops.map(shop => {
+      const isRegularlyOpen = isShopOpen(currentTimeString, shop.openingTime, shop.closingTime);
+      const manualOverride = (enabled && !isRegularlyOpen) || (!enabled && isRegularlyOpen);
+      
+      return ShopModel.findByIdAndUpdate(
+        shop._id,
+        { 
+          enabled, 
+          manualOverride,
+          lastOverrideTime: manualOverride ? now : shop.lastOverrideTime
+        }
+      );
+    });
+    
+    await Promise.all(updatePromises);
     res.send({ success: true });
   })
 );

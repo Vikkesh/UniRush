@@ -10,6 +10,9 @@ export const ShopSchema = new Schema(
     tags: { type: [String] },
     openingTime: { type: String, default: '12:00' }, // 24-hour format (HH:MM)
     closingTime: { type: String, default: '00:00' }, // 24-hour format (HH:MM)
+    enabled: { type: Boolean, default: true }, // Added field to control visibility
+    manualOverride: { type: Boolean, default: false }, // Track if shop status was manually overridden
+    lastOverrideTime: { type: Date, default: null }, // Track when the last override occurred
   },
   {
     toJSON: {

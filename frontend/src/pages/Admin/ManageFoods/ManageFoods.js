@@ -6,6 +6,7 @@ import classes from './manageFoods.module.css';
 import Title from '../../../components/Title/Title';
 import Button from '../../../components/Button/Button';
 import FoodForm from './FoodForm';
+import BulkImportForm from './BulkImportForm';
 import { useAuth } from '../../../hooks/useAuth';
 
 export default function ManageFoods() {
@@ -16,6 +17,7 @@ export default function ManageFoods() {
   const [errorShops, setErrorShops] = useState(null);
   const [foodToEdit, setFoodToEdit] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const [selectedShop, setSelectedShop] = useState('all');
   const [isAllFoodsEnabled, setIsAllFoodsEnabled] = useState(true);
   const { user } = useAuth();
@@ -77,12 +79,19 @@ export default function ManageFoods() {
   const handleAddClick = () => {
     setFoodToEdit(null);
     setShowForm(true);
+    setShowBulkImport(false);
+  };
+
+  const handleBulkImportClick = () => {
+    setShowForm(false);
+    setShowBulkImport(true);
   };
   
   const handleEditClick = (food) => {
     // Ensure we're creating a complete copy of the food data
     setFoodToEdit({...food});
     setShowForm(true);
+    setShowBulkImport(false);
   };
   
   const handleDeleteClick = async (foodId) => {
@@ -116,6 +125,12 @@ export default function ManageFoods() {
   
   const handleCancelForm = () => {
     setShowForm(false);
+    setShowBulkImport(false);
+  };
+  
+  const handleBulkImportComplete = () => {
+    setShowBulkImport(false);
+    loadFoods(); // Reload foods to show the newly imported items
   };
   
   const handleShopFilterChange = (e) => {
@@ -188,7 +203,10 @@ export default function ManageFoods() {
     <div className={classes.container}>
       <div className={classes.header}>
         <Title title="Manage Foods" />
-        <Button onClick={handleAddClick} text="Add New Food" />
+        <div className={classes.action_buttons}>
+          <Button onClick={handleAddClick} text="Add New Food" />
+          <Button onClick={handleBulkImportClick} text="Bulk Import" />
+        </div>
       </div>
       
       {(errorFoods || errorShops) && (
@@ -235,6 +253,12 @@ export default function ManageFoods() {
           shops={Array.isArray(shops) ? shops : []}
           onSubmit={handleFormSubmit} 
           onCancel={handleCancelForm} 
+        />
+      ) : showBulkImport ? (
+        <BulkImportForm
+          shops={Array.isArray(shops) ? shops : []}
+          onImportComplete={handleBulkImportComplete}
+          onCancel={handleCancelForm}
         />
       ) : (
         isLoading ? (

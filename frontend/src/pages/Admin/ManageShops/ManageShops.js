@@ -6,6 +6,7 @@ import Title from '../../../components/Title/Title';
 import Button from '../../../components/Button/Button';
 import ShopForm from './ShopForm';
 import { useAuth } from '../../../hooks/useAuth';
+import { toast } from 'react-toastify';
 
 export default function ManageShops() {
   const [shops, setShops] = useState([]);
@@ -13,6 +14,7 @@ export default function ManageShops() {
   const [error, setError] = useState(null);
   const [shopToEdit, setShopToEdit] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [isAllShopsEnabled, setIsAllShopsEnabled] = useState(true);
   const { user } = useAuth();
   
   // Function to check if shop is currently open
@@ -65,6 +67,10 @@ export default function ManageShops() {
       // Ensure we have an array of shops
       if (Array.isArray(response)) {
         setShops(response);
+        
+        // Check if all shops are enabled
+        const allEnabled = response.every(shop => shop.enabled !== false);
+        setIsAllShopsEnabled(allEnabled);
       } else {
         console.error('API did not return an array:', response);
         setShops([]);
@@ -137,15 +143,93 @@ export default function ManageShops() {
   const handleCancelForm = () => {
     setShowForm(false);
   };
+
+  // Handle toggling a single shop's enabled status
+  const handleToggleEnabled = async (shop) => {
+    try {
+      const newEnabled = !shop.enabled;
+      await shopService.toggleShopEnabled(shop._id, newEnabled);
+      
+      // Update local state after successful API call
+      setShops(prevShops => 
+        prevShops.map(s => 
+          s._id === shop._id ? { ...s, enabled: newEnabled } : s
+        )
+      );
+      
+      toast.success(`Shop "${shop.name}" has been ${newEnabled ? 'enabled' : 'disabled'}`);
+      
+      // Check if all shops are now enabled or disabled
+      const updatedShops = shops.map(s => 
+        s._id === shop._id ? { ...s, enabled: newEnabled } : s
+      );
+      setIsAllShopsEnabled(updatedShops.every(s => s.enabled !== false));
+    } catch (error) {
+      console.error('Error toggling shop visibility:', error);
+      toast.error('Failed to update shop availability');
+    }
+  };
+  
+  // Handle toggling all shops
+  const handleToggleAllShops = async () => {
+    try {
+      // Toggle to the opposite of current state
+      const newEnabledState = !isAllShopsEnabled;
+      await shopService.toggleAllShopsEnabled(newEnabledState);
+      
+      // Update local state
+      setShops(prevShops => 
+        prevShops.map(shop => ({ ...shop, enabled: newEnabledState }))
+      );
+      
+      setIsAllShopsEnabled(newEnabledState);
+      toast.success(`All shops have been ${newEnabledState ? 'enabled' : 'disabled'}`);
+    } catch (error) {
+      console.error('Error toggling all shops:', error);
+      toast.error('Failed to update shops availability');
+    }
+  };
+  
+  // Helper to determine shop status display
+  const getShopStatus = (shop) => {
+    // If shop is manually disabled, always show as disabled
+    if (shop.enabled === false) {
+      return { isOpen: false, statusText: 'Disabled' };
+    }
+    
+    // Otherwise, check regular opening hours
+    const openBasedOnHours = isShopOpen(shop.openingTime, shop.closingTime);
+    
+    // If there's a manual override to keep open outside hours
+    if (shop.manualOverride && shop.enabled) {
+      return { isOpen: true, statusText: 'Open (Override)' };
+    }
+    
+    return { 
+      isOpen: openBasedOnHours, 
+      statusText: openBasedOnHours ? 'Open' : 'Closed' 
+    };
+  };
   
   return (
     <div className={classes.container}>
       <div className={classes.header}>
         <Title title="Manage Shops" />
-        {/* Only show Add button for admin/owners */}
-        {!isShopAdminOnly && (
-          <Button onClick={handleAddClick} text="Add New Shop" />
-        )}
+        <div className={classes.action_buttons}>
+          {/* Only show Add button for admin/owners */}
+          {!isShopAdminOnly && (
+            <Button onClick={handleAddClick} text="Add New Shop" />
+          )}
+          
+          {/* Toggle all shops button */}
+          {shops.length > 0 && (
+            <Button 
+              onClick={handleToggleAllShops}
+              text={isAllShopsEnabled ? 'Disable All Shops' : 'Enable All Shops'}
+              backgroundColor={isAllShopsEnabled ? '#f44336' : '#4caf50'}
+            />
+          )}
+        </div>
       </div>
       
       {error && (
@@ -176,51 +260,67 @@ export default function ManageShops() {
                     <th>Name</th>
                     <th>Address</th>
                     <th>Hours</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {shops.map(shop => (
-                    <tr key={shop._id || `shop-${Math.random()}`}>
-                      <td>
-                        <img 
-                          src={shop.imageUrl || 'default-shop.jpg'} 
-                          alt={shop.name || 'Unknown Shop'} 
-                          className={classes.shop_image} 
-                        />
-                      </td>
-                      <td>{shop.name || 'Unnamed Shop'}</td>
-                      <td>{shop.address || 'No address'}</td>
-                      <td>
-                        {shop.openingTime || '09:00'} - {shop.closingTime || '22:00'}
-                        <span className={`${classes.status_indicator} ${isShopOpen(shop.openingTime, shop.closingTime) ? classes.open_indicator : classes.closed_indicator}`}>
-                          {isShopOpen(shop.openingTime, shop.closingTime) ? 'Open' : 'Closed'}
-                        </span>
-                      </td>
-                      <td>
-                        <div className={classes.actions}>
-                          <Link to={`/shop/${shop._id}`} className={classes.view_button}>
-                            View
-                          </Link>
-                          <button 
-                            className={classes.edit_button}
-                            onClick={() => handleEditClick(shop)}
-                          >
-                            Edit
-                          </button>
-                          {/* Only show Delete button for admin/owners */}
-                          {!isShopAdminOnly && (
+                  {shops.map(shop => {
+                    const shopStatus = getShopStatus(shop);
+                    return (
+                      <tr key={shop._id || `shop-${Math.random()}`} className={shop.enabled === false ? classes.disabled_row : ''}>
+                        <td>
+                          <img 
+                            src={shop.imageUrl || 'default-shop.jpg'} 
+                            alt={shop.name || 'Unknown Shop'} 
+                            className={classes.shop_image} 
+                          />
+                        </td>
+                        <td>{shop.name || 'Unnamed Shop'}</td>
+                        <td>{shop.address || 'No address'}</td>
+                        <td>
+                          {shop.openingTime || '09:00'} - {shop.closingTime || '22:00'}
+                        </td>
+                        <td>
+                          <div className={classes.toggle_container}>
+                            <label className={classes.switch}>
+                              <input 
+                                type="checkbox"
+                                checked={shop.enabled !== false}
+                                onChange={() => handleToggleEnabled(shop)}
+                              />
+                              <span className={`${classes.slider} ${classes.round}`}></span>
+                            </label>
+                            <span className={classes.status_text}>
+                              {shopStatus.isOpen ? 'Open' : 'Closed'}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className={classes.actions}>
+                            <Link to={`/shop/${shop._id}`} className={classes.view_button}>
+                              View
+                            </Link>
                             <button 
-                              className={classes.delete_button}
-                              onClick={() => handleDeleteClick(shop._id)}
+                              className={classes.edit_button}
+                              onClick={() => handleEditClick(shop)}
                             >
-                              Delete
+                              Edit
                             </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            {/* Only show Delete button for admin/owners */}
+                            {!isShopAdminOnly && (
+                              <button 
+                                className={classes.delete_button}
+                                onClick={() => handleDeleteClick(shop._id)}
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}
