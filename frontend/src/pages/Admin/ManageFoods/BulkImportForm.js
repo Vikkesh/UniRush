@@ -131,6 +131,7 @@ export default function BulkImportForm({ shops, onImportComplete, onCancel }) {
             <p className={classes.help_text}>
               Upload a spreadsheet (.xlsx, .xls) or CSV file with food items.
               <br />The file should have at least 2 columns: "Food Name" and "Price"
+              <br />You can also include optional columns: "Description" and "Tags" (comma-separated tags)
             </p>
           </div>
           
@@ -145,6 +146,7 @@ export default function BulkImportForm({ shops, onImportComplete, onCancel }) {
                   <th>Food Name</th>
                   <th>Price</th>
                   <th>Description (optional)</th>
+                  <th>Tags (optional)</th>
                 </tr>
               </thead>
               <tbody>
@@ -152,11 +154,13 @@ export default function BulkImportForm({ shops, onImportComplete, onCancel }) {
                   <td>Pizza</td>
                   <td>10.99</td>
                   <td>Delicious cheese pizza</td>
+                  <td>Italian, Vegetarian</td>
                 </tr>
                 <tr>
                   <td>Burger</td>
                   <td>8.50</td>
                   <td>Classic beef burger</td>
+                  <td>American, Fast Food</td>
                 </tr>
               </tbody>
             </table>

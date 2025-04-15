@@ -192,6 +192,38 @@ export default function ManageFoods() {
     }
   };
   
+  // Handle deleting all foods for a shop
+  const handleDeleteAllFoods = async () => {
+    if (selectedShop === 'all') {
+      alert('Please select a specific shop first');
+      return;
+    }
+    
+    // Get the shop name for the confirmation message
+    const shopName = shops.find(shop => shop._id === selectedShop)?.name || 'selected shop';
+    
+    // Confirm with the user before proceeding
+    if (!window.confirm(`Are you sure you want to delete ALL food items from "${shopName}"? This action cannot be undone.`)) {
+      return;
+    }
+    
+    try {
+      await foodService.deleteAllFoodsForShop(selectedShop);
+      
+      // Update local state by removing all foods for the selected shop
+      setFoods(prevFoods => 
+        prevFoods.filter(food => 
+          !food.shop || (food.shop._id !== selectedShop && food.shop !== selectedShop)
+        )
+      );
+      
+      alert(`Successfully deleted all food items from "${shopName}"`);
+    } catch (error) {
+      console.error('Error deleting all foods:', error);
+      alert('Failed to delete all food items');
+    }
+  };
+  
   // Filter foods by selected shop - ensure both foods and shops are arrays
   const filteredFoods = Array.isArray(foods) 
     ? (selectedShop === 'all' 
@@ -238,12 +270,21 @@ export default function ManageFoods() {
         
         {/* Toggle all foods button (only visible when a specific shop is selected) */}
         {selectedShop !== 'all' && (user?.isAdmin || user?.isOwner || user?.isShopAdmin) && (
-          <button 
-            className={`${classes.toggle_all_button} ${isAllFoodsEnabled ? classes.enabled : classes.disabled}`}
-            onClick={handleToggleAllFoods}
-          >
-            {isAllFoodsEnabled ? 'Disable All Foods' : 'Enable All Foods'}
-          </button>
+          <div className={classes.batch_actions}>
+            <button 
+              className={`${classes.toggle_all_button} ${isAllFoodsEnabled ? classes.enabled : classes.disabled}`}
+              onClick={handleToggleAllFoods}
+            >
+              {isAllFoodsEnabled ? 'Disable All Foods' : 'Enable All Foods'}
+            </button>
+            
+            <button 
+              className={`${classes.delete_all_button}`}
+              onClick={handleDeleteAllFoods}
+            >
+              Delete All Foods
+            </button>
+          </div>
         )}
       </div>
       

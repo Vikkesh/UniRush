@@ -60,6 +60,12 @@ export const toggleAllFoodsForShop = async (shopId, enabled) => {
     return data;
 };
 
+// Function to delete all foods for a shop
+export const deleteAllFoodsForShop = async (shopId) => {
+    const { data } = await axios.delete(`/api/foods/shop/${shopId}/delete-all`);
+    return data;
+};
+
 // Add bulk import function
 export const bulkImportFoods = async (file, shopId) => {
     const formData = new FormData();
