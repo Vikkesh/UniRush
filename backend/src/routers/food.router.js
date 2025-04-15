@@ -351,6 +351,44 @@ router.patch(
   })
 );
 
+// Add an endpoint to delete all foods for a shop
+router.delete(
+  '/shop/:shopId/delete-all',
+  auth,
+  handler(async (req, res) => {
+    const { shopId } = req.params;
+    
+    // Check if user has permission to delete foods for this shop
+    if (req.user.isAdmin || req.user.isOwner) {
+      // Admin or owner can delete any food
+    } else if (req.user.isShopAdmin) {
+      // Ensure managedShops exists and is an array
+      if (!req.user.managedShops || !Array.isArray(req.user.managedShops)) {
+        res.status(403).send('You do not have permission to delete food items');
+        return;
+      }
+      
+      // Check if shop admin has permission for this shop
+      if (!req.user.managedShops.some(managedShop => managedShop.toString() === shopId)) {
+        res.status(403).send('You do not have permission to delete food items for this shop');
+        return;
+      }
+    } else {
+      res.status(403).send('Only Admin, Owner, or Shop Admin Can Delete Food Items');
+      return;
+    }
+    
+    // Delete all foods for the specified shop
+    const result = await FoodModel.deleteMany({ shop: shopId });
+    
+    // Return the result
+    res.status(200).send({ 
+      message: `Successfully deleted ${result.deletedCount} food items from the shop`,
+      deletedCount: result.deletedCount
+    });
+  })
+);
+
 // Add an endpoint to bulk import foods from a spreadsheet
 router.post(
   '/bulk-import',
@@ -397,6 +435,8 @@ router.post(
       
       const results = {
         success: 0,
+        updated: 0,
+        created: 0,
         failed: 0,
         errors: []
       };
@@ -428,22 +468,60 @@ router.post(
         }
 
         try {
-          // Create the food item
-          await FoodModel.create({
-            name: foodName,
-            price: foodPrice,
-            tags: [],  // Default empty tags
-            shop: shopId,
-            description: row['Description'] || row['description'] || '',
-            enabled: true
-          });
+          // Extract tags if present
+          let tags = [];
+          const tagsField = row['Tags'] || row['tags'];
           
-          results.success++;
+          if (tagsField) {
+            // Split the comma-separated tags, trim each one, and filter out empty strings
+            tags = tagsField.split(',')
+              .map(tag => tag.trim())
+              .filter(tag => tag.length > 0);
+          }
+          
+          // Normalize food name for comparison (trim whitespace and convert to lowercase)
+          const normalizedFoodName = foodName.trim().toLowerCase();
+          
+          // First try to find an existing food with this name
+          const existingFoods = await FoodModel.find({ shop: shopId });
+          const existingFood = existingFoods.find(food => 
+            food.name.trim().toLowerCase() === normalizedFoodName
+          );
+          
+          if (existingFood) {
+            // Update the existing food item
+            await FoodModel.findByIdAndUpdate(
+              existingFood._id,
+              {
+                price: foodPrice,
+                tags: tags,
+                description: row['Description'] || row['description'] || existingFood.description || '',
+                // Don't change the enabled status if it already exists
+              }
+            );
+            
+            results.updated++;
+            results.success++;
+          } else {
+            // Create a new food item
+            await FoodModel.create({
+              name: foodName,
+              price: foodPrice,
+              tags: tags,
+              shop: shopId,
+              description: row['Description'] || row['description'] || '',
+              enabled: true
+            });
+            
+            results.created++;
+            results.success++;
+          }
         } catch (error) {
           results.failed++;
           results.errors.push(`Row ${i + 1}: Failed to add '${foodName}' - ${error.message}`);
         }
       }
+    
       
       res.status(200).send({
         message: `Successfully imported ${results.success} food items. ${results.failed} items failed.`,
