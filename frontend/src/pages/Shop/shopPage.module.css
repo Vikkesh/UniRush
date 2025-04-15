@@ -56,9 +56,11 @@
 }
 
 .tag {
-  background-color: #f2f2f2;
+  background-color: rgb(252, 240, 215);
+  color: var(--text-color, #333);
+  border: 1px solid var(--primary-color, #525902);
   padding: 0.3rem 0.8rem;
-  border-radius: 1rem;
+  border-radius: 2rem;
   font-size: 0.8rem;
 }
 
@@ -84,9 +86,9 @@
 }
 
 .food_tag {
-  background-color: #f8f8f8;
-  border: 1px solid #e0e0e0;
-  color: #555;
+  background-color: rgb(252, 240, 215);
+  border: 1px solid var(--primary-color, #525902);
+  color: var(--text-color, #333);
   padding: 0.5rem 1rem;
   border-radius: 2rem;
   font-size: 0.9rem;
@@ -95,14 +97,14 @@
 }
 
 .food_tag:hover {
-  background-color: #f0f0f0;
+  background-color: rgba(252, 240, 215, 0.8);
   transform: translateY(-2px);
 }
 
 .food_tag.active {
-  background-color: #e72929;
+  background-color: var(--accent-color, #e72929);
   color: white;
-  border-color: #e72929;
+  border-color: var(--accent-color, #e72929);
   font-weight: 500;
 }
 

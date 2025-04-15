@@ -12,18 +12,20 @@
 .list li a {
     height: auto;
     min-height: 7rem;
-    width: 14rem;
-    border: 1px solid whitesmoke;
+    width: 100%;
+    border: none;
     border-radius: 0.8rem;
     margin: 0.2rem;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
     overflow: hidden;
-    color: #f2ff00;
-    background-color: #2863bcf1;
+    color: #525902;
+    background-color: transparent;
     transition: transform 0.2s ease;
     position: relative;
-    padding: 0.8rem;
+    padding: 0;
 }
 
 .list li a:hover {
@@ -36,11 +38,14 @@
 }
 
 .content {
-    padding: 0.4rem;
+    padding: 1rem 0.5rem 1rem 1rem;
     position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
+    background-color: var(--primary-color, #525902);
+    border-radius: 0.8rem;
+    color: rgb(252, 240, 215);
 }
 
 .header {
@@ -68,10 +73,11 @@
 }
 
 .tag {
-    background-color: rgba(255, 255, 255, 0.9);
-    color: #333;
+    background-color: rgb(252, 240, 215);
+    color: var(--text-color, #333);
+    border: 1px solid var(--primary-color, #525902);
     padding: 0.2rem 0.4rem;
-    border-radius: 0.3rem;
+    border-radius: 2rem;
     font-size: 0.75rem;
 }
 
@@ -108,7 +114,8 @@
 
 .price {
     margin-top: 0.5rem;
-    background-color: rgb(99, 84, 84);
+    background-color: var(--accent-color, #D10363); /* Changed to magenta accent color */
+    color: var(--accent-font-color, #ffffff); /* Changed to white text */
     border-radius: 0.6rem;
     padding: 0.2rem 0.4rem;
     font-size: 0.85rem;
@@ -145,6 +152,131 @@
     .name {
         font-size: 1.1rem;
     }
+}
+
+/* Shop item styles for the new design */
+.shopItem {
+    display: flex;
+    width: auto;
+    background-color: transparent;
+    overflow: visible;
+    padding: 0;
+    position: relative;
+    align-items: center;
+    gap: 1rem;
+}
+
+.imageContainer {
+    width: 130px;
+    height: 100%;
+    min-height: 106px;
+    border-radius: 0.7rem;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.shopImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.noImageContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: #e5e5e5;
+    min-height: 140px;
+    z-index: 2;
+    position: relative;
+}
+
+.photoIcon {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    color: #525902;
+    display: block !important;
+    z-index: 3;
+}
+
+.noImageText {
+    font-size: 0.8rem;
+    color: #525902;
+    text-align: center;
+    padding: 0 0.5rem;
+    display: block !important;
+    line-height: 1.2;
+    z-index: 3;
+    font-weight: bold;
+}
+
+.shopContent {
+    flex: 1;
+    padding: 1rem 0.5rem 1rem 1rem;
+    color: rgb(252, 240, 215);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background-color: var(--primary-color, #525902);
+    border-radius: 0.8rem;
+    position: relative;
+    padding-right: 60px;
+}
+
+.shopName {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: rgb(252, 240, 215);
+}
+
+.shopAddress {
+    font-size: 0.9rem;
+    margin-bottom: 0.7rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    color: rgb(252, 240, 215);
+    opacity: 0.8;
+}
+
+.deliveryTime {
+    font-size: 0.9rem;
+    color: rgb(252, 240, 215);
+}
+
+.arrowContainer {
+    width: 40px;
+    height: 40px;
+    background-color: rgb(252, 240, 215);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.arrowIcon {
+    color: var(--primary-color, #525902);
+    font-size: 1.3rem;
+    font-weight: bold;
 }
 
 @media (max-width: 480px) {

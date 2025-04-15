@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import classes from './search.module.css';
+import { FaSearch } from 'react-icons/fa';
 
 Search.defaultProps = {
   searchRoute: '/search/',
@@ -35,7 +36,9 @@ export default function Search({
         onKeyUp={e => e.key === 'Enter' && search()}
         value={term}
       />
-      <button onClick={search}>Search</button>
+      <button onClick={search} className={classes.searchButton}>
+        <FaSearch />
+      </button>
     </div>
   );
 }
