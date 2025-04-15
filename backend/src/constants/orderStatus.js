@@ -1,7 +1,17 @@
 export const OrderStatus = {
-    NEW: 'NEW',
     PAID: 'PAID',
+    ACCEPTED: 'ACCEPTED',
+    READY: 'READY',
     SHIPPED: 'SHIPPED',
+    DELIVERED: 'DELIVERED',
     CANCELLED: 'CANCELLED',
-    REFUNDED: 'REFUNDED',
-  };
+    REFUNDED: 'REFUNDED'
+};
+
+// Add constant for delivery visible statuses
+export const DeliveryVisibleStatus = [
+    OrderStatus.READY,
+    OrderStatus.SHIPPED,
+    OrderStatus.DELIVERED,
+    OrderStatus.CANCELLED
+];

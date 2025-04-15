@@ -22,4 +22,47 @@
     justify-content: center;
     align-items: center;
   }
-  
+
+  .orDivider {
+    text-align: center;
+    font-weight: bold;
+    margin: 0.5rem 0;
+    color: #e72929;
+  }
+
+  .forgotPasswordLink {
+    text-align: right;
+    margin-bottom: 1rem;
+  }
+
+  .forgotPasswordLink a {
+    color: #e72929;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .forgotPasswordLink a:hover {
+    text-decoration: underline;
+  }
+
+@media (max-width: 768px) {
+    .details {
+        width: 24rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        margin-top: 2rem;
+    }
+
+    .details {
+        width: 90%;
+        max-width: 20rem;
+    }
+
+    .register {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

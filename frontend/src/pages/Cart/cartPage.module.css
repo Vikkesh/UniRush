@@ -6,6 +6,48 @@
     margin-top: 0.5rem;
 }
 
+.carts_container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.shop_cart_container {
+    border: 1px solid #e0e0e0;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.shop_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5f5f5;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.shop_header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.view_shop {
+    padding: 0.5rem 1rem;
+    background-color: #2196f3;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.view_shop:hover {
+    background-color: #1976d2;
+}
+
 .list {
     display: flex;
     flex-direction: column;
@@ -87,46 +129,168 @@
     margin: 0.5rem;
 }
 
-.checkout>div {
+.checkout > div {
     font-size: 1.4rem;
     margin: 1rem;
     flex: 3;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
 }
-.checkout .foods_count {
-    margin-bottom: 1.5rem;
-  }
-  
-  .checkout .foods_count::before {
-    content: 'Count: ';
-    color: grey;
-  }
-  
-  .checkout .total_price::before {
-    content: 'Price: ';
-    color: grey;
-  }
-  .checkout a {
-    padding: 1rem;
-    color: rgb(213, 213, 213);
-    background: #03b232;
-    display: block;
-    width: 99%;
-    border-radius: 1rem;
-    text-align: center;
-    justify-self: center;
-  }
-  
-  .checkout a:hover {
-    opacity: 0.8;
-    cursor: pointer;
-  }
-  
-  .checkout a:active {
-    transform: scale(0.95);
-  }
 
-  
+.foods_count {
+    margin-bottom: 0.5rem;
+}
+
+.foods_count::before {
+    content: "Count: ";
+    color: gray;
+}
+
+.total_price::before {
+    content: "Total: ";
+    color: gray;
+}
+
+.checkout_button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95%;
+    height: 3rem;
+    border-radius: 1rem;
+    background-color: #009e84;
+    color: white;
+    font-size: clamp(0.7rem, 2.5vw, 1.1rem);
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    opacity: 0.9;
+    padding: 0 0.5rem;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.checkout_button:hover{
+    opacity: 1;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin: 1rem;
+    }
+
+    .list li {
+        padding: 0.5rem;
+    }
+
+    .list li img {
+        width: 4rem;
+        height: 4rem;
+    }
+
+    .list li div {
+        padding: 0.5rem;
+    }
+
+    .shop_header h2 {
+        font-size: 1.3rem;
+    }
+
+    .checkout {
+        height: auto;
+        min-height: 15rem;
+    }
+
+    .checkout > div {
+        font-size: 1.2rem;
+        margin: 0.8rem;
+    }
+
+    .checkout_button {
+        font-size: 1rem;
+        height: 2.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        margin: 0.5rem;
+    }
+
+    .carts_container {
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+
+    .shop_header {
+        padding: 0.8rem 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .shop_header h2 {
+        font-size: 1.2rem;
+    }
+
+    .list {
+        margin: 0.3rem;
+    }
+
+    .list li {
+        flex-direction: column;
+        text-align: center;
+        padding: 0.8rem 0;
+    }
+
+    .list li img {
+        width: 3.5rem;
+        height: 3.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .list li div {
+        padding: 0.3rem;
+    }
+
+    .list li div:not(:first-child) {
+        flex-basis: auto;
+    }
+
+    .checkout {
+        min-height: 12rem;
+    }
+
+    .checkout > div {
+        font-size: 1.1rem;
+        margin: 0.5rem;
+    }
+
+    .checkout_button {
+        font-size: clamp(0.7rem, 2.2vw, 0.9rem);
+        height: 2.5rem;
+        width: 85%;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 360px) {
+    .checkout_button {
+        font-size: clamp(0.6rem, 2vw, 0.8rem);
+        height: 2.3rem;
+        width: 80%;
+        padding: 0 0.3rem;
+    }
+}
+
+@media (max-width: 280px) {
+    .checkout_button {
+        font-size: 0.6rem;
+        height: 2rem;
+        width: 75%;
+    }
+}
+
+

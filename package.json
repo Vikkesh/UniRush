@@ -1,0 +1,30 @@
+{
+  "name": "foodsite",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "cd backend && npm start",
+    "prebuild": "cd backend && npm install & cd frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "postbuild": "mkdir -p backend/src/public && rm -rf backend/src/public/* && cp -r frontend/build/* backend/src/public/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vikkesh/foodsite.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Vikkesh/foodsite/issues"
+  },
+  "homepage": "https://github.com/Vikkesh/foodsite#readme",
+  "description": "",
+  "engines": {
+    "node": ">=18 <23"
+  }
+}

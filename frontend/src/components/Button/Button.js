@@ -2,31 +2,34 @@ import React from 'react'
 import classes from './button.module.css'
 
 export default function Button({
-   type = 'button',
+  type = 'button',
   text = 'Submit',
   onClick,
   color = 'white',
   backgroundColor = '#e72929',
-  fontSize = '1.3rem',
   width = '12rem',
-  height = '3.5rem',
+  height,
+  disabled = false
   }) {
+  
+  // Create style object, but exclude width if it's "100%" to let CSS handle it
+  const buttonStyle = {
+    color,
+    backgroundColor,
+    ...(width !== "100%" && { width }), // Only apply width if it's not "100%"
+    ...(height && { height })
+  };
+
   return (
-    <div className={classes.container}>
+    <div className={classes.container} style={width === "100%" ? { width: "100%" } : {}}>
     <button
-      style={{
-        color,
-        backgroundColor,
-        fontSize,
-        width,
-        height,
-      }}
+      style={buttonStyle}
       type={type}
       onClick={onClick}
+      disabled={disabled}
     >
       {text}
     </button>
   </div>
   )
-  
 }

@@ -1,15 +1,17 @@
 import { model, Schema } from 'mongoose';
+// Remove the circular import
+// import { OrderModel } from './order.model.js';
 
 export const FoodSchema = new Schema(
   {
     name: { type: String, required: true },
     price: { type: Number, required: true },
     tags: { type: [String] },
-    favorite: { type: Boolean, default: false },
-    stars: { type: Number, default: 3 },
-    imageUrl: { type: String, required: true },
-    origins: { type: [String], required: true },
-    cookTime: { type: String, required: true },
+    shop: { type: Schema.Types.ObjectId, ref: 'shop', required: true }, 
+    imageUrl: { type: String, required: false }, // Changed to optional
+    description: { type: String, required: false }, // Added optional description field
+    enabled: { type: Boolean, default: true }, // Added field to control visibility
+    // Removed stars field
   },
   {
     toJSON: {
@@ -22,4 +24,4 @@ export const FoodSchema = new Schema(
   }
 );
 
-export const FoodModel = model('food', FoodSchema); 
+export const FoodModel = model('food', FoodSchema);
