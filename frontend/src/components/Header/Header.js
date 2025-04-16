@@ -1,11 +1,10 @@
-// filepath: /root/foodsite/frontend/src/components/Header/Header.js
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import classes from './header.module.css';
 import { useAuth } from '../../hooks/useAuth';
 import { FaHome, FaShoppingCart, FaUser, FaClipboardList, FaChartBar, 
-         FaStore, FaUsers, FaUtensils, FaTachometerAlt } from 'react-icons/fa';
+         FaStore, FaUsers, FaUtensils, FaTachometerAlt, FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -13,6 +12,7 @@ export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const location = useLocation();
   
   // Track window resize to determine if we're in mobile view
   useEffect(() => {
@@ -44,6 +44,12 @@ export default function Header() {
     setIsNavOpen(false);
     setActiveMenu('');
   };
+
+  // Determine the active route for the mobile navigation
+  const isActive = (path) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
   
   return (
     <header className={classes.header}>
@@ -56,6 +62,32 @@ export default function Header() {
           />
           UniRush
         </Link>
+        
+        {/* Mobile header action buttons - only visible on mobile (<= 768px) */}
+        {isMobile && (
+          <div className={classes.mobileHeaderActions}>
+            {/* Dashboard button - only visible for authorized roles */}
+            {user && (user.isAdmin || user.isDelivery || user.isOwner || user.isShopAdmin) && (
+              <Link to="/admin/dashboard" className={`${classes.mobileHeaderButton} ${isActive('/admin/dashboard') ? classes.active : ''}`}>
+                <div className={classes.navItemBackground}></div>
+                <FaTachometerAlt className={classes.icon} />
+              </Link>
+            )}
+            
+            {/* Logout/Login button */}
+            {user ? (
+              <a onClick={logout} className={classes.mobileHeaderButton}>
+                <div className={classes.navItemBackground}></div>
+                <FaSignOutAlt className={classes.icon} />
+              </a>
+            ) : (
+              <Link to="/login" className={`${classes.mobileHeaderButton} ${isActive('/login') ? classes.active : ''}`}>
+                <div className={classes.navItemBackground}></div>
+                <FaSignInAlt className={classes.icon} />
+              </Link>
+            )}
+          </div>
+        )}
         
         {/* Hamburger menu - always visible on desktop (>768px), hidden on mobile */}
         <div className={`${classes.hamburger} ${isNavOpen ? classes.open : ''}`} onClick={toggleNav}>
@@ -151,7 +183,7 @@ export default function Header() {
                     <span>Orders</span>
                   </Link>
                   <a onClick={() => { closeNav(); logout(); }}>
-                    <FaUser className={classes.icon} />
+                    <FaSignOutAlt className={classes.icon} />
                     <span>Logout</span>
                   </a>
                 </div>
@@ -159,7 +191,7 @@ export default function Header() {
             ) : (
               <li>
                 <Link to="/login" onClick={closeNav}>
-                  <FaUser className={classes.icon} />
+                  <FaSignInAlt className={classes.icon} />
                   <span>Login</span>
                 </Link>
               </li>
@@ -167,6 +199,44 @@ export default function Header() {
           </ul>
         </nav>
       </div>
+
+      {/* Mobile Bottom Navigation - Only visible on mobile screens */}
+      {isMobile && (
+        <div className={classes.mobileNav}>
+          <div className={classes.mobileNavContainer}>
+            {/* Home */}
+            <Link to="/" className={`${classes.navItem} ${isActive('/') ? classes.active : ''}`}>
+              <div className={classes.navItemBackground}></div>
+              <FaHome className={classes.icon} />
+              <span>Home</span>
+            </Link>
+
+            {/* Cart */}
+            <Link to="/cart" className={`${classes.navItem} ${isActive('/cart') ? classes.active : ''}`}>
+              <div className={classes.navItemBackground}></div>
+              <FaShoppingCart className={classes.icon} />
+              <span>Cart</span>
+              {totalCartCount > 0 && (
+                <span className={classes.mobileCartCount}>{totalCartCount}</span>
+              )}
+            </Link>
+
+            {/* Orders */}
+            <Link to="/orders" className={`${classes.navItem} ${isActive('/orders') ? classes.active : ''}`}>
+              <div className={classes.navItemBackground}></div>
+              <FaClipboardList className={classes.icon} />
+              <span>Orders</span>
+            </Link>
+
+            {/* Profile */}
+            <Link to={user ? "/profile" : "/login"} className={`${classes.navItem} ${isActive('/profile') || isActive('/login') ? classes.active : ''}`}>
+              <div className={classes.navItemBackground}></div>
+              <FaUser className={classes.icon} />
+              <span>{user ? "Profile" : "Login"}</span>
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

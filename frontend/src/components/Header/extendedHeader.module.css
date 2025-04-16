@@ -10,7 +10,7 @@
   background: rgb(243, 209, 176);
   display: flex;
   flex-direction: column;
-  padding: 5.5rem 2rem 1.5rem 2rem; /* Added top padding to account for the header overlap */
+  padding: 4rem 2rem 1rem 2rem; /* Reduced padding to make header smaller */
   position: relative;
   overflow: hidden;
 }
@@ -56,7 +56,7 @@
   bottom: -100px;
   left: -100px;
   width: 250px;
-  height: 200px;
+  height: 180px;
   border-radius: 50%;
   background-color: var(--primary-color);
   opacity: 1;
@@ -113,8 +113,10 @@
 }
 
 .searchSection :global(.container button) {
-  border-radius: 0 2rem 2rem 0;
+  border-radius: 50%; /* Make it circular */
   height: 3rem;
+  width: 3rem;
+  min-width: 3rem; /* Ensure square dimensions */
   background-color: #6495ED;
 }
 
@@ -162,10 +164,105 @@
 /* Responsive design for mobile */
 @media (max-width: 768px) {
   .extendedContent {
-    padding: 1rem;
+    padding: 4rem 1rem 0.8rem;
+  }
+  
+  .contentLayout {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .titleSection {
+    margin-left: 1rem;
+    margin-bottom: 0.8rem;
+    text-align: left;
   }
   
   .titleSection h1 {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
+  }
+  
+  .rightContent {
+    padding-top: 0;
+    width: 100%;
+  }
+  
+  .searchSection :global(.container) {
+    max-width: 500px;
+  }
+  
+  .searchSection {
+    margin-left: 1rem;
+    align-items: flex-start;
+  }
+  
+  .tagsContainer {
+    margin-top: 0.8rem;
+    margin-left: 1rem;
+  }
+  
+  .tagButtons {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .extendedContent {
+    padding: 4.5rem 0.8rem 0.8rem;
+  }
+  
+  .titleSection h1 {
+    font-size: 2.2rem;
+  }
+  
+  .searchSection :global(.container) {
+    max-width: 100%;
+  }
+  
+  .searchSection :global(.container input) {
+    height: 2.5rem;
+    font-size: 0.9rem;
+    padding: 0 1rem;
+  }
+  
+  .searchSection :global(.container button) {
+    height: 2.5rem;
+    width: 2.5rem;
+    min-width: 2.5rem;
+    border-radius: 50%;
+  }
+  
+  .tagButton {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .extendedContent {
+
+    padding: 3rem 0.5rem 0.5rem;
+  }
+  
+  .titleSection h1 {
+    font-size: 1.8rem;
+  }
+  
+  .searchSection :global(.container input) {
+    height: 2.2rem;
+    font-size: 0.8rem;
+    padding: 0 0.8rem;
+  }
+  
+  .searchSection :global(.container button) {
+    height: 2.2rem;
+    width: 2.2rem;
+    min-width: 2.2rem;
+    border-radius: 50%;
+  }
+  
+  .tagButton {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
   }
 }

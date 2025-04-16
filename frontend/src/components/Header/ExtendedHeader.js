@@ -24,7 +24,7 @@ export default function ExtendedHeader({ tags }) {
           <div className={classes.rightContent}>
             <div className={classes.searchSection}>
               <Search 
-                placeholder="Search for restaurants..."
+                placeholder="Search for shops..."
                 margin="0"
               />
             </div>
