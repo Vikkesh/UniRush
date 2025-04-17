@@ -25,7 +25,16 @@ export default function LoginPage() {
   useEffect(() => {
     if (!user) return;
     
-    // Validate the return URL based on user's permissions
+    // Check if we should redirect to homepage (after logging out from checkout/payment)
+    const shouldRedirectToHome = localStorage.getItem('redirectToHome');
+    if (shouldRedirectToHome === 'true') {
+      localStorage.removeItem('redirectToHome');
+      toast.info('Redirecting to homepage');
+      navigate('/', { replace: true });
+      return;
+    }
+    
+    // Regular login flow - validate the return URL based on user's permissions
     const validatedUrl = validateReturnUrl(returnUrl, user);
     if (location.pathname === '/login') {
       navigate(validatedUrl, { replace: true });
@@ -47,6 +56,13 @@ export default function LoginPage() {
       
       // Pass email, contact and password to login function
       const result = await login(email, contact, password);
+      
+      // Check if redirectToHome flag is set
+      if (result && result.redirectToHome) {
+        // Redirect to homepage instead of the returnUrl
+        navigate('/', { replace: true });
+        return;
+      }
       
       // If user is blocked, reset the form
       if (result && result.blocked) {

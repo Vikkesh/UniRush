@@ -49,9 +49,21 @@ export default function OrderItemsList({ order }) {
             <strong>Items Total:</strong>
           </td>
           <td>
-            <Price price={order.totalPrice - (order.deliveryFee || 0)} />
+            <Price price={order.itemsTotal || order.totalPrice - (order.deliveryFee || 0) - (order.gstAmount || 0)} />
           </td>
         </tr>
+        {/* Always show GST row if gstAmount exists, regardless of shop.taxable setting */}
+        {(order.gstAmount > 0) && (
+          <tr>
+            <td colSpan="2"></td>
+            <td>
+              <strong>GST (5%):</strong>
+            </td>
+            <td>
+              <Price price={order.gstAmount || 0} />
+            </td>
+          </tr>
+        )}
         <tr>
           <td colSpan="2"></td>
           <td>

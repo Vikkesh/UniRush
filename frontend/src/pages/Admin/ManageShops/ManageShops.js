@@ -190,6 +190,32 @@ export default function ManageShops() {
     }
   };
   
+  // Handle toggling a shop's taxable status
+  const handleToggleTaxable = async (shop) => {
+    // Only allow admin/owners to toggle taxable status
+    if (isShopAdminOnly) {
+      toast.warning('Only administrators can update GST settings');
+      return;
+    }
+    
+    try {
+      const newTaxable = !shop.taxable;
+      await shopService.toggleShopTaxable(shop._id, newTaxable);
+      
+      // Update local state after successful API call
+      setShops(prevShops => 
+        prevShops.map(s => 
+          s._id === shop._id ? { ...s, taxable: newTaxable } : s
+        )
+      );
+      
+      toast.success(`GST for "${shop.name}" has been ${newTaxable ? 'enabled' : 'disabled'}`);
+    } catch (error) {
+      console.error('Error toggling shop taxable status:', error);
+      toast.error('Failed to update shop GST status');
+    }
+  };
+  
   // Helper to determine shop status display
   const getShopStatus = (shop) => {
     // If shop is manually disabled, always show as disabled
@@ -261,6 +287,7 @@ export default function ManageShops() {
                     <th>Address</th>
                     <th>Hours</th>
                     <th>Status</th>
+                    <th>GST Applicable</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -293,6 +320,22 @@ export default function ManageShops() {
                             </label>
                             <span className={classes.status_text}>
                               {shopStatus.isOpen ? 'Open' : 'Closed'}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className={classes.toggle_container}>
+                            <label className={classes.switch}>
+                              <input 
+                                type="checkbox"
+                                checked={shop.taxable === true}
+                                onChange={() => handleToggleTaxable(shop)}
+                                disabled={isShopAdminOnly}
+                              />
+                              <span className={`${classes.slider} ${classes.round}`}></span>
+                            </label>
+                            <span className={classes.status_text}>
+                              {shop.taxable ? 'Yes' : 'No'}
                             </span>
                           </div>
                         </td>

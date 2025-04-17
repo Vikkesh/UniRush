@@ -131,12 +131,12 @@ export default function ShopPage() {
     loadShop();
   }, [id]);
   
-  // Apply filtering whenever the selected tag changes
+  // Apply filtering whenever the selected tag changes or foods load
   useEffect(() => {
     if (allFoods.length > 0) {
       filterFoodsByTag(allFoods, selectedTag);
     }
-  }, [selectedTag]);
+  }, [selectedTag, allFoods]);
   
   // Extract unique tags from food items
   const extractUniqueTags = (foodItems) => {
@@ -164,8 +164,12 @@ export default function ShopPage() {
     if (!tag || tag === 'All') {
       setFoods(foodItems);
     } else {
+      // Normalize comparison by converting both to lowercase
+      const normalizedTag = tag.toLowerCase();
       const filteredFoods = foodItems.filter(
-        food => food.tags && food.tags.includes(tag)
+        food => food.tags && food.tags.some(foodTag => 
+          foodTag.toLowerCase() === normalizedTag
+        )
       );
       setFoods(filteredFoods);
     }

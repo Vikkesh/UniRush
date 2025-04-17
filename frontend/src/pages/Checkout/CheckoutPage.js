@@ -25,12 +25,15 @@ export default function CheckoutPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isValidating, setIsValidating] = useState(true);
+  const [shopData, setShopData] = useState(null);
   const [order, setOrder] = useState(() => {
     const itemsTotal = cart.totalPrice;
     const deliveryFee = calculateDeliveryFee(itemsTotal);
     return {
       ...cart,
+      itemsTotal,
       deliveryFee,
+      gstAmount: 0, // Initialize GST amount
       totalPrice: itemsTotal + deliveryFee
     };
   });
@@ -74,36 +77,41 @@ export default function CheckoutPage() {
     return hours * 60 + minutes;
   };
   
-  // Check shop availability when component loads
+  // Check shop availability when component loads and calculate GST if applicable
   useEffect(() => {
     if (!activeCartShopId) return;
     
     const validateShopAvailability = async () => {
       try {
-        const shopData = await shopService.getById(activeCartShopId);
+        const shop = await shopService.getById(activeCartShopId);
+        setShopData(shop); // Store shop data for GST calculation
         
         // Check if shop is disabled
-        if (shopData.enabled === false) {
-          toast.error(`Cannot checkout. ${shopData.name} is currently unavailable.`);
+        if (shop.enabled === false) {
+          toast.error(`Cannot checkout. ${shop.name} is currently unavailable.`);
           navigate('/cart');
           return;
         }
         
         // Check if shop is within operating hours
-        const shopIsOpen = isShopOpen(shopData.openingTime, shopData.closingTime);
+        const shopIsOpen = isShopOpen(shop.openingTime, shop.closingTime);
         
         // If manual override is active, shop is available regardless of hours
-        if (shopData.manualOverride && shopData.enabled) {
+        if (shop.manualOverride && shop.enabled) {
+          // Calculate GST if shop is taxable
+          updateOrderWithGST(shop);
           setIsValidating(false);
           return;
         }
         
         if (!shopIsOpen) {
-          toast.error(`Cannot checkout. ${shopData.name} is currently closed.`);
+          toast.error(`Cannot checkout. ${shop.name} is currently closed.`);
           navigate('/cart');
           return;
         }
         
+        // Calculate GST if shop is taxable
+        updateOrderWithGST(shop);
         setIsValidating(false);
       } catch (error) {
         console.error('Error validating shop availability:', error);
@@ -114,6 +122,31 @@ export default function CheckoutPage() {
     
     validateShopAvailability();
   }, [activeCartShopId, navigate]);
+  
+  // Calculate GST and update order data
+  const updateOrderWithGST = (shop) => {
+    const itemsTotal = cart.totalPrice;
+    let gstAmount = 0;
+    
+    // Calculate 5% GST if shop is taxable
+    if (shop.taxable) {
+      gstAmount = itemsTotal * 0.05;
+    }
+    
+    // Calculate delivery fee based on items total plus GST
+    const baseForDelivery = itemsTotal + gstAmount;
+    const deliveryFee = calculateDeliveryFee(baseForDelivery);
+    
+    // Update order with GST information
+    setOrder({
+      ...cart,
+      shop: shop,
+      itemsTotal,
+      gstAmount,
+      deliveryFee,
+      totalPrice: itemsTotal + gstAmount + deliveryFee
+    });
+  };
 
   if (!activeCartShopId || !cart.items || cart.items.length === 0) {
     return (
@@ -139,7 +172,8 @@ export default function CheckoutPage() {
         address: data.address,
         shopId: cart.shopId,
         shopName: cart.shopName,
-        itemsTotal: cart.totalPrice,
+        itemsTotal: order.itemsTotal,
+        gstAmount: order.gstAmount,
       };
 
       // Store checkout data in sessionStorage for payment page

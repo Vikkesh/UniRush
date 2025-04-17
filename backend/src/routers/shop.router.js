@@ -368,6 +368,40 @@ router.patch(
   })
 );
 
+// Add endpoint to toggle taxable status of a shop
+router.patch(
+  '/:shopId/toggle-taxable',
+  auth,
+  handler(async (req, res) => {
+    const { shopId } = req.params;
+    const { taxable } = req.body;
+    
+    // First find the existing shop to check permissions
+    const existingShop = await ShopModel.findById(shopId);
+    if (!existingShop) {
+      res.status(404).send('Shop not found!');
+      return;
+    }
+
+    // Check if user has permission to update this shop
+    if (req.user.isAdmin || req.user.isOwner) {
+      // Admin or owner can update any shop
+    } else {
+      res.status(403).send('Only Admin or Owner Can Update Shop Taxable Status');
+      return;
+    }
+    
+    // Update the taxable status
+    const updatedShop = await ShopModel.findByIdAndUpdate(
+      shopId, 
+      { taxable },
+      { new: true }
+    );
+    
+    res.send(updatedShop);
+  })
+);
+
 // Add endpoint to toggle enabled status for all shops a user manages
 router.patch(
   '/toggle-all-shops',

@@ -266,17 +266,22 @@ router.get(
                 itemsTotal: 0
             };
 
+            // Initialize GST total
+            let totalGSTAmount = 0;
+            
             // Process orders for statistics
             orders.forEach(order => {
                 // Use stored values directly
                 const orderTotalPrice = Number(order.totalPrice) || 0;
                 const orderDeliveryFee = Number(order.deliveryFee) || 0;
                 const orderItemsTotal = Number(order.itemsTotal) || 0;
+                const orderGSTAmount = Number(order.gstAmount) || 0;
                 
                 // Add to aggregated totals
                 itemsTotalFee += orderItemsTotal;
                 deliveryFee += orderDeliveryFee;
                 totalSalesRevenue += orderTotalPrice;
+                totalGSTAmount += orderGSTAmount;
 
                 // Determine shop category
                 let shopId;
@@ -300,7 +305,8 @@ router.get(
                         orderCount: 0,
                         revenue: 0,
                         deliveryFee: 0,
-                        itemsTotal: 0
+                        itemsTotal: 0,
+                        gstAmount: 0
                     };
                 }
                 
@@ -308,6 +314,7 @@ router.get(
                 shopStats[shopId].revenue += orderTotalPrice;
                 shopStats[shopId].deliveryFee += orderDeliveryFee;
                 shopStats[shopId].itemsTotal += orderItemsTotal;
+                shopStats[shopId].gstAmount += (order.gstAmount || 0);
 
                 // Group by status
                 const status = order.status;
@@ -357,7 +364,8 @@ router.get(
                     orderCount,
                     itemsTotalFee,
                     deliveryFee,
-                    totalSalesRevenue
+                    totalSalesRevenue,
+                    gstAmount: totalGSTAmount
                 },
                 shopStats: shopStatsArray,
                 statusStats: statusStatsArray,
@@ -369,8 +377,9 @@ router.get(
                     totalPrice: Number(order.totalPrice) || 0,
                     deliveryFee: Number(order.deliveryFee) || 0,
                     itemsTotal: Number(order.itemsTotal) || 0,
+                    gstAmount: Number(order.gstAmount) || 0, // Include GST amount in each order
                     shopName: order.shopId ? order.shopId.name : order.shopName || 'Unknown Shop',
-                    items: order.items ? order.items.length : 0
+                    items: order.items ? order.items.reduce((total, item) => total + (item.quantity || 1), 0) : 0
                 })),
                 totalOrderCount: orders.length
             };

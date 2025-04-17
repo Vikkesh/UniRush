@@ -245,34 +245,56 @@ export default function CartPage() {
                             <ul className={classes.list}>
                                 {cart.items.map(item => (
                                     <li key={item.food.id}>
-                                        <div>
-                                            <img 
-                                                src={`${item.food.imageUrl}`} 
-                                                alt={item.food.name} 
-                                            />
+                                        <div className={classes.item_left_column}>
+                                            <div className={classes.item_name}>
+                                                <Link to={`/food/${item.food.id}`}>{item.food.name}</Link>
+                                            </div>
+                                            <div className={classes.quantity_selector}>
+                                                <button 
+                                                    className={classes.quantity_button}
+                                                    onClick={() => {
+                                                        switchCart(cart.shopId);
+                                                        if (item.quantity > 1) {
+                                                            changeQuantity(item, item.quantity - 1);
+                                                        }
+                                                    }}
+                                                    aria-label="Decrease quantity"
+                                                >
+                                                    -
+                                                </button>
+                                                <input
+                                                    type="number"
+                                                    className={classes.quantity_input}
+                                                    value={item.quantity}
+                                                    min="1"
+                                                    max="99"
+                                                    onChange={e => {
+                                                        switchCart(cart.shopId);
+                                                        const newQuantity = parseInt(e.target.value);
+                                                        if (!isNaN(newQuantity) && newQuantity > 0 && newQuantity <= 99) {
+                                                            changeQuantity(item, newQuantity);
+                                                        }
+                                                    }}
+                                                    aria-label="Quantity"
+                                                />
+                                                <button 
+                                                    className={classes.quantity_button}
+                                                    onClick={() => {
+                                                        switchCart(cart.shopId);
+                                                        if (item.quantity < 99) {
+                                                            changeQuantity(item, item.quantity + 1);
+                                                        }
+                                                    }}
+                                                    aria-label="Increase quantity"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <Link to={`/food/${item.food.id}`}>{item.food.name}</Link>
-                                        </div>
-                                        <div>
-                                            <select
-                                                value={item.quantity} 
-                                                onChange={e => {
-                                                    switchCart(cart.shopId);
-                                                    changeQuantity(item, Number(e.target.value));
-                                                }}
-                                            >
-                                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                                                    <option key={num} value={num}>
-                                                        {num}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <Price price={item.price} />
-                                        </div>
-                                        <div>
+                                        <div className={classes.item_right_column}>
+                                            <div className={classes.price_container}>
+                                                <Price price={item.price} />
+                                            </div>
                                             <button
                                                 className={classes.remove_button} 
                                                 onClick={() => {
