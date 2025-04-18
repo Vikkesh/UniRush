@@ -393,6 +393,29 @@
   background-color: #303f9f;
 }
 
+.export_button {
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.export_button:hover {
+  background-color: #f57c00;
+}
+
+.buttons_container {
+  display: flex;
+  gap: 0.8rem;
+}
+
 .show_more {
   text-align: center;
   margin-top: 1rem;
@@ -447,37 +470,129 @@
     padding: 0 0.5rem;
     width: calc(100% + 1rem);
   }
+
+  /* Button size reduction for medium screens */
+  .refresh_button,
+  .apply_button,
+  .toggle_button,
+  .export_button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .export_button {
+    gap: 0.4rem;
+  }
+  
+  .buttons_container {
+    gap: 0.6rem;
+  }
+  
+  .status_stats_container {
+      margin: 0 -0.5rem;
+      padding: 0 0.5rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+  }
+  
+  .status_stats_container table.stats_table {
+      font-size: 0.95rem;
+  }
+  
+  .status_stats_container .stats_table td,
+  .status_stats_container .stats_table th {
+      padding: 0.6rem;
+  }
+  
+  .status_chart {
+      height: 35px;
+  }
+  
+  .status_bar {
+      font-size: 0.75rem;
+  }
+  
+  .status_label {
+      padding: 0 6px;
+      font-size: 0.75rem;
+  }
 }
 
-@media screen and (max-width: 768px) {
-    .status_stats_container {
-        margin: 0 -0.5rem;
-        padding: 0 0.5rem;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .status_stats_container table.stats_table {
-        font-size: 0.95rem;
-    }
-    
-    .status_stats_container .stats_table td,
-    .status_stats_container .stats_table th {
-        padding: 0.6rem;
-    }
-    
-    .status_chart {
-        height: 35px;
-    }
-    
-    .status_bar {
-        font-size: 0.75rem;
-    }
-    
-    .status_label {
-        padding: 0 6px;
-        font-size: 0.75rem;
-    }
+@media screen and (max-width: 480px) {
+  .container {
+    padding: 0.6rem;
+  }
+  
+  .section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .section h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .section_content {
+    margin: 0 -0.3rem;
+    padding: 0 0.3rem;
+    width: calc(100% + 0.6rem);
+  }
+  
+  /* Button size reduction for small screens */
+  .refresh_button,
+  .apply_button,
+  .toggle_button,
+  .export_button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  .export_button {
+    gap: 0.3rem;
+  }
+  
+  .buttons_container {
+    gap: 0.4rem;
+  }
+  
+  .section_header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .section_header h3 {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media screen and (max-width: 350px) {
+  .container {
+    padding: 0.5rem;
+  }
+  
+  .section {
+    padding: 0.8rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  /* Further button size reduction for very small screens */
+  .refresh_button,
+  .apply_button,
+  .toggle_button,
+  .export_button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .export_button {
+    gap: 0.2rem;
+  }
+  
+  .buttons_container {
+    gap: 0.3rem;
+  }
 }
 
 @media screen and (max-width: 480px) {
@@ -508,6 +623,33 @@
     
     .status_stats_container table.stats_table {
         font-size: 0.85rem;
+    }
+    
+    /* Button size reduction for small screens */
+    .refresh_button,
+    .apply_button,
+    .toggle_button,
+    .export_button {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    .export_button {
+        gap: 0.3rem;
+    }
+    
+    .buttons_container {
+        gap: 0.4rem;
+    }
+    
+    .section_header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .section_header h3 {
+        width: 100%;
+        margin-bottom: 0.5rem;
     }
     
     .status_stats_container .stats_table td,

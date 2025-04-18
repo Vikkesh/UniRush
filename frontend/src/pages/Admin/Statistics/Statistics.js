@@ -9,6 +9,8 @@ import DateTime from '../../../components/DateTime/DateTime';
 import Price from '../../../components/Price/Price';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../hooks/useAuth';
+import * as XLSX from 'xlsx';
+import { FaDownload } from 'react-icons/fa';
 
 export default function Statistics() {
   const { user } = useAuth();
@@ -189,6 +191,84 @@ export default function Statistics() {
     return change.startsWith('+') ? classes.positive_change : classes.negative_change;
   };
 
+  // Export table data to Excel
+  const exportToExcel = (data, filename) => {
+    try {
+      // Create a new workbook
+      const workbook = XLSX.utils.book_new();
+      
+      // Convert data to worksheet
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+      
+      // Generate Excel file and trigger download
+      XLSX.writeFile(workbook, `${filename}.xlsx`);
+      
+      toast.success(`${filename} exported successfully`);
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export data');
+    }
+  };
+  
+  // Prepare shop stats data for export
+  const exportShopStats = () => {
+    if (!statistics?.shopStats?.length) return;
+    
+    const exportData = statistics.shopStats.map(shop => ({
+      'Shop': shop.shopName,
+      'Orders': shop.orderCount,
+      'Items Total (incl. GST)': ((shop.itemsTotal || 0) + (shop.gstAmount || 0)).toFixed(2),
+      'Delivery Fees': (shop.deliveryFee || 0).toFixed(2),
+      'Total Revenue': (shop.revenue || 0).toFixed(2)
+    }));
+    
+    exportToExcel(exportData, `Shop_Performance_${formatDate(new Date())}`);
+  };
+  
+  // Prepare status stats data for export
+  const exportStatusStats = () => {
+    if (!statistics?.statusStats?.length) return;
+    
+    const exportData = statistics.statusStats.map(status => ({
+      'Status': status.status,
+      'Orders': status.count,
+      'Revenue': (status.revenue || 0).toFixed(2)
+    }));
+    
+    exportToExcel(exportData, `Orders_By_Status_${formatDate(new Date())}`);
+  };
+  
+  // Prepare orders data for export
+  const exportOrdersData = () => {
+    if (!statistics?.orders?.length) return;
+    
+    const exportData = statistics.orders.map(order => {
+      // Format order items as a string
+      let itemsList = '';
+      if (Array.isArray(order.orderItems) && order.orderItems.length > 0) {
+        itemsList = order.orderItems.map(item => `${item.name} x${item.quantity}`).join(', ');
+      } else {
+        itemsList = `${order.items} items`;
+      }
+      
+      return {
+        'Order ID': order.id,
+        'Date': new Date(order.createdAt).toLocaleString(),
+        'Shop': order.shopName,
+        'Status': order.status,
+        'Items': itemsList,
+        'Items Total (incl. GST)': ((order.itemsTotal || 0) + (order.gstAmount || 0)).toFixed(2),
+        'Delivery Fee': (order.deliveryFee || 0).toFixed(2),
+        'Total': (order.totalPrice || 0).toFixed(2)
+      };
+    });
+    
+    exportToExcel(exportData, `Orders_${formatDate(new Date())}`);
+  };
+
   // Ensure statistics and summary exist before rendering the chart
   const renderStatusChart = () => {
     if (!statistics?.summary?.orderCount || !statistics?.statusStats?.length) {
@@ -348,7 +428,16 @@ export default function Statistics() {
           {/* Shop performance section */}
           {statistics.shopStats && statistics.shopStats.length > 0 && (
             <div className={classes.section}>
-              <h3>Shop Performance</h3>
+              <div className={classes.section_header}>
+                <h3>Shop Performance</h3>
+                <button 
+                  onClick={exportShopStats}
+                  className={classes.export_button}
+                  title="Export to Excel"
+                >
+                  <FaDownload /> Export
+                </button>
+              </div>
               <div className={classes.shop_stats_container}>
                 <table className={classes.stats_table}>
                   <thead>
@@ -379,7 +468,16 @@ export default function Statistics() {
           {/* Status breakdown section */}
           {statistics.statusStats && statistics.statusStats.length > 0 && (
             <div className={classes.section}>
-              <h3>Orders by Status</h3>
+              <div className={classes.section_header}>
+                <h3>Orders by Status</h3>
+                <button 
+                  onClick={exportStatusStats}
+                  className={classes.export_button}
+                  title="Export to Excel"
+                >
+                  <FaDownload /> Export
+                </button>
+              </div>
               <div className={classes.status_stats_container}>
                 <div className={classes.status_chart}>
                   {renderStatusChart()}
@@ -445,12 +543,21 @@ export default function Statistics() {
             <div className={classes.section}>
               <div className={classes.section_header}>
                 <h3>Recent Orders</h3>
-                <button 
-                  onClick={() => setShowAllOrders(!showAllOrders)}
-                  className={classes.toggle_button}
-                >
-                  {showAllOrders ? 'Show Recent' : 'Show All'}
-                </button>
+                <div className={classes.buttons_container}>
+                  <button 
+                    onClick={() => setShowAllOrders(!showAllOrders)}
+                    className={classes.toggle_button}
+                  >
+                    {showAllOrders ? 'Show Recent' : 'Show All'}
+                  </button>
+                  <button 
+                    onClick={exportOrdersData}
+                    className={classes.export_button}
+                    title="Export to Excel"
+                  >
+                    <FaDownload /> Export
+                  </button>
+                </div>
               </div>
               <div className={classes.recent_orders}>
                 <table className={classes.stats_table}>
@@ -477,7 +584,20 @@ export default function Statistics() {
                             {order.status}
                           </span>
                         </td>
-                        <td>{order.items}</td>
+                        <td>
+                          <div className={classes.order_items_list}>
+                            {Array.isArray(order.orderItems) && order.orderItems.length > 0 ? (
+                              order.orderItems.map((item, index) => (
+                                <div key={index} className={classes.order_item}>
+                                  <span className={classes.item_name}>{item.name}</span>
+                                  <span className={classes.item_quantity}> x {item.quantity}</span>
+                                </div>
+                              ))
+                            ) : (
+                              `${order.items} items`
+                            )}
+                          </div>
+                        </td>
                         <td><Price price={(order.itemsTotal || 0) + (order.gstAmount || 0)} /></td>
                         <td><Price price={order.deliveryFee} /></td>
                         <td><Price price={order.totalPrice} /></td>

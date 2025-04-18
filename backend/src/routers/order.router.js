@@ -379,7 +379,11 @@ router.get(
                     itemsTotal: Number(order.itemsTotal) || 0,
                     gstAmount: Number(order.gstAmount) || 0, // Include GST amount in each order
                     shopName: order.shopId ? order.shopId.name : order.shopName || 'Unknown Shop',
-                    items: order.items ? order.items.reduce((total, item) => total + (item.quantity || 1), 0) : 0
+                    items: order.items ? order.items.reduce((total, item) => total + (item.quantity || 1), 0) : 0,
+                    orderItems: order.items ? order.items.map(item => ({
+                        name: item.name,
+                        quantity: item.quantity
+                    })) : []
                 })),
                 totalOrderCount: orders.length
             };
