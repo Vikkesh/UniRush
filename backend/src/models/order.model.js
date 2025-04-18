@@ -1,7 +1,5 @@
 import { model, Schema } from 'mongoose';
 import { OrderStatus } from '../constants/orderStatus.js';
-// Remove the circular import
-// import { FoodModel } from './food.model.js';
 
 export const LatLngSchema = new Schema(
     {
@@ -28,6 +26,7 @@ export const OrderItemSchema = new Schema(
 
 const orderSchema = new Schema(
     {
+      orderId: { type: String, unique: true, sparse: true }, // Custom order ID in format YYYYMMxxxxx
       name: { type: String, required: true },
       address: { type: String, required: true },
       addressLatLng: { type: LatLngSchema, required: true },
@@ -53,8 +52,20 @@ const orderSchema = new Schema(
     }
 );
 
-// Add a pre-save hook to validate totals
+// Add a pre-save hook to validate totals and generate custom order ID
 orderSchema.pre('save', async function(next) {
+  // Generate custom order ID for new orders
+  if (this.isNew && !this.orderId) {
+    const date = new Date();
+    const year = date.getFullYear();
+    // Month is 0-based, so add 1 and pad with leading zero if needed
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    // Generate a random 5 digit number between 00000 and 99999
+    const randomNum = String(Math.floor(Math.random() * 100000)).padStart(5, '0');
+    // Combine to create the order ID: YYYYMMxxxxx format
+    this.orderId = `${year}${month}${randomNum}`;
+  }
+
   if (this.isNew || this.isModified('items') || this.isModified('deliveryFee') || this.isModified('gstAmount')) {
     // Validate that itemsTotal matches the sum of item prices
     const calculatedItemsTotal = this.items.reduce((total, item) => total + item.price, 0);

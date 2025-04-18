@@ -576,7 +576,7 @@ export default function Statistics() {
                   <tbody>
                     {(showAllOrders ? statistics.orders : statistics.orders.slice(0, 10)).map(order => (
                       <tr key={order.id}>
-                        <td>{order.id}</td>
+                        <td>{order.orderId || order.id}</td>
                         <td><DateTime date={order.createdAt} options={{ year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }} /></td>
                         <td>{order.shopName}</td>
                         <td>

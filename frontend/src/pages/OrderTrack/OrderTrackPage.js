@@ -25,7 +25,7 @@ export default function OrderTrackPage() {
   return (
     <div className={classes.container}>
       <div className={classes.content}>
-        <h1>Order #{order.id}</h1>
+        <h1>Order #{order.orderId || order.id}</h1>
         <div className={classes.header}>
           <div>
             <strong>Date</strong>
