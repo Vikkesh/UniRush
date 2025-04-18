@@ -43,6 +43,10 @@ export default function FoodPage() {
     getById(id)
       .then(data => {
         setFood(data);
+        // Store the shop ID globally so the Tags component can access it
+        if (data && data.shop && data.shop._id) {
+          window.foodShopId = data.shop._id;
+        }
       })
       .catch(error => {
         console.error('Error fetching food item:', error);

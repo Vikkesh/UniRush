@@ -52,6 +52,12 @@ export const deleteShop = async shopId => {
   return data;
 };
 
+export const toggleShopTaxable = async (shopId, taxable) => {
+  const { data } = await axios.patch(`/api/shops/${shopId}/toggle-taxable`, { taxable });
+  return data;
+  return data;
+};
+
 // Function to toggle shop enabled status
 export const toggleShopEnabled = async (shopId, enabled) => {
   const { data } = await axios.patch(`/api/shops/${shopId}/toggle-enabled`, { enabled });

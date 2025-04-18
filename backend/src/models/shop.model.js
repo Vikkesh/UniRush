@@ -13,6 +13,7 @@ export const ShopSchema = new Schema(
     enabled: { type: Boolean, default: true }, // Added field to control visibility
     manualOverride: { type: Boolean, default: false }, // Track if shop status was manually overridden
     lastOverrideTime: { type: Date, default: null }, // Track when the last override occurred
+    taxable: { type: Boolean, default: false }, // Flag to determine if GST is applicable
   },
   {
     toJSON: {

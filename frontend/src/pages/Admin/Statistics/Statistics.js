@@ -318,10 +318,10 @@ export default function Statistics() {
             </div>
             
             <div className={classes.summary_card}>
-              <h3>Items Total</h3>
+              <h3>Items Total (incl. GST)</h3>
               <div className={classes.card_content}>
                 <div className={classes.card_value}>
-                  <Price price={statistics.summary?.itemsTotalFee || 0} />
+                  <Price price={(statistics.summary?.itemsTotalFee || 0) + (statistics.summary?.gstAmount || 0)} />
                 </div>
               </div>
             </div>
@@ -355,7 +355,7 @@ export default function Statistics() {
                     <tr>
                       <th>Shop</th>
                       <th>Orders</th>
-                      <th>Items Total</th>
+                      <th>Items Total (incl. GST)</th>
                       <th>Delivery Fees</th>
                       <th>Total Revenue</th>
                     </tr>
@@ -365,7 +365,7 @@ export default function Statistics() {
                       <tr key={shop.shopId}>
                         <td>{shop.shopName}</td>
                         <td>{shop.orderCount}</td>
-                        <td><Price price={shop.itemsTotal} /></td>
+                        <td><Price price={(shop.itemsTotal || 0) + (shop.gstAmount || 0)} /></td>
                         <td><Price price={shop.deliveryFee} /></td>
                         <td><Price price={shop.revenue} /></td>
                       </tr>
@@ -461,7 +461,7 @@ export default function Statistics() {
                       <th>Shop</th>
                       <th>Status</th>
                       <th>Items</th>
-                      <th>Items Total</th>
+                      <th>Items Total (incl. GST)</th>
                       <th>Delivery Fee</th>
                       <th>Total</th>
                     </tr>
@@ -478,7 +478,7 @@ export default function Statistics() {
                           </span>
                         </td>
                         <td>{order.items}</td>
-                        <td><Price price={order.itemsTotal} /></td>
+                        <td><Price price={(order.itemsTotal || 0) + (order.gstAmount || 0)} /></td>
                         <td><Price price={order.deliveryFee} /></td>
                         <td><Price price={order.totalPrice} /></td>
                       </tr>

@@ -3,36 +3,93 @@
   justify-content: center;
   margin-top: 3rem;
   margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 700px;
+  gap: 0.8rem;
+  align-items: center;
 }
 
 .container input {
-  border-radius: 10rem 0 0 10rem;
-  border: 1px solid #010f1f51;
+  border-radius: 2rem;
+  border: 1px solid var(--primary-color, #525902);
   height: 3rem;
-  width: 20rem;
-  background-color: #f1f1f1;
-  padding: 1.2rem;
+  flex: 1;
+  background-color: rgb(252, 240, 215);
+  padding: 1rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
   outline: none;
+  color: var(--text-color, #333);
 }
 
 .container button {
-  color: grey;
-  height: 3rem;
-  width: 5rem;
+  height: 2.5rem;
+  width: 2.5rem;
+  min-width: 2.5rem;
   font-size: 1rem;
-  border-radius: 0 10rem 10rem 0;
+  border-radius: 50%;
   border: none;
-  background-color: #1787ff;
+  background-color: var(--highlight-color, #e47900);
   color: white;
-  opacity: 0.8;
   outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  top: 0;
+}
+
+.searchButton {
+  position: relative;
+  overflow: hidden;
+}
+
+.searchButton::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
 }
 
 .container button:hover {
-  opacity: 1;
+  background-color: var(--highlight-color-dark, #d16b00);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   cursor: pointer;
+}
+
+.container button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  background-color: var(--highlight-color-darker, #b55a00);
+}
+
+.container button:active::after {
+  animation: ripple 0.4s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.7;
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
 }
 
 @media (max-width: 768px) {
@@ -50,8 +107,11 @@
 
   .container button {
     height: 2.5rem;
-    width: 4rem;
+    width: 2.5rem;
+    min-width: 2.5rem;
     font-size: 0.9rem;
+    border-radius: 50%;
+    margin-right: 1rem;
   }
 }
 
@@ -70,8 +130,10 @@
 
   .container button {
     height: 2.2rem;
-    width: 3.5rem;
+    width: 2.2rem;
+    min-width: 2.2rem;
     font-size: 0.85rem;
+    border-radius: 50%;
   }
 }
 
@@ -90,7 +152,7 @@
 
   .container button {
     height: 2rem;
-    width: 3rem;
+    width: 2rem;
     font-size: 0.8rem;
   }
 }
@@ -110,7 +172,7 @@
 
   .container button {
     height: 1.8rem;
-    width: 2.8rem;
+    width: 1.8rem;
     font-size: 0.6rem;
     padding: 0 0.2rem;
     letter-spacing: -0.2px;

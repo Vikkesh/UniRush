@@ -22,7 +22,7 @@ root.render(
             <App />
             <ToastContainer
               position="bottom-right"
-              autoClose={5000}
+              autoClose={2000}
               hideProgressBar={false}
               newestOnTop={false}
               closeOnClick
@@ -31,6 +31,7 @@ root.render(
               draggable
               pauseOnHover
               theme="light"
+              style={{ zIndex: 100002 }}
             />
           </CartProvider>
         </AuthProvider>

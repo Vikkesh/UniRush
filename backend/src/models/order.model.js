@@ -34,6 +34,7 @@ const orderSchema = new Schema(
       paymentId: { type: String, required: true },
       totalPrice: { type: Number, required: true },
       itemsTotal: { type: Number, required: true },
+      gstAmount: { type: Number, default: 0 }, // Added GST field with default value 0
       deliveryFee: { type: Number, required: true },
       items: { type: [OrderItemSchema], required: true },
       status: { type: String, default: OrderStatus.PAID },
@@ -54,14 +55,18 @@ const orderSchema = new Schema(
 
 // Add a pre-save hook to validate totals
 orderSchema.pre('save', async function(next) {
-  if (this.isNew || this.isModified('items') || this.isModified('deliveryFee')) {
+  if (this.isNew || this.isModified('items') || this.isModified('deliveryFee') || this.isModified('gstAmount')) {
     // Validate that itemsTotal matches the sum of item prices
     const calculatedItemsTotal = this.items.reduce((total, item) => total + item.price, 0);
     if (Math.abs(calculatedItemsTotal - this.itemsTotal) > 0.01) { // Allow for minor floating point differences
       this.itemsTotal = calculatedItemsTotal;
     }
-    // Ensure totalPrice is the sum of itemsTotal and deliveryFee
-    this.totalPrice = this.itemsTotal + this.deliveryFee;
+    // Initialize gstAmount to 0 if not defined
+    if (this.gstAmount === undefined) {
+      this.gstAmount = 0;
+    }
+    // Ensure totalPrice is the sum of itemsTotal, gstAmount, and deliveryFee
+    this.totalPrice = this.itemsTotal + (this.gstAmount || 0) + this.deliveryFee;
   }
 
   // Handle shop name

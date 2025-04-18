@@ -55,6 +55,16 @@ export const AuthProvider = ({ children }) => {
       try {
         const user = await userService.login(email, contact, password);
         setUser(user);
+        
+        // Check if user was previously logged out from checkout or payment
+        const loggedOutFrom = localStorage.getItem('loggedOutFrom');
+        if (loggedOutFrom && (loggedOutFrom === '/checkout' || loggedOutFrom === '/payment')) {
+          // Clear the stored path
+          localStorage.removeItem('loggedOutFrom');
+          // Set a flag that we'll check in the login effect
+          localStorage.setItem('redirectToHome', 'true');
+        }
+        
         toast.success('Login Successful');
         return { success: true };
       } catch (err) {
@@ -290,6 +300,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
+        // Check if current path is checkout or payment, and store that info
+        const path = window.location.pathname;
+        if (path === '/checkout' || path === '/payment') {
+          localStorage.setItem('loggedOutFrom', path);
+        }
+        
         userService.logout();
         setUser(null);
         toast.success('Logout Successful');

@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import * as shopService from '../../services/shopService';
 import Thumbnails from '../../components/Thumbnails/Thumbnails';
+import ExtendedHeader from '../../components/Header/ExtendedHeader';
+import NotFound from '../../components/NotFound/NotFound';
 import Search from '../../components/Search/Search';
 import Tags from '../../components/Tags/Tags';
-import NotFound from '../../components/NotFound/NotFound';
 import classes from './homePage.module.css';
 
 export default function HomePage() {
@@ -142,8 +143,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <>
-        <Search />
-        <Tags tags={[]} />
+        <ExtendedHeader tags={[]} />
         <div className={classes.container}>
           <p>Loading shops...</p>
         </div>
@@ -153,8 +153,7 @@ export default function HomePage() {
 
   return (
     <>
-      <Search />
-      <Tags tags={tags} />
+      <ExtendedHeader tags={tags} />
       <div className={classes.container}>
         {error && <p className={classes.error}>{error}</p>}
         {!loading && shops.length === 0 && <NotFound message="All shops are closed, please come back some other time" linkText="Reset" linkRoute="/" />}

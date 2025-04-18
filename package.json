@@ -26,5 +26,8 @@
   "description": "",
   "engines": {
     "node": ">=18 <23"
+  },
+  "dependencies": {
+    "react-icons": "^5.5.0"
   }
 }
