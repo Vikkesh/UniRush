@@ -5,7 +5,7 @@ import classes from './search.module.css';
 Search.defaultProps = {
   searchRoute: '/search/',
   defaultRoute: '/',
-  placeholder: 'Search your foods...',
+  placeholder: 'Search your shops...',
 };
 
 export default function Search({
@@ -25,6 +25,7 @@ export default function Search({
   const search = async () => {
     term ? navigate(searchRoute + term) : navigate(defaultRoute);
   };
+
   return (
     <div className={classes.container} style={{ margin }}>
       <input

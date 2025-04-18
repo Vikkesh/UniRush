@@ -1,86 +1,174 @@
 .list {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     flex-wrap: wrap;
     list-style-type: none;
     padding: 0;
-    
+    gap: 0.8rem;
+    max-width: 100%;
 }
 
 .list li a {
-    height: 22.5rem;
-    width: 20rem;
+    height: auto;
+    min-height: 7rem;
+    width: 14rem;
     border: 1px solid whitesmoke;
-    border-radius: 1rem;
-    margin: 0.5rem;
+    border-radius: 0.8rem;
+    margin: 0.2rem;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     color: #f2ff00;
-    background-color:#2863bcf1 ;
+    background-color: #2863bcf1;
+    transition: transform 0.2s ease;
+    position: relative;
+    padding: 0.8rem;
 }
 
+.list li a:hover {
+    transform: translateY(-3px);
+}
+
+/* Hide the image while keeping it in the DOM for future use */
 .image {
-    object-fit: cover;
-    height: 14.5rem;
+    display: none;
 }
+
 .content {
-    margin-top: 0.3rem;
-    padding: 0.5rem 1rem;
+    padding: 0.4rem;
     position: relative;
-    height: 7rem;
-  }
-  
-  .favorite {
-    position: absolute;
-    top: 0.5rem;
-    right: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.name {
     font-size: 1.2rem;
-    color:#ff1e1e;
-  }
-  
-  .favorite.not {
-    color: rgb(174, 174, 174);
-  }
-  .stars {
-    margin: 0.5rem 0;
-    
-  }
-  .product_item_footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+    font-weight: bold;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
 }
-.origins span {
-  border-radius: 2rem;
-  background-color: whitesmoke;
-  display: inline-block;
-  font-size: 0.8rem;
-  color: grey;
-  margin-right: 0.3rem;
-  padding: 0 0.5rem;
-  margin-top: 0.2rem;
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
 }
+
+.tag {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.3rem;
+    font-size: 0.75rem;
+}
+
+.product_item_footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: auto;
+}
+
 .origins {
-  flex: 10;
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    max-width: 65%;
+}
+
+.origins span {
+    border-radius: 0.8rem;
+    background-color: whitesmoke;
+    display: inline-block;
+    font-size: 0.7rem;
+    color: grey;
+    padding: 0.1rem 0.4rem;
+    white-space: nowrap;
 }
 
 .cook_time {
-  font-size: 0.9rem;
-  flex: 3;
-  text-align: right;
-  
+    font-size: 0.75rem;
+    margin-left: 0.4rem;
+    white-space: nowrap;
 }
 
 .price {
-  position: absolute;
-  bottom: 0;
-  left: 0.9rem;
-  background-color: rgb(99, 84, 84);
-  border-radius: 0.8rem; 
-  padding: 1px 0.5rem ;
-  margin-top: 0.7rem;
-  font-size: 1rem;
+    margin-top: 0.5rem;
+    background-color: rgb(99, 84, 84);
+    border-radius: 0.6rem;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.85rem;
+    align-self: flex-end;
 }
-  
+
+.address {
+    background-color: rgba(248, 248, 248, 0.95);
+    color: #242222;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.4rem;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.2;
+    min-height: calc(1.2em * 2 + 0.6rem);
+}
+
+@media (max-width: 768px) {
+    .list {
+        gap: 1rem;
+    }
+
+    .list li a {
+        width: 13rem;
+        min-height: 6rem;
+    }
+
+    .name {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .list {
+        gap: 0.8rem;
+    }
+
+    .list li a {
+        width: 12rem;
+        min-height: 5rem;
+        margin: 0.15rem;
+    }
+
+    .name {
+        font-size: 1rem;
+    }
+
+    .origins span {
+        font-size: 0.65rem;
+        padding: 0.1rem 0.3rem;
+    }
+
+    .price {
+        font-size: 0.8rem;
+        padding: 0.15rem 0.35rem;
+    }
+}

@@ -1,0 +1,157 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.description {
+  background-color: #f9f9f9;
+  border-left: 4px solid #4CAF50;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.description p {
+  margin: 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+.add_form {
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s ease-out;
+}
+
+.add_form h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.form_row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.input_container {
+  flex: 1;
+  width: 100%;
+}
+
+.error_message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.bypass_list {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.bypass_table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bypass_table th,
+.bypass_table td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.bypass_table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.bypass_table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.remove_button {
+  background-color: #ff5722;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.remove_button:hover {
+  background-color: #e64a19;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .form_row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .input_container {
+    width: 100%;
+  }
+  
+  .bypass_table th,
+  .bypass_table td {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .buttons {
+    width: 100%;
+  }
+  
+  .buttons button {
+    flex: 1;
+  }
+  
+  .bypass_table th,
+  .bypass_table td {
+    padding: 0.4rem;
+    font-size: 0.8rem;
+  }
+}

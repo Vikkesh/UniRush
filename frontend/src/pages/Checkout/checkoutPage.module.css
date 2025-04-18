@@ -30,3 +30,41 @@
     margin: 2rem;
     width: 35rem;
   }
+
+@media (max-width: 768px) {
+    .container {
+        margin: 0 0 4rem 1rem;
+    }
+
+    .content {
+        width: 90%;
+        max-width: 35rem;
+        margin: 0 1rem;
+    }
+
+    .buttons {
+        width: 90%;
+        max-width: 35rem;
+        margin: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        margin: 0 0 3rem 0.5rem;
+    }
+
+    .content {
+        width: 95%;
+        margin: 0 0.5rem;
+    }
+
+    .buttons {
+        width: 95%;
+        margin: 1rem 0.5rem;
+    }
+
+    .inputs {
+        gap: 0.8rem;
+    }
+}

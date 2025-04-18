@@ -1,0 +1,378 @@
+.container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab {
+  padding: 0.8rem 1.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  bottom: -1px;
+}
+
+.tab:hover {
+  background-color: #e9e9e9;
+}
+
+.tab.active {
+  background-color: white;
+  border-bottom: 1px solid white;
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.header button{
+  font-weight: bold !important;
+}
+
+.error_message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.users_list {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.users_table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.users_table th,
+.users_table td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.users_table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+.users_table tr {
+  background-color: #fcfcfc
+}
+.users_table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.blocked_user {
+  background-color: #ffebee;
+}
+
+.blocked_user:hover {
+  background-color: #ffcdd2;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit_button, 
+.block_button, 
+.unblock_button,
+.assign_shops_button {
+  padding: 0.3rem 0.6rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.edit_button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.edit_button:hover {
+  background-color: #0b7dda;
+}
+
+.block_button {
+  background-color: #ff5722;
+  color: white;
+}
+
+.block_button:hover {
+  background-color: #e64a19;
+}
+
+.unblock_button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.unblock_button:hover {
+  background-color: #3e8e41;
+}
+
+.assign_shops_button {
+  background-color: #ff9800;
+  color: white;
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.assign_shops_button:hover {
+  background-color: #f57c00;
+}
+
+.delete_button {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.delete_button:hover {
+  background-color: #c82333;
+}
+
+.delete_button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.checkbox_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.address_cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blocked_status {
+  color: #e63946;
+  font-weight: bold;
+}
+
+.active_status {
+  color: #009e84;
+  font-weight: bold;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Shop Assignment Modal Styles */
+.modal_overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal_content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.shops_list {
+  margin: 1rem 0;
+  max-height: 50vh;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+.shops_list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.shops_list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.shops_list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.shops_list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.shop_item {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.shop_item:last-child {
+  border-bottom: none;
+}
+
+.shop_item label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.shop_item input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.modal_buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .users_table th,
+  .users_table td {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .address_cell {
+    max-width: 150px;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .edit_button, 
+  .block_button, 
+  .unblock_button,
+  .assign_shops_button {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .users_table th,
+  .users_table td {
+    padding: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .address_cell {
+    max-width: 100px;
+  }
+
+
+  .header button {
+    width: 100%;
+  }
+
+  .modal_content {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+  
+  .tabs {
+    flex-direction: column;
+    gap: 0.2rem;
+    border-bottom: none;
+    margin-bottom: 1.5rem;
+  }
+  
+  .tab {
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  .tab.active {
+    border-bottom: 1px solid #ddd;
+    background-color: #e8f5e9;
+  }
+}
+
+@media screen and (max-width: 350px) {
+  .users_table th,
+  .users_table td {
+    padding: 0.3rem;
+    font-size: 0.75rem;
+  }
+
+  .address_cell {
+    max-width: 80px;
+  }
+
+  .actions {
+    gap: 0.2rem;
+  }
+
+  .edit_button, 
+  .block_button, 
+  .unblock_button,
+  .assign_shops_button {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.75rem;
+  }
+}
+@media screen and (max-width: 325px){
+
+  .header{
+    flex-direction: column;
+    align-items:center;
+    text-align: center;
+
+  }
+}

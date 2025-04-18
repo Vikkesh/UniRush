@@ -1,0 +1,741 @@
+/* filepath: /root/foodsite/frontend/src/pages/Admin/Statistics/statistics.module.css */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.refresh_button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 0.3rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.refresh_button:hover {
+  background-color: #45a049;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  background-color: #f8f8f8;
+  padding: 1.2rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter_group {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+}
+
+.filter_group label {
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.filter_select {
+  padding: 0.5rem;
+  border-radius: 0.3rem;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  background-color: white;
+}
+
+.custom_date_range {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.date_input {
+  display: flex;
+  flex-direction: column;
+}
+
+.date_input label {
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.date_input input {
+  padding: 0.5rem;
+  border-radius: 0.3rem;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+.apply_button {
+  background-color: #1a7cd7;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  height: fit-content;
+}
+
+.apply_button:hover {
+  background-color: #1565c0;
+}
+
+.apply_button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.error {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+}
+
+.no_data {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 1.1rem;
+  background-color: #f5f5f5;
+  border-radius: 0.5rem;
+}
+
+.statistics_container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Summary cards styling */
+.summary_cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.5rem;
+}
+
+.summary_card {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.summary_card:hover {
+  transform: translateY(-5px);
+}
+
+.summary_card:nth-child(1) {
+  border-top: 4px solid #3f51b5;
+}
+
+.summary_card:nth-child(2) {
+  border-top: 4px solid #4caf50;
+}
+
+.summary_card:nth-child(3) {
+  border-top: 4px solid #ff9800;
+}
+
+.summary_card:nth-child(4) {
+  border-top: 4px solid #e91e63;
+}
+
+.summary_card h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.card_content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card_value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.positive_change {
+  color: #4caf50;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.negative_change {
+  color: #f44336;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Section styling */
+.section {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.section h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.section_content {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Shop stats styling */
+.shop_stats_container {
+  overflow-x: auto;
+}
+
+/* Status stats styling */
+.status_stats_container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.status_chart {
+  height: 40px;
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.status_bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+  transition: width 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.status_label {
+  padding: 0 8px;
+}
+
+/* Status colors */
+.status_new {
+  background-color: #2196f3;
+}
+
+.status_paid {
+  background-color: #ff9800;
+}
+
+.status_accepted {
+  background-color: #4a148c;
+}
+
+.status_ready {
+  background-color: #00c853;
+}
+
+.status_shipped {
+  background-color: #9c27b0;
+}
+
+.status_delivered {
+  background-color: #4caf50;
+}
+
+.status_cancelled {
+  background-color: #f44336;
+}
+
+.status_refunded {
+  background-color: #795548;
+}
+
+.status_indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+/* Daily stats styling */
+.daily_stats_container {
+  overflow-x: auto;
+}
+
+.chart_container {
+  min-height: 250px;
+  padding: 1rem 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.chart_bars {
+  display: flex;
+  align-items: flex-end;
+  height: 200px;
+  gap: 10px;
+  width: 100%;
+  min-width: 500px;
+}
+
+.chart_bar_container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.chart_bar {
+  width: 100%;
+  max-width: 40px;
+  background-color: #1a7cd7;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+}
+
+.chart_label {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Table styling */
+.stats_table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stats_table th,
+.stats_table td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.stats_table th {
+  background-color: #f8f8f8;
+  font-weight: 600;
+  color: #555;
+}
+
+.stats_table tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Recent orders styling */
+.recent_orders {
+  overflow-x: auto;
+}
+
+.section_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.toggle_button {
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.toggle_button:hover {
+  background-color: #303f9f;
+}
+
+.show_more {
+  text-align: center;
+  margin-top: 1rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Status pill styling */
+.status_pill {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
+  text-transform: uppercase;
+}
+
+/* Responsiveness */
+@media screen and (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .custom_date_range {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .summary_cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .container {
+    padding: 0.8rem;
+  }
+  
+  .section {
+    padding: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  .section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  .section_content {
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+    width: calc(100% + 1rem);
+  }
+}
+
+@media screen and (max-width: 768px) {
+    .status_stats_container {
+        margin: 0 -0.5rem;
+        padding: 0 0.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .status_stats_container table.stats_table {
+        font-size: 0.95rem;
+    }
+    
+    .status_stats_container .stats_table td,
+    .status_stats_container .stats_table th {
+        padding: 0.6rem;
+    }
+    
+    .status_chart {
+        height: 35px;
+    }
+    
+    .status_bar {
+        font-size: 0.75rem;
+    }
+    
+    .status_label {
+        padding: 0 6px;
+        font-size: 0.75rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .container {
+        padding: 0.6rem;
+    }
+    
+    .section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section_content {
+        margin: 0 -0.3rem;
+        padding: 0 0.3rem;
+        width: calc(100% + 0.6rem);
+    }
+    
+    .status_stats_container {
+        margin: 0 -0.3rem;
+        padding: 0 0.3rem;
+    }
+    
+    .status_stats_container table.stats_table {
+        font-size: 0.85rem;
+    }
+    
+    .status_stats_container .stats_table td,
+    .status_stats_container .stats_table th {
+        padding: 0.4rem;
+    }
+    
+    .status_chart {
+        height: 30px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .status_bar {
+        font-size: 0.7rem;
+    }
+    
+    .status_label {
+        padding: 0 4px;
+        font-size: 0.7rem;
+    }
+    
+    .status_indicator {
+        width: 10px;
+        height: 10px;
+        margin-right: 6px;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .container {
+        padding: 0.4rem;
+    }
+    
+    .section {
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .section h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .section_content {
+        margin: 0 -0.2rem;
+        padding: 0 0.2rem;
+        width: calc(100% + 0.4rem);
+    }
+    
+    .status_stats_container table.stats_table {
+        font-size: 0.8rem;
+        min-width: 250px;
+    }
+    
+    .status_stats_container .stats_table td,
+    .status_stats_container .stats_table th {
+        padding: 0.3rem;
+    }
+    
+    .status_chart {
+        height: 25px;
+    }
+    
+    .status_bar {
+        font-size: 0.65rem;
+    }
+    
+    .status_label {
+        padding: 0 3px;
+        font-size: 0.65rem;
+    }
+    
+    .status_indicator {
+        width: 8px;
+        height: 8px;
+        margin-right: 4px;
+    }
+}
+
+/* Shop stats and recent orders table responsiveness */
+.shop_stats_container,
+.recent_orders {
+    overflow-x: auto;
+}
+
+/* Common table styles for responsive tables */
+.shop_stats_container table.stats_table,
+.recent_orders table.stats_table {
+    min-width: 600px;
+}
+
+.shop_stats_container .stats_table td,
+.shop_stats_container .stats_table th,
+.recent_orders .stats_table td,
+.recent_orders .stats_table th {
+    white-space: nowrap;
+}
+
+@media screen and (max-width: 768px) {
+    .shop_stats_container,
+    .recent_orders {
+        margin: 0 -0.5rem;
+        padding: 0 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .shop_stats_container table.stats_table,
+    .recent_orders table.stats_table {
+        font-size: 0.95rem;
+    }
+    
+    .shop_stats_container .stats_table td,
+    .shop_stats_container .stats_table th,
+    .recent_orders .stats_table td,
+    .recent_orders .stats_table th {
+        padding: 0.6rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .shop_stats_container,
+    .recent_orders {
+        margin: 0 -0.3rem;
+        padding: 0 0.3rem;
+    }
+    
+    .shop_stats_container table.stats_table,
+    .recent_orders table.stats_table {
+        font-size: 0.85rem;
+    }
+    
+    .shop_stats_container .stats_table td,
+    .shop_stats_container .stats_table th,
+    .recent_orders .stats_table td,
+    .recent_orders .stats_table th {
+        padding: 0.4rem;
+    }
+    
+    .status_pill {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .shop_stats_container table.stats_table,
+    .recent_orders table.stats_table {
+        font-size: 0.8rem;
+    }
+    
+    .shop_stats_container .stats_table td,
+    .shop_stats_container .stats_table th,
+    .recent_orders .stats_table td,
+    .recent_orders .stats_table th {
+        padding: 0.3rem;
+    }
+    
+    .status_pill {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.35rem;
+    }
+}
+
+.toggle_button, .refresh_button {
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    min-width: 120px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.toggle_button:hover, .refresh_button:hover {
+    background-color: #303f9f;
+    transform: translateY(-1px);
+}
+
+.refresh_button {
+    background-color: #4caf50;
+}
+
+.refresh_button:hover {
+    background-color: #45a049;
+}
+
+.toggle_button:active, .refresh_button:active {
+    transform: translateY(0);
+    opacity: 0.9;
+}
+
+/* Apply loading state styles */
+.refresh_button.loading {
+    opacity: 0.7;
+    cursor: wait;
+    position: relative;
+}
+
+@media screen and (max-width: 768px) {
+    .toggle_button, .refresh_button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        min-width: 100px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .toggle_button, .refresh_button {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.8rem;
+        min-width: 90px;
+    }
+    
+    .section_header {
+        gap: 0.5rem;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .toggle_button, .refresh_button {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        min-width: 80px;
+    }
+    
+    .section_header {
+        gap: 0.4rem;
+    }
+}

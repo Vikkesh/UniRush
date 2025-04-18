@@ -1,9 +1,10 @@
 import React from 'react';
 import axios from 'axios';
-import { pay } from '../../services/orderService';
+import { createOrder } from '../../services/orderService';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useCart } from '../../hooks/useCart';
+import './RazorpayButtons.css'; // Import the CSS file
 
 export default function RazorpayButtons({ order, user }) { // receive user props
   const navigate = useNavigate();
@@ -11,6 +12,35 @@ export default function RazorpayButtons({ order, user }) { // receive user props
 
   const initiatePayment = async () => {
     try {
+      // Process items to ensure they have proper structure
+      const processedItems = order.items.map(item => {
+        // If it's a custom order item (no food field but has name)
+        if (!item.food && item.name) {
+          return {
+            name: item.name,
+            price: item.price, // Ensure price is per unit
+            quantity: item.quantity
+          };
+        }
+        
+        // For regular food items
+        if (item.food) {
+          return {
+            food: typeof item.food === 'object' ? item.food.id || item.food._id : item.food,
+            name: item.food.name || 'Menu Item',
+            price: item.price, // Ensure price is per unit
+            quantity: item.quantity
+          };
+        }
+        
+        // Default fallback
+        return {
+          name: item.name || 'Unknown Item',
+          price: item.price, // Ensure price is per unit
+          quantity: item.quantity
+        };
+      });
+      
       const payload = {
         orderItems: order.items,
         totalPrice: order.totalPrice
@@ -29,11 +59,6 @@ export default function RazorpayButtons({ order, user }) { // receive user props
         "image": "http://example.com/logo.png",
         "order_id": data.id,
         "handler": async function (response) {
-          // Removed redundant alert, since verification follows
-          // alert("Payment Successful:\nPayment ID: " + response.razorpay_payment_id +
-          //       "\nOrder ID: " + response.razorpay_order_id +
-          //       "\nSignature: " + response.razorpay_signature);
-          
           // Verify the payment signature by calling the new endpoint
           const verifyResponse = await axios.post('/api/razorpay/verify', {
             order_id: serverOrderId,
@@ -42,22 +67,32 @@ export default function RazorpayButtons({ order, user }) { // receive user props
           });
           
           if (verifyResponse.data.valid) {
-            const orderId = await pay(response.razorpay_payment_id);
+            // Create order in database with PAID status after payment verification
+            const dbOrder = await createOrder({ 
+              ...order,
+              items: processedItems, // Use processed items
+              status: 'PAID',
+              paymentId: response.razorpay_payment_id
+            });
+            
             clearCart();
             toast.success('Payment Saved Successfully', 'Success');
-            navigate('/track/' + orderId);
+            navigate('/track/' + dbOrder._id);
           } else {
             alert('Payment verification failed!');
           }
         },
         "prefill": {
           "name": user?.name || "Customer",         // use user's name if available
-          "email": user?.email || "customer@example.com",  // use user's email if available
-          "contact": user?.contact || "9000090000"         // use user's contact if available
+          "email": user?.email || "no email given", 
+          "contact": user?.contact || "9000090000" ,  // use user's contact if available
+          "address": order.address || "No address provided" // use user's address
         },
         "notes": {
-          "name": user?.name || "Customer",  
-          "address": order.address || "No address provided" // use user's address
+          "name": user?.name || "Customer",
+          "Order's address": order.address || "No address provided", // use user's address
+          "contact": user?.contact || "No contact provided",  // Added user contact to notes
+          "shop_name": order.shopName || "Unknown shop"
         },
         "theme": {
           "color": "#3399cc"
@@ -79,8 +114,18 @@ export default function RazorpayButtons({ order, user }) { // receive user props
   };
 
   return (
-    <div>
-      <button onClick={initiatePayment}>Pay Now</button>
+    <div className="razorpay-btn-container">
+      <button 
+        className="razorpay-btn" 
+        onClick={initiatePayment}
+      >
+        <span className="razorpay-btn-text">Pay Now</span>
+        <span className="razorpay-btn-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+          </svg>
+        </span>
+      </button>
     </div>
   );
 }
