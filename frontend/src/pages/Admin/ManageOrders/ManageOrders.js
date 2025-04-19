@@ -358,7 +358,7 @@ export default function ManageOrders() {
           <div className={classes.header}>
             <div className={classes.order_id}>
               <span className={classes.label}>Order ID:</span> 
-              <span className={classes.value}>{order.id}</span>
+              <span className={classes.value}>{order.orderId || order.id}</span>
             </div>
             <div className={classes.order_date}>
               <span className={classes.label}>Date:</span>
@@ -377,13 +377,13 @@ export default function ManageOrders() {
               <div className={classes.shop_admin_actions}>
                 <button 
                   className={`${classes.action_button} ${classes.accept_button}`}
-                  onClick={() => handleAcceptOrder(order.id)}
+                  onClick={() => handleAcceptOrder(order.orderId || order.id)}
                 >
                   Accept
                 </button>
                 <button 
                   className={`${classes.action_button} ${classes.cancel_button}`}
-                  onClick={() => handleCancelOrder(order.id)}
+                  onClick={() => handleCancelOrder(order.orderId || order.id)}
                 >
                   Cancel
                 </button>
@@ -393,7 +393,7 @@ export default function ManageOrders() {
             <div className={classes.status_dropdown}>
               <select
                 value={order.status}
-                onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
+                onChange={(e) => handleUpdateStatus(order.orderId || order.id, e.target.value)}
               >
                 {state.filteredStatus?.map(status => (
                   <option key={status} value={status}>{status}</option>
@@ -439,7 +439,7 @@ export default function ManageOrders() {
           
           <div className={classes.footer}>
             <div>
-              <Link to={`/track/${order.id}`}>Show Order</Link>
+              <Link to={`/track/${order.orderId || order.id}`}>Show Order</Link>
             </div>
             <div className={classes.total_price}>
               <span className={classes.total_label}>Total:</span>

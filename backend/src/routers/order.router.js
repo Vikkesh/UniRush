@@ -6,6 +6,7 @@ import { OrderModel } from '../models/order.model.js';
 import { OrderStatus, DeliveryVisibleStatus } from '../constants/orderStatus.js';
 import { UserModel } from '../models/user.model.js';
 import { ShopModel } from '../models/shop.model.js';
+import mongoose from 'mongoose';
 
 const router = Router();
 router.use(auth);
@@ -69,7 +70,8 @@ router.put(
             order.status = OrderStatus.PAID;
             await order.save();
             
-            res.send(order._id);
+            // Return the custom orderId if available, otherwise fall back to _id
+            res.send(order.orderId || order._id);
         } catch (error) {
             console.error('Error processing payment:', error);
             res.status(BAD_REQUEST).send('Payment failed');
@@ -84,7 +86,17 @@ router.get(
             const { orderId } = req.params;
             const user = await UserModel.findById(req.user.id);
             
-            const filter = { _id: orderId };
+            // Create a filter that properly handles both MongoDB _id and our custom orderId
+            // For MongoDB ObjectId validation
+            let filter = {};
+            
+            // Check if it's a valid MongoDB ObjectId
+            if (mongoose.Types.ObjectId.isValid(orderId)) {
+                filter = { _id: orderId };
+            } else {
+                // If not a valid ObjectId, search by our custom orderId
+                filter = { orderId: orderId };
+            }
             
             // Check if user exists
             if (user) {
@@ -372,6 +384,7 @@ router.get(
                 dailyStats: dailyStatsArray,
                 orders: orders.map(order => ({
                     id: order._id,
+                    orderId: order.orderId, // Include the custom orderId
                     createdAt: order.createdAt,
                     status: order.status,
                     totalPrice: Number(order.totalPrice) || 0,
@@ -379,7 +392,11 @@ router.get(
                     itemsTotal: Number(order.itemsTotal) || 0,
                     gstAmount: Number(order.gstAmount) || 0, // Include GST amount in each order
                     shopName: order.shopId ? order.shopId.name : order.shopName || 'Unknown Shop',
-                    items: order.items ? order.items.reduce((total, item) => total + (item.quantity || 1), 0) : 0
+                    items: order.items ? order.items.reduce((total, item) => total + (item.quantity || 1), 0) : 0,
+                    orderItems: order.items ? order.items.map(item => ({
+                        name: item.name,
+                        quantity: item.quantity
+                    })) : []
                 })),
                 totalOrderCount: orders.length
             };
@@ -538,7 +555,20 @@ router.put(
                 return res.status(BAD_REQUEST).send('Invalid order status');
             }
 
-            const order = await OrderModel.findById(orderId);
+            // Create a filter that properly handles both MongoDB _id and our custom orderId
+            let orderFilter = {};
+            
+            // Check if it's a valid MongoDB ObjectId
+            if (mongoose.Types.ObjectId.isValid(orderId)) {
+                orderFilter = { _id: orderId };
+            } else {
+                // If not a valid ObjectId, search by our custom orderId
+                orderFilter = { orderId: orderId };
+            }
+
+            // Try to find the order
+            const order = await OrderModel.findOne(orderFilter);
+            
             if (!order) {
                 return res.status(BAD_REQUEST).send('Order not found');
             }
@@ -554,13 +584,10 @@ router.put(
             }
             
             // Only update the status field
-            const updatedOrder = await OrderModel.findByIdAndUpdate(
-                orderId,
-                { $set: { status: status } },
-                { new: true, runValidators: false }
-            );
+            order.status = status;
+            await order.save();
             
-            res.send({ success: true, order: updatedOrder });
+            res.send({ success: true, order: order });
         } catch (error) {
             console.error('Error updating order status:', error);
             res.status(BAD_REQUEST).send('Failed to update order status');

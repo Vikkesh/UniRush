@@ -281,7 +281,7 @@ export default function OrdersPage() {
           <div className={classes.header}>
             <div className={classes.order_id}>
               <span className={classes.label}>Order ID:</span> 
-              <span className={classes.value}>{order.id}</span>
+              <span className={classes.value}>{order.orderId || order.id}</span>
             </div>
             <div className={classes.order_date}>
               <span className={classes.label}>Date:</span>
@@ -335,7 +335,7 @@ export default function OrdersPage() {
           
           <div className={classes.footer}>
             <div className={classes.track_button}>
-              <Link to={`/track/${order.id}`} className={classes.track_link}>
+              <Link to={`/track/${order.orderId || order.id}`} className={classes.track_link}>
                 Track Order
               </Link>
             </div>

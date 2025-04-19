@@ -77,7 +77,7 @@ export default function RazorpayButtons({ order, user }) { // receive user props
             
             clearCart();
             toast.success('Payment Saved Successfully', 'Success');
-            navigate('/track/' + dbOrder._id);
+            navigate('/track/' + (dbOrder.orderId || dbOrder._id));
           } else {
             alert('Payment verification failed!');
           }
