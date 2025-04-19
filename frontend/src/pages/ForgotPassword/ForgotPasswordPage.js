@@ -95,7 +95,7 @@ export default function ForgotPasswordPage() {
                 setOtpValues(newOtpValues);
                 
                 // Focus on the appropriate field
-                const focusIndex = Math.min(5, index + value.length);
+                const focusIndex = Math.min(5, index + pastedOtp.length);
                 if (otpRefs.current[focusIndex]) {
                     otpRefs.current[focusIndex].focus();
                 }
@@ -106,21 +106,34 @@ export default function ForgotPasswordPage() {
             newOtpValues[index] = value;
             setOtpValues(newOtpValues);
             
-            // Auto-focus next input if this one is filled
+            // Auto-focus next input if this one is filled, regardless of previous value
             if (value && index < 5) {
-                otpRefs.current[index + 1].focus();
+                setTimeout(() => {
+                    otpRefs.current[index + 1].focus();
+                }, 0);
             }
         };
         
         // Handle backspace in OTP input
         const handleOtpKeyDown = (e, index) => {
             if (e.key === 'Backspace') {
-                if (!otpValues[index] && index > 0) {
-                    // If current field is empty and backspace is pressed, focus previous field
-                    const newOtpValues = [...otpValues];
-                    newOtpValues[index - 1] = '';
+                const newOtpValues = [...otpValues];
+                
+                if (otpValues[index]) {
+                    // If current field has a value, clear it and move to previous field (if not the first field)
+                    newOtpValues[index] = '';
                     setOtpValues(newOtpValues);
-                    otpRefs.current[index - 1].focus();
+                    
+                    if (index > 0) {
+                        setTimeout(() => {
+                            otpRefs.current[index - 1].focus();
+                        }, 0);
+                    }
+                } else if (index > 0) {
+                    // If current field is empty and backspace is pressed, move focus to previous field
+                    setTimeout(() => {
+                        otpRefs.current[index - 1].focus();
+                    }, 0);
                 }
             }
         };
@@ -172,7 +185,7 @@ export default function ForgotPasswordPage() {
                             onKeyDown={(e) => handleOtpKeyDown(e, index)}
                             className={classes.otpInput}
                             ref={el => otpRefs.current[index] = el}
-                            autoFocus={index === 0}
+                            autoFocus={index === 0 && otpValues.every(v => !v)}
                         />
                     ))}
                 </div>
