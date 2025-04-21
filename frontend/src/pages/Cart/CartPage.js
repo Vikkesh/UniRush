@@ -229,7 +229,7 @@ export default function CartPage() {
     // Display all shop carts
     return (
         <>
-            <Title title="Your Shopping Carts" margin="1.5rem 0 0 2.5rem" />
+            <Title title="Your Shopping Carts (Currently operations are closed)" margin="1.5rem 0 0 2.5rem" />
             
             <div className={classes.carts_container}>
                 {carts.map((cart) => (
