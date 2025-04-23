@@ -1,5 +1,4 @@
 import { useState, createContext, useContext } from 'react';
-import axios from 'axios';
 import * as userService from '../services/userService';
 import { toast } from 'react-toastify';
 
@@ -19,8 +18,21 @@ const validateReturnUrl = (url, user) => {
       // Admin, owner, shop admin, or delivery can access dashboard
       if (user.isAdmin || user.isOwner || user.isShopAdmin || user.isDelivery) {
         // For delivery personnel without other roles, force them to orders section
+        // but preserve any filter parameters
         if (user.isDelivery && !user.isAdmin && !user.isOwner && !user.isShopAdmin) {
-          return '/admin/dashboard?section=orders';
+          // Extract any filter parameter from the URL
+          const urlObj = new URL(url, window.location.origin);
+          const filterParam = urlObj.searchParams.get('filter');
+          
+          // If we already have section=orders and potentially a filter, keep the URL as is
+          if (urlObj.searchParams.get('section') === 'orders') {
+            return url;
+          }
+          
+          // Otherwise, force section=orders but preserve the filter if present
+          return filterParam 
+            ? `/admin/dashboard?section=orders&filter=${filterParam}`
+            : '/admin/dashboard?section=orders';
         }
         return url;
       }

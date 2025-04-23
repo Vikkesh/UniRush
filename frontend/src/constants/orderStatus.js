@@ -12,5 +12,4 @@ export const DeliveryVisibleStatus = [
     OrderStatus.READY,
     OrderStatus.SHIPPED,
     OrderStatus.DELIVERED,
-    OrderStatus.CANCELLED
 ];
