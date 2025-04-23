@@ -20,16 +20,18 @@ export default function DeliveryRoute({ children }) {
   }, [user, location.pathname, location.search, navigate, hasRedirected]);
 
   // Validate the current path for delivery access
-  const validatedPath = validateReturnUrl(location.pathname, user);
+  // Pass the full path including search params to validation
+  const validatedPath = validateReturnUrl(location.pathname + location.search, user);
   
-  // If the validated path is different from current path, redirect to it
-  if (validatedPath !== location.pathname) {
+  // Compare the full current path with the validated path
+  const currentFullPath = location.pathname + location.search;
+  if (validatedPath !== currentFullPath) {
     return <Navigate to={validatedPath} replace />;
   }
 
   // Check if user has necessary permissions (admin, owner, shop admin, or delivery)
   if (!user || (!user.isAdmin && !user.isDelivery && !user.isOwner && !user.isShopAdmin)) {
-    return <Navigate to={`/login?returnUrl=${location.pathname}`} replace />;
+    return <Navigate to={`/login?returnUrl=${location.pathname}${location.search}`} replace />;
   }
 
   return children;

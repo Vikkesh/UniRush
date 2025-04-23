@@ -331,6 +331,10 @@ export default function ManageOrders() {
           <Link
             to="/admin/dashboard?section=orders"
             className={!queryFilter ? classes.active : ''}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/admin/dashboard?section=orders');
+            }}
           >
             <span>All</span>
           </Link>
@@ -339,6 +343,10 @@ export default function ManageOrders() {
               key={status}
               to={`/admin/dashboard?section=orders&filter=${status}`}
               className={`${status === queryFilter ? classes.active : ''} ${classes['status_' + status.toLowerCase()]}`}
+              onClick={(e) => {
+                e.preventDefault();
+                handleFilterClick(status);
+              }}
             >
               <span>{status}</span>
             </Link>
