@@ -228,9 +228,10 @@ export default function ManageOrders() {
   };
   
   const handleFilterClick = (status) => {
-    // Keep the current section parameter, just change the filter
-    const currentSection = queryParams.get('section') || 'orders';
-    navigate(`/admin/dashboard?section=${currentSection}&filter=${status}`);
+    // Ensure navigation sets both the section to 'orders' and the selected filter.
+    // This will correctly update the URL even if this function is somehow triggered
+    // while the URL's section parameter is different.
+    navigate(`/admin/dashboard?section=orders&filter=${status}`);
   };
   
   const getRoleLabel = () => {
