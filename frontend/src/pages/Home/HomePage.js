@@ -4,8 +4,6 @@ import * as shopService from '../../services/shopService';
 import Thumbnails from '../../components/Thumbnails/Thumbnails';
 import ExtendedHeader from '../../components/Header/ExtendedHeader';
 import NotFound from '../../components/NotFound/NotFound';
-import Search from '../../components/Search/Search';
-import Tags from '../../components/Tags/Tags';
 import classes from './homePage.module.css';
 
 export default function HomePage() {
