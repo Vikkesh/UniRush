@@ -56,7 +56,7 @@ export default function Header() {
       <div className={classes.container}>
         <Link to="/" className={classes.logo} onClick={closeNav}>
           <img 
-            src="/Icons/Unirush icon.png" 
+            src="/Icons/unirush-icon.png" 
             alt="UniRush Icon" 
             className={classes.logoIcon} 
           />
