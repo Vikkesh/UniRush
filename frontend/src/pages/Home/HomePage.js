@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import * as shopService from '../../services/shopService';
-import Thumbnails from '../../components/Thumbnails/Thumbnails';
+import ShopThumbnails from '../../components/Thumbnails/ShopThumbnails';
 import ExtendedHeader from '../../components/Header/ExtendedHeader';
 import NotFound from '../../components/NotFound/NotFound';
 import classes from './homePage.module.css';
@@ -156,7 +156,7 @@ export default function HomePage() {
         {error && <p className={classes.error}>{error}</p>}
         {!loading && shops.length === 0 && <NotFound message="All shops are closed, please come back some other time" linkText="Reset" linkRoute="/" />}
         {shops.length > 0 && <h2 className={classes.title}>All Shops(Currently operations are closed)</h2>}
-        {shopsThumbnails.length > 0 && <Thumbnails items={shopsThumbnails} />}
+        {shops.length > 0 && <ShopThumbnails shops={shopsThumbnails} />}
       </div>
     </>
   );
