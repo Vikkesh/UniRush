@@ -266,7 +266,7 @@ export default function ManageUsers() {
         <>
           <div className={classes.header}>
             <Title title="Manage Users" />
-            <Button color=" #ece7e7" onClick={loadUsers} text="Refresh" />
+            <Button onClick={loadUsers} text="Refresh" />
           </div>
           
           {error && (
