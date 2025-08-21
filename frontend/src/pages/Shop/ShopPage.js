@@ -4,7 +4,7 @@ import * as shopService from '../../services/shopService';
 import { useAuth } from '../../hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import NotFound from '../../components/NotFound/NotFound';
-import Thumbnails from '../../components/Thumbnails/Thumbnails';
+import FoodThumbnails from '../../components/Thumbnails/FoodThumbnails';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import Map from '../../components/Map/Map';
@@ -312,7 +312,9 @@ export default function ShopPage() {
                 {foods.length === 0 ? (
                   <p>No food items available in this category.</p>
                 ) : (
-                  <Thumbnails items={foods} />
+                  <div className={classes.foods_scrollable_container}>
+                    <FoodThumbnails foods={foods} />
+                  </div>
                 )}
               </>
             )}

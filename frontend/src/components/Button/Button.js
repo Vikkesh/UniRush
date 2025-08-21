@@ -5,8 +5,8 @@ export default function Button({
   type = 'button',
   text = 'Submit',
   onClick,
-  color = 'white',
-  backgroundColor = '#e72929',
+  color = '#009e84',
+  backgroundColor = 'var(--secondary-color)',
   width = '12rem',
   height,
   disabled = false

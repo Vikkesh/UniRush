@@ -30,6 +30,12 @@ export default function ManageFoods() {
     loadShops();
   }, []);
   
+  useEffect(() => {
+    if (isShopAdminOnly && shops.length === 1) {
+      setSelectedShop(shops[0]._id);
+    }
+  }, [isShopAdminOnly, shops]);
+  
   const loadFoods = async () => {
     setIsLoading(true);
     setErrorFoods(null);
@@ -269,7 +275,7 @@ export default function ManageFoods() {
         </select>
         
         {/* Toggle all foods button (only visible when a specific shop is selected) */}
-        {selectedShop !== 'all' && (user?.isAdmin || user?.isOwner || user?.isShopAdmin) && (
+        {selectedShop !== 'all' && (user?.isAdmin || user?.isOwner || (user?.isShopAdmin && shops.length === 1)) && (
           <div className={classes.batch_actions}>
             <button 
               className={`${classes.toggle_all_button} ${isAllFoodsEnabled ? classes.enabled : classes.disabled}`}

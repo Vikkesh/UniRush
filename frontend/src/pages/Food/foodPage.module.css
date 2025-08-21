@@ -38,13 +38,14 @@
 .name {
   font-size: 2rem;
   font-weight: bold;
+  color:var(--text-color);
 }
 
 .shop_info {
   margin: 1rem 0;
   padding: 0.75rem;
   background-color: #f8f8f8;
-  border-left: 4px solid #2196f3;
+  border-left: 4px solid var(--highlight-color);
   border-radius: 0 0.5rem 0.5rem 0;
 }
 
@@ -55,7 +56,7 @@
 }
 
 .shop_name {
-  color: #2196f3;
+  color: var(--highlight-color);
   font-weight: bold;
   font-size: 1.1rem;
 }
@@ -92,12 +93,12 @@
 
 .price::before {
   content: 'Price: ';
-  color: darkgrey;
+  color: var(--accent-color);
 }
 
 .container button {
-  color: white;
-  background-color: #e72929;
+  color: var(--background-color-light);
+  background-color: var(--primary-color);
   border: none;
   font-size: 1.2rem;
   padding: 1rem;
