@@ -41,7 +41,7 @@
 .shop_header {
   display: flex;
   margin-bottom: 2rem;
-  background-color: var(--primary-color);
+  background-color: #eac99c ;
   border-radius: 1rem;
   padding: 1rem;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
@@ -62,18 +62,18 @@
 .shop_name {
   font-size: 2rem;
   margin-bottom: 0.5rem;
-  color: var(--background-color-light);
+  color: var(--primary-color);
 }
 
 .description {
   font-size: 1rem;
-  color: var(--background-color-light);
+  color: rgb(252, 126, 0);
   margin-bottom: 1rem;
 }
 
 .address {
   font-style: italic;
-  color: var(--highlight-color);
+  color: var(--primary-color);
   margin-bottom: 1rem;
 }
 
@@ -99,7 +99,7 @@
 
 /* Food tag filtering styles */
 .food_tags_container {
-   background-color: var(--primary-color);
+   background-color:#954535;
   border-radius: 1rem;
   padding: 1rem;
   margin-bottom: 2rem;
@@ -120,7 +120,7 @@
 
 .food_tag {
   background-color: rgb(252, 240, 215);
-  border: 1px solid var(--highlight-color);
+  border: 1px solid var(--background-color-light);
   color: var(--text-color, #333);
   padding: 0.5rem 1rem;
   border-radius: 2rem;
@@ -135,14 +135,14 @@
 }
 
 .food_tag.active {
-  background-color: var(--accent-color, #e72929);
+  background-color: var(--highlight-color);
   color: white;
-  border-color: var(--accent-color, #e72929);
+  border-color: var(--secondary-color);
   font-weight: 500;
 }
 
 .foods_container {
-  background-color: var(--primary-color);
+ background-color:#954535;
   border-radius: 1rem;
   padding: 1.2rem 1rem;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
@@ -171,7 +171,7 @@
 
 .hours {
   font-size: 0.95rem;
-  color:var(--background-color-light);
+  color: var(--primary-color);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -204,7 +204,7 @@
 .contact_info {
   margin: 0.5rem 0;
   font-size: 0.95rem;
-  color:var(--background-color-light);
+  color: var(--primary-color);
   display: flex;
   align-items: center;
   gap: 0.5rem;

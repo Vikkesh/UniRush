@@ -34,6 +34,7 @@
 
 @media (max-width: 768px) {
     .container button {
+         font-weight: 200;
         max-width: 130px;          /* Reduced by 35% from 200px */
         height: 2.3rem;            /* Reduced by 35% from 3.5rem */
         margin: 0.65rem auto;      /* Reduced from 1rem */
@@ -50,6 +51,7 @@
 
 @media (max-width: 480px) {
     .container button {
+         font-weight: 200;
         max-width: 85px;           /* Reduced by further 35% */
         height: 2rem;            /* Reduced by further 35% */
         margin: 0.45rem auto;      /* Further reduced margin */
@@ -67,6 +69,7 @@
 
 @media (max-width: 350px) {
     .container button {
+         font-weight: 200;
         max-width: 75px;           /* Reduced by further 35% */
         height: 1.5rem;              /* Reduced by further 35% */
         margin: 0.3rem auto;       /* Further reduced margin */
