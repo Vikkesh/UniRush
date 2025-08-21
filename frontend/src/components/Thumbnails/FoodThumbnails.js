@@ -12,8 +12,9 @@ export default function FoodThumbnails({ foods }) {
         <li key={food.id || food._id} className={classes.foodItem}>
           <Link to={`/food/${food.id || food._id}`} className={classes.foodLink}>
             <div className={classes.content}>
-              {/* Name and Price on same row */}
+              {/* Name at top */}
               <h3 className={classes.name}>{food.name}</h3>
+              {/* Price at bottom-right */}
               <div className={classes.price}>
                 <Price price={food.price} />
               </div>

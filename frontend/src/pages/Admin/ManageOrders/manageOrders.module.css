@@ -1,6 +1,6 @@
 /* Orders scrollable container */
 .orders_scrollable_container {
-  background-color: var( --secondary-color); /* var(--background-color-dark) */
+  background-color: var(--background-color-dark); /* var(--background-color-dark) */
   border-radius: 1rem;
   padding: 1.5rem;
   margin: 1rem 0;
@@ -13,7 +13,7 @@
   
   /* Custom scrollbar styling */
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-color: rgba(55, 52, 52, 0.526) transparent;
 }
 
 .orders_scrollable_container::-webkit-scrollbar {

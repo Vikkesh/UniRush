@@ -10,7 +10,7 @@
   
   /* Custom scrollbar styling */
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.608) transparent;
+  scrollbar-color: #615e57 transparent;
 }
 
 .foods_scrollable_container::-webkit-scrollbar {
