@@ -253,6 +253,7 @@ export default function ManageShops() {
               onClick={handleToggleAllShops}
               text={isAllShopsEnabled ? 'Disable All Shops' : 'Enable All Shops'}
               backgroundColor={isAllShopsEnabled ? '#f44336' : '#4caf50'}
+              color={'white'}
             />
           )}
         </div>

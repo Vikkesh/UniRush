@@ -1,3 +1,35 @@
+/* Foods scrollable container */
+.foods_scrollable_container {
+  background-color: var(--background-color-light); /* var(--background-color-dark) */
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.608) transparent;
+}
+
+.foods_scrollable_container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.foods_scrollable_container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.foods_scrollable_container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.foods_scrollable_container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -9,7 +41,7 @@
 .shop_header {
   display: flex;
   margin-bottom: 2rem;
-  background-color: white;
+  background-color: var(--primary-color);
   border-radius: 1rem;
   padding: 1rem;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
@@ -30,17 +62,18 @@
 .shop_name {
   font-size: 2rem;
   margin-bottom: 0.5rem;
+  color: var(--background-color-light);
 }
 
 .description {
   font-size: 1rem;
-  color: #555;
+  color: var(--background-color-light);
   margin-bottom: 1rem;
 }
 
 .address {
   font-style: italic;
-  color: #666;
+  color: var(--highlight-color);
   margin-bottom: 1rem;
 }
 
@@ -58,7 +91,7 @@
 .tag {
   background-color: rgb(252, 240, 215);
   color: var(--text-color, #333);
-  border: 1px solid var(--primary-color, #525902);
+  border: 2px solid var(--highlight-color);
   padding: 0.3rem 0.8rem;
   border-radius: 2rem;
   font-size: 0.8rem;
@@ -66,16 +99,16 @@
 
 /* Food tag filtering styles */
 .food_tags_container {
-  background-color: white;
+   background-color: var(--primary-color);
   border-radius: 1rem;
   padding: 1rem;
   margin-bottom: 2rem;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 10px rgba(255, 255, 255, 0.1);
 }
 
 .food_tags_container h3 {
   margin-bottom: 1rem;
-  color: #333;
+  color:var(--background-color-light);
   font-size: 1.2rem;
 }
 
@@ -87,7 +120,7 @@
 
 .food_tag {
   background-color: rgb(252, 240, 215);
-  border: 1px solid var(--primary-color, #525902);
+  border: 1px solid var(--highlight-color);
   color: var(--text-color, #333);
   padding: 0.5rem 1rem;
   border-radius: 2rem;
@@ -109,7 +142,7 @@
 }
 
 .foods_container {
-  background-color: white;
+  background-color: var(--primary-color);
   border-radius: 1rem;
   padding: 1.2rem 1rem;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
@@ -138,7 +171,7 @@
 
 .hours {
   font-size: 0.95rem;
-  color: #555;
+  color:var(--background-color-light);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -171,7 +204,7 @@
 .contact_info {
   margin: 0.5rem 0;
   font-size: 0.95rem;
-  color: #555;
+  color:var(--background-color-light);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -231,18 +264,18 @@
   border: none;
   font-size: 1.2rem;
   font-weight: 500;
-  color: #555;
+  color: var(--background-color-light);
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
 }
 
 .tab:hover {
-  color: #e72929;
+  color: var(--highlight-color);
 }
 
 .active_tab {
-  color: #e72929;
+  color: var(--secondary-color);
 }
 
 .active_tab::after {
@@ -252,7 +285,7 @@
   left: 0;
   width: 100%;
   height: 3px;
-  background-color: #e72929;
+  background-color: var(--highlight-color);
   border-radius: 3px 3px 0 0;
 }
 
@@ -301,7 +334,7 @@
 .location_section h3 {
   margin-bottom: 1rem;
   font-size: 1.1rem;
-  color: #333;
+  color: var(--background-color-light);
 }
 
 .submit_button {
@@ -377,6 +410,12 @@
     max-width: 95%;
   }
 
+  .foods_scrollable_container {
+    padding: 1rem;
+    max-height: 60vh;
+    margin: 0.8rem 0;
+  }
+
   .foods_container h2 {
     font-size: 1.2rem;
     margin-bottom: 1rem;
@@ -445,6 +484,12 @@
     padding: 0.8rem 0.6rem;
     margin: 0 auto;
     max-width: 100%;
+  }
+
+  .foods_scrollable_container {
+    padding: 0.8rem;
+    max-height: 50vh;
+    margin: 0.6rem 0;
   }
 
   .foods_container h2 {

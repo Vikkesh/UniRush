@@ -312,7 +312,9 @@ export default function ShopPage() {
                 {foods.length === 0 ? (
                   <p>No food items available in this category.</p>
                 ) : (
-                  <FoodThumbnails foods={foods} />
+                  <div className={classes.foods_scrollable_container}>
+                    <FoodThumbnails foods={foods} />
+                  </div>
                 )}
               </>
             )}

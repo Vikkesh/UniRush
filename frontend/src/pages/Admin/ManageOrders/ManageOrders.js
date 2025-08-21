@@ -362,103 +362,107 @@ export default function ManageOrders() {
         />
       )}
       
-      {getDisplayedOrders().map(order => (
-        <div key={order.id} className={classes.order_summary}>
-          <div className={classes.header}>
-            <div className={classes.order_id}>
-              <span className={classes.label}>Order ID:</span> 
-              <span className={classes.value}>{order.orderId || order.id}</span>
-            </div>
-            <div className={classes.order_date}>
-              <span className={classes.label}>Date:</span>
-              <span className={classes.value}>
-                <DateTime date={order.createdAt} />
-              </span>
-            </div>
-            <div className={classes.order_status}>
-              <span className={`${classes.status_badge} ${classes['status_' + order.status.toLowerCase()]}`}>
-                {order.status}
-              </span>
+      <div className={classes.orders_scrollable_container}>
+        {getDisplayedOrders().map(order => (
+          <div key={order.id} className={classes.order_summary}>
+            <div className={classes.header}>
+              <div className={classes.order_id}>
+                <span className={classes.label}>Order ID:</span> 
+                <span className={classes.value}>{order.orderId || order.id}</span>
+              </div>
+              <div className={classes.order_date}>
+                <span className={classes.label}>Date:</span>
+                <span className={classes.value}>
+                  <DateTime date={order.createdAt} />
+                </span>
+              </div>
+              <div className={classes.order_status}>
+                <span className={`${classes.status_badge} ${classes['status_' + order.status.toLowerCase()]}`}>
+                  {order.status}
+                </span>
+              </div>
+              
+              {/* Shop admin quick action buttons for PAID orders */}
+              {user?.isShopAdmin && order.status === OrderStatus.PAID && (
+                <div className={classes.shop_admin_actions}>
+                  <button 
+                    className={`${classes.action_button} ${classes.accept_button}`}
+                    onClick={() => handleAcceptOrder(order.orderId || order.id)}
+                  >
+                    Accept
+                  </button>
+                  <button 
+                    className={`${classes.action_button} ${classes.cancel_button}`}
+                    onClick={() => handleCancelOrder(order.orderId || order.id)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+              
+              <div className={classes.status_dropdown}>
+                <select
+                  value={order.status}
+                  onChange={(e) => handleUpdateStatus(order.orderId || order.id, e.target.value)}
+                >
+                  {state.filteredStatus?.map(status => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             
-            {/* Shop admin quick action buttons for PAID orders */}
-            {user?.isShopAdmin && order.status === OrderStatus.PAID && (
-              <div className={classes.shop_admin_actions}>
-                <button 
-                  className={`${classes.action_button} ${classes.accept_button}`}
-                  onClick={() => handleAcceptOrder(order.orderId || order.id)}
-                >
-                  Accept
-                </button>
-                <button 
-                  className={`${classes.action_button} ${classes.cancel_button}`}
-                  onClick={() => handleCancelOrder(order.orderId || order.id)}
-                >
-                  Cancel
-                </button>
+            <div className={classes.shop_info}>
+              <strong>Shop:</strong> {order.shopName}
+            </div>
+           {user && (user.isAdmin || user.isOwner || user.isDelivery  ) && ( 
+            <div className={classes.customer_info}>
+              <div><strong>Name:</strong> {order.name}</div>
+              <div><strong>Phone:</strong> {order.contact }</div>
+              <div><strong>Address:</strong> {order.address}</div>
+            </div>
+           )}
+            {user && (user.isAdmin || user.isOwner || user.isShopAdmin  ) && (  
+            <div className={classes.items_section}>
+              <h3>Order Items</h3>
+              <div className={classes.items_list}>
+                {order.items.map(item => (
+                  <div key={item.food?._id || item._id || `item-${Math.random()}`} className={classes.item_row}>
+                    <div className={classes.item_name}>
+                      {item.food? (
+                        <Link to={`/food/${item.food._id}`}>{item.food.name}</Link>
+                      ) : item.name ? (
+                        <span>{item.name}</span>
+                      ) : (
+                        <span>Deleted Food Item</span>
+                      )}
+                    </div>
+                    <div className={classes.item_quantity}>
+                      x{item.quantity}
+                    </div>
+                    <div className={classes.item_price}>
+                      <Price price={item.price} />
+                    </div>
+                  </div>
+                ))}
               </div>
+            </div>
             )}
             
-            <div className={classes.status_dropdown}>
-              <select
-                value={order.status}
-                onChange={(e) => handleUpdateStatus(order.orderId || order.id, e.target.value)}
-              >
-                {state.filteredStatus?.map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </select>
+            <div className={classes.footer}>
+              <div>
+                <Link to={`/track/${order.orderId || order.id}`}>Show Order</Link>
+              </div>
+              <div className={classes.total_price}>
+                <span className={classes.total_label}>Total: </span>
+                <span className={classes.price}>
+                  <Price price={order.totalPrice} />
+                </span>
+              </div>
             </div>
           </div>
-          
-          <div className={classes.shop_info}>
-            <strong>Shop:</strong> {order.shopName}
-          </div>
-          
-          <div className={classes.customer_info}>
-            <div><strong>Name:</strong> {order.name}</div>
-            <div><strong>Phone:</strong> {order.contact || 'N/A'}</div>
-            <div><strong>Address:</strong> {order.address}</div>
-          </div>
-          
-          <div className={classes.items_section}>
-            <h3>Order Items</h3>
-            <div className={classes.items_list}>
-              {order.items.map(item => (
-                <div key={item.food?._id || item._id || `item-${Math.random()}`} className={classes.item_row}>
-                  <div className={classes.item_name}>
-                    {item.food? (
-                      <Link to={`/food/${item.food._id}`}>{item.food.name}</Link>
-                    ) : item.name ? (
-                      <span>{item.name}</span>
-                    ) : (
-                      <span>Deleted Food Item</span>
-                    )}
-                  </div>
-                  <div className={classes.item_quantity}>
-                    x{item.quantity}
-                  </div>
-                  <div className={classes.item_price}>
-                    <Price price={item.price} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className={classes.footer}>
-            <div>
-              <Link to={`/track/${order.orderId || order.id}`}>Show Order</Link>
-            </div>
-            <div className={classes.total_price}>
-              <span className={classes.total_label}>Total:</span>
-              <span className={classes.price}>
-                <Price price={order.totalPrice} />
-              </span>
-            </div>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {/* Show All / Show Less button */}
       {state.orders && state.orders.length > 10 && (
