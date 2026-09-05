@@ -48,8 +48,7 @@ https://unirush-dv6o.onrender.com/
 - Secure OTP generation using Crypto.js
 
 ### 📧 **Communication System**
-- Automated email delivery using NodeMailer (SMTP)
-- Brevo (Sendinblue) integration for reliable communication
+- Automated email delivery via the Brevo (Sendinblue) HTTPS API — no outbound SMTP ports required
 - Order confirmations, status updates, and authentication emails
 - Customer support and notification system
 
@@ -76,7 +75,7 @@ https://unirush-dv6o.onrender.com/
 | **Database**       | MongoDB with optimized querying     |
 | **Payment**        | Razorpay Integration                 |
 | **Authentication** | JWT with role-based access control  |
-| **Email Service**  | NodeMailer + Brevo (Sendinblue)     |
+| **Email Service**  | Brevo HTTP API                      |
 | **Security**       | Crypto.js for OTP generation        |
 | **Notifications**  | Socket.io + Webhooks                |
 | **Design**         | Mobile-first responsive UI          |

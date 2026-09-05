@@ -1,27 +1,34 @@
-import nodemailer from 'nodemailer';
 import { OTPModel } from '../models/otp.model.js';
 import crypto from 'crypto';
 
-// Create a function to get the transporter when needed
-const getTransporter = () => {
- 
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+// Send an email through Brevo's HTTP API (port 443), since Render's free
+// instances block outbound SMTP ports.
+const sendViaBrevo = async ({ to, subject, html }) => {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json',
     },
-    connectionTimeout: 15000,
+    body: JSON.stringify({
+      sender: { name: 'UniRush', email: process.env.MAIL_FROM },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
   });
+
+  if (!response.ok) {
+    throw new Error(`Brevo responded ${response.status}: ${await response.text()}`);
+  }
+
+  const { messageId } = await response.json();
+  return messageId;
 };
 
 // Email content template for OTP
-const createOTPEmailContent = (email, otp) => {
+const createOTPEmailContent = (otp) => {
   return {
-    from: `UniRush <${process.env.SMTP_USER}>`,
-    to: email,
     subject: 'Your OTP for SNU UniRush Registration',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
@@ -41,10 +48,8 @@ const createOTPEmailContent = (email, otp) => {
 };
 
 // Email content template for Password Reset OTP
-const createPasswordResetEmailContent = (email, otp) => {
+const createPasswordResetEmailContent = (otp) => {
   return {
-    from: `UniRush <${process.env.SMTP_USER}>`,
-    to: email,
     subject: 'Your OTP for SNU UniRush Password Reset',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
@@ -64,10 +69,8 @@ const createPasswordResetEmailContent = (email, otp) => {
 };
 
 // Email content template for Email Change Verification OTP
-const createEmailChangeEmailContent = (email, otp) => {
+const createEmailChangeEmailContent = (otp) => {
   return {
-    from: `UniRush <${process.env.SMTP_USER}>`,
-    to: email,
     subject: 'Verify Your New Email Address for SNU UniRush',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
@@ -88,35 +91,32 @@ const createEmailChangeEmailContent = (email, otp) => {
 
 // Send OTP email
 export const sendOTPEmail = async (email, otp, isPasswordReset = false, isEmailChange = false) => {
-  try {
-    // For development purposes, log OTP to console
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`OTP for ${email}: ${otp}`);
-    }
-
-    // Only send actual email in production to avoid email service restrictions
-    if (process.env.NODE_ENV === 'production') {
-      const transporter = getTransporter();
-      let emailContent;
-      
-      if (isEmailChange) {
-        emailContent = createEmailChangeEmailContent(email, otp);
-      } else if (isPasswordReset) {
-        emailContent = createPasswordResetEmailContent(email, otp);
-      } else {
-        emailContent = createOTPEmailContent(email, otp);
-      }
-      
-      const info = await transporter.sendMail(emailContent);
-      console.log(`Email sent to ${email}: ${info.messageId}`);
-    }
-    
-    return true;
-  } catch (error) {
-    // Log error but don't fail process
-    console.error('Error sending OTP email:', error.message);
-    return true;
+  // For development purposes, log OTP to console
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`OTP for ${email}: ${otp}`);
   }
+
+  // Without credentials there is nothing to send through, so fall back to the
+  // console log above rather than failing the caller.
+  if (!process.env.BREVO_API_KEY || !process.env.MAIL_FROM) {
+    console.warn(`BREVO_API_KEY/MAIL_FROM not set - skipping email to ${email}`);
+    return false;
+  }
+
+  let emailContent;
+
+  if (isEmailChange) {
+    emailContent = createEmailChangeEmailContent(otp);
+  } else if (isPasswordReset) {
+    emailContent = createPasswordResetEmailContent(otp);
+  } else {
+    emailContent = createOTPEmailContent(otp);
+  }
+
+  const messageId = await sendViaBrevo({ to: email, ...emailContent });
+  console.log(`Email sent to ${email}: ${messageId}`);
+
+  return true;
 };
 
 // Generate OTP and send email
