@@ -20,7 +20,7 @@ const getTransporter = () => {
 // Email content template for OTP
 const createOTPEmailContent = (email, otp) => {
   return {
-    from: `UniRush <fieryvikkesh@gmail.com>`,
+    from: `UniRush <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Your OTP for SNU UniRush Registration',
     html: `
@@ -43,7 +43,7 @@ const createOTPEmailContent = (email, otp) => {
 // Email content template for Password Reset OTP
 const createPasswordResetEmailContent = (email, otp) => {
   return {
-    from: `UniRush <fieryvikkesh@gmail.com>`,
+    from: `UniRush <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Your OTP for SNU UniRush Password Reset',
     html: `
@@ -66,7 +66,7 @@ const createPasswordResetEmailContent = (email, otp) => {
 // Email content template for Email Change Verification OTP
 const createEmailChangeEmailContent = (email, otp) => {
   return {
-    from: `UniRush <fieryvikkesh@gmail.com>`,
+    from: `UniRush <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Verify Your New Email Address for SNU UniRush',
     html: `
