@@ -93,15 +93,15 @@ https://unirush-dv6o.onrender.com/
 
 > **📸 Demo Screenshots Available**
 > 
+![image](https://github.com/user-attachments/assets/c365d28b-ab2e-49bb-91e1-4d94c75cdd99) 
+![image](https://github.com/user-attachments/assets/ddd9ad3b-e6d2-4120-9f84-5e24406ace49)
 ![Image](https://github.com/user-attachments/assets/cae79c64-092b-4394-b9c4-2648131a114a)
 ![Image](https://github.com/user-attachments/assets/01039d78-8c3c-4d0c-aa4c-b3acbe374df2)
 ![Image](https://github.com/user-attachments/assets/d15fcbd2-6c08-435d-a026-6b7db380e132)
-![Image](https://github.com/user-attachments/assets/1decdafb-0c33-4a21-b9ad-8f6cd4d06f63)
 ![Image](https://github.com/user-attachments/assets/db1e5ba0-23e8-4e0b-bbb2-526d6e0e62d8)
 ![Image](https://github.com/user-attachments/assets/ef1ab205-fabe-44b2-a8c0-6bcd0536b950)
 ![Image](https://github.com/user-attachments/assets/d51f0583-7224-4f6b-ba4c-0de9fefcf6c2)
 ![Image](https://github.com/user-attachments/assets/8b2b1399-3038-4b15-8b83-f241d0091ca6)
-![Image](https://github.com/user-attachments/assets/b80408b4-db05-4920-ab45-ed90e96fca53)
 ![Image](https://github.com/user-attachments/assets/cab58b6f-fa6f-4940-b3b7-0309321b5f4b)
 ![Image](https://github.com/user-attachments/assets/d1840bbe-0e50-4d1a-a0ea-79810b15e38a)
 
