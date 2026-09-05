@@ -6,7 +6,7 @@ import crypto from 'crypto';
 const getTransporter = () => {
  
   return nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
+    host: 'smtp.gmail.com',
     port: 587,
     secure: false,
     auth: {
