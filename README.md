@@ -4,7 +4,7 @@ A comprehensive full-scale business operation that facilitates small and medium 
 This scalable web application offers broad mobile and desktop GUI support for campus food and goods ordering, eliminating the need for students to commute across campus for purchases.
 
 ## Live Demo
-https://unirush-dv6o.onrender.com/
+https://unirush-dv6o.onrender.com/  (might take 50s to spin up the VM, runs on cold start)
 
 ## Video Demo
 ![](https://github.com/Vikkesh/UniRush-demo/blob/main/Screen%20Recording%202026-05-31%20192957.gif)
